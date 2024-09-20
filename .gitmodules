@@ -1,0 +1,6 @@
+[submodule "libs/flow_analysis"]
+	path = libs/flow_analysis
+	url = https://github.com/edbennett/flow_analysis
+[submodule "libs/format_multiple_errors"]
+	path = libs/format_multiple_errors
+	url = https://github.com/edbennett/format_multiple_errors
