@@ -1,10 +1,10 @@
-# %title
+# Meson spectroscopy in the Sp(4) gauge theory with three antisymmetric fermions&mdash;Analysis workflow
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13819431.svg)](https://doi.org/10.5281/zenodo.13819431)
 
 The workflow in this repository performs
 the analyses presented in the paper
-[%title][paper].
+[Meson spectroscopy in the Sp(4) gauge theory with three antisymmetric fermions][paper].
 
 ## Requirements
 
