@@ -1,0 +1,21 @@
+# Common temporary files
+scratch
+.DS_Store
+.#*
+*#*#
+*~
+*__pycache__
+**.pyc
+**.ipynb_checkpoints
+*.pdf
+cache/
+tmp/
+
+# Input and output data
+.snakemake/
+raw_data/
+intermediary_data/
+data_assets/
+assets/
+metadata/
+!*/.git_keep
