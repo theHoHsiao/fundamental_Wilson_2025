@@ -83,7 +83,7 @@ extending the analysis in this way
 has not been as fully tested as the rest of the workflow,
 and is not guaranteed to be trivial for someone not already familiar with the code.
 
-[datarelease]: TODO
+[datarelease]: https://doi.org/10.5281/zenodo.13819562
 [miniforge]: https://github.com/conda-forge/miniforge
 [paper]: TODO
 [snakemake]: https://snakemake.github.io
