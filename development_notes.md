@@ -31,3 +31,31 @@ These things are *not* committed:
 - Things to include in the paper go in a relevant subdirecotry in `assets`.
 - Things to include in the data release go in `data_assets`.
 - Intermediary things not to go anywhere go in `intermediary_data`
+
+## Adding code
+
+- Add one or more Python files to the `src` directory
+- Add rules to relevant modules in the `workflow/rules` directory
+  - I think we only need 3-4 modules for this work:
+    1. `gradient_flow.smk`
+    2. `mass_spectrum.smk`
+    3. (Possibly `pcac_mass.smk`?)
+    4. `output.smk`, to contain all the data presentation layer
+    5. Maybe one more module for intermediary fits that lead to the plots?
+       That could also be in `output.smk` however.
+- Add new Conda environments into `workflow/envs`
+  if the code has different requirements to existing rules.
+  (I'd anticipate we'll minimally need a `spectrum.yml` and a `tabulate.yml`,
+  in addition to the existing `flows.yml`.)
+
+To test individual steps,
+you can pass an output file to `snakemake`.
+For example,
+
+    snakemake --cores 1 --use-conda intermediary_data/Sp4b6.7nAS3mAS-1.055T48L24/w0_mean.csv
+
+will generate just the $w_0$ computation for the single ensemble specified.
+
+Once we start producing output assets,
+these want to be specified as `input:` arguments
+to a `rule all:` in the main `workflow/Snakefile`.
