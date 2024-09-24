@@ -21,3 +21,17 @@ rule w0:
         "../envs/flow_analysis.yml"
     shell:
         "python {input.script} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
+
+
+rule topological_charge:
+    params:
+        metadata=lookup(within=flow_metadata, query=metadata_query),
+    input:
+        data=f"raw_data/flows/{dir_template}/out_wflow",
+        script="src/top_charge.py",
+    output:
+        data=f"intermediary_data/{dir_template}/top_charge.csv",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python {input.script} {input.data} --output_file {output.data} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
