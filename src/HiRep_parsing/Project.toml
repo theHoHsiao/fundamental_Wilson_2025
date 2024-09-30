@@ -1,0 +1,10 @@
+name = "HiRepParsing"
+uuid = "c7cc7de0-aa5c-4db3-979c-e9fc59cba489"
+authors = ["Fabian Zierler <fabian.zierler@a1.net>"]
+version = "0.1.0"
+
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+Parsers = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
+ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
