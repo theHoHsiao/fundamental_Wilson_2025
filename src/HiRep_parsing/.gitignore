@@ -1,0 +1,5 @@
+*.csv
+*.pdf
+*.hdf5
+*.h5
+*.code-workspace

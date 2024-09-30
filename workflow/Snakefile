@@ -1,1 +1,6 @@
 include: "rules/gradient_flow.smk"
+include: "rules/package.smk"
+
+rule all:
+    input:
+        h5_data=expand("data_assets/correlators_{smearing}.h5", smearing=["wall", "smear"]),
