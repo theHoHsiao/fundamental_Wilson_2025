@@ -92,14 +92,30 @@ def process_ensemble(ensemble, metadata):
     result["delta_traj"] = get_cfg_separation(ensemble["configurations"])
     result["name"] = get_name(result, metadata)
     result["avg_plaq"] = basic_bootstrap(ensemble["plaquette"], get_rng(ensemble.name))
-    result["plaq_autocorr"] = exp_autocorrelation_fit(ensemble["plaquette"]) * result["delta_traj"]
+    result["plaq_autocorr"] = (
+        exp_autocorrelation_fit(ensemble["plaquette"]) * result["delta_traj"]
+    )
     return result
 
 
 def tabulate(results, skip_missing_names=True):
-    header = "\\begin{tabular}{ccccccccc}\n\\hline\\hline\n" + " & ".join(
-        ["Ensemble", "$N_t \\times N_s^3$", r"$\beta$", "$am_0$", r"$N_{\mathrm{cfg}}$", r"$\delta_{\mathrm{traj}}$", r"$\langle P \rangle$", r"$\tau_{\mathrm{exp}}^P$", "Comment"]
-    ) + " \\\\\n"
+    header = (
+        "\\begin{tabular}{ccccccccc}\n\\hline\\hline\n"
+        + " & ".join(
+            [
+                "Ensemble",
+                "$N_t \\times N_s^3$",
+                r"$\beta$",
+                "$am_0$",
+                r"$N_{\mathrm{cfg}}$",
+                r"$\delta_{\mathrm{traj}}$",
+                r"$\langle P \rangle$",
+                r"$\tau_{\mathrm{exp}}^P$",
+                "Comment",
+            ]
+        )
+        + " \\\\\n"
+    )
     footer = "\n\\hline\\hline\n\\end{tabular}"
     content = []
     previous_beta = None
@@ -109,19 +125,22 @@ def tabulate(results, skip_missing_names=True):
         if result["beta"] != previous_beta:
             previous_beta = result["beta"]
             content.append(r"\hline")
-        content.append(" & ".join(
-            [
-                result["name"],
-                f"${result['NT']} \\times {result['NS']}^3$",
-                f"{result['beta']}",
-                f"{result['mAS']}",
-                f"{result['Ncfg']}",
-                f"{result['delta_traj']}",
-                f"{result['avg_plaq']:.02uSL}",
-                f"{result['plaq_autocorr']:.02uSL}",
-                f"tbc",
-            ]
-        ) + r" \\")
+        content.append(
+            " & ".join(
+                [
+                    result["name"],
+                    f"${result['NT']} \\times {result['NS']}^3$",
+                    f"{result['beta']}",
+                    f"{result['mAS']}",
+                    f"{result['Ncfg']}",
+                    f"{result['delta_traj']}",
+                    f"{result['avg_plaq']:.02uSL}",
+                    f"{result['plaq_autocorr']:.02uSL}",
+                    "tbc",
+                ]
+            )
+            + r" \\"
+        )
     return header + "\n".join(content) + footer
 
 

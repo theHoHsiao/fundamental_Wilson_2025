@@ -26,11 +26,13 @@ def combine_df_ufloats(df):
             continue
         elif not column_name.endswith("_value"):
             result[column_name] = df[column_name]
-        elif not f"{column_name[:-5]}uncertainty" in df.columns:
+        elif f"{column_name[:-5]}uncertainty" not in df.columns:
             result[column_name] = df[column_name]
         else:
             result[column_name[:-6]] = df.apply(
-                lambda row: ufloat(row[column_name], row[f"{column_name[:-5]}uncertainty"]),
+                lambda row: ufloat(
+                    row[column_name], row[f"{column_name[:-5]}uncertainty"]
+                ),
                 axis=1,
             )
     return result
