@@ -10,7 +10,7 @@ rule package_smeared:
         files=glob("raw_data/corr/{smearing}/*"),
         script=f"{parsing_base}/scripts/write_meson_{{smearing}}.jl",
     output:
-        h5="data_assets/correlators_{smearing}.h5",
+        h5=protected("data_assets/correlators_{smearing}.h5"),
     conda:
         "../envs/hirep_parsing.yml"
     # Start packaging early,

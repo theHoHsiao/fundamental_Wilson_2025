@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
-import hashlib
 
-from flow_analysis.stats.bootstrap import basic_bootstrap
 from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 
 import h5py
 from more_itertools import pairwise
-from numpy.random import default_rng
 import pandas as pd
 import re
+
+from bootstrap import basic_bootstrap, get_rng
 
 
 def get_args():
@@ -74,13 +73,6 @@ def get_name(ensemble, metadata):
         raise ValueError("Too many ensembles found")
     else:
         return subset.ensemble_name.values[0]
-
-
-def get_rng(name):
-    filename = name.strip("/")
-    filename_hash = hashlib.md5(filename.encode("utf8")).digest()
-    seed = abs(int.from_bytes(filename_hash, "big"))
-    return default_rng(seed)
 
 
 def process_ensemble(ensemble, metadata):
