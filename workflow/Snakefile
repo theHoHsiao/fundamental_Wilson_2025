@@ -1,5 +1,6 @@
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
+include: "rules/mpcac.smk"
 
 rule all:
     input:
