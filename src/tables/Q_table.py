@@ -7,10 +7,13 @@ import pandas as pd
 
 from ..dump import combine_df_ufloats
 
+
 def get_args():
     parser = ArgumentParser()
 
-    parser.add_argument("data_filenames", nargs="+", help="Filename of flow log to analyse")
+    parser.add_argument(
+        "data_filenames", nargs="+", help="Filename of flow log to analyse"
+    )
     parser.add_argument("--output_file", type=FileType("w"), default="-")
     return parser.parse_args()
 

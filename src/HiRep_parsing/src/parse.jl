@@ -288,8 +288,8 @@ function parse_spectrum(
         end
         if !disconnected
             # If we only have one source at a time and possibly one configuration
-            # at a time: the method used to separate distinct measurements fails. 
-            # In this case the end of measurement on a given confiuration is 
+            # at a time: the method used to separate distinct measurements fails.
+            # In this case the end of measurement on a given confiuration is
             # signalled by a line that reads:
             # [MAIN][0]Configuration #N: analysed in [a sec b usec]
             if occursin("analysed", line)
@@ -407,8 +407,8 @@ function parse_spectrum_with_regexp(
         end
         if !disconnected
             # If we only have one source at a time and possibly one configuration
-            # at a time: the method used to separate distinct measurements fails. 
-            # In this case the end of measurement on a given confiuration is 
+            # at a time: the method used to separate distinct measurements fails.
+            # In this case the end of measurement on a given confiuration is
             # signaled by a line that reads:
             # [MAIN][0]Configuration #N: analysed in [a sec b usec]
             if occursin("analysed", line)
@@ -427,7 +427,7 @@ function parse_spectrum_with_regexp(
 end
 #################################################
 # Disconnected Measurements from /Disocnnected  #
-################################################# 
+#################################################
 function dilution(file)
     for line in eachline(file)
         if occursin("will be used", line)

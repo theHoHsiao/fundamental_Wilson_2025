@@ -6,7 +6,7 @@ using HiRepParsing
 using HDF5
 using ArgParse
 
-# This script parses the log files in the directory 'dir', and saves them as an hdf5-file 
+# This script parses the log files in the directory 'dir', and saves them as an hdf5-file
 # in the location provided by 'h5file'.
 
 # It creates a single hdf5 file for all log files. Measurements performed on the same ensemble
@@ -31,7 +31,7 @@ use_regex_parsing = false
 function main(dir, h5file)
 
     # I have defined a reference variable for the last saved ensemble.
-    # If the ensemble changes, we save also information on the lattice setup (coupling, size, bare masses) 
+    # If the ensemble changes, we save also information on the lattice setup (coupling, size, bare masses)
     # to the hdf5 file. This is controlled by the option 'setup', which writes the parameters to the file
     # if 'setup == true'
     ensemble0 = ""
@@ -53,7 +53,7 @@ function main(dir, h5file)
         name = first(splitext(basename(file)))
         types = ["source_N$(N1)_sink_N$N" for N = 0:10:N2]
 
-        # parse the ensemble name from the filename 
+        # parse the ensemble name from the filename
         # (again this depends strongly on the naming scheme)
         # Check if we need to write the lattice-setupparameters to hdf5 file
         ensemble = replace(name, "N$(N1)_N$(N2)" => "")
