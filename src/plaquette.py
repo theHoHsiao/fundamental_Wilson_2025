@@ -105,8 +105,8 @@ def tabulate(results, skip_missing_names=True):
                 "$am_0$",
                 r"$N_{\mathrm{cfg}}$",
                 r"$\delta_{\mathrm{traj}}$",
-                r"$\langle P \rangle$",
-                r"$\tau_{\mathrm{exp}}^P$",
+                r"$\langle \mathcal{P} \rangle$",
+                r"$\tau_{\mathrm{exp}}^{\mathcal{P}}$",
                 "Comment",
             ]
         )
