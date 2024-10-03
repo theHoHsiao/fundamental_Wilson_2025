@@ -44,11 +44,7 @@ def get_mass(ensemble):
     return ensemble["quarkmasses"][0]
 
 
-def get_cfg_separation(cfgs):
-    indices = [
-        int(re.match(".*n([0-9]+)$", filename.decode()).groups()[0])
-        for filename in cfgs
-    ]
+def get_index_separation(indices):
     separation = indices[1] - indices[0]
     for idx1, idx2 in pairwise(indices):
         if idx2 - idx1 != separation:
@@ -56,6 +52,14 @@ def get_cfg_separation(cfgs):
                 "Configurations have non-uniform separation or are out of order."
             )
     return separation
+
+
+def get_cfg_separation(cfgs):
+    indices = [
+        int(re.match(".*n([0-9]+)$", filename.decode()).groups()[0])
+        for filename in cfgs
+    ]
+    return get_index_separation(indices)
 
 
 def get_name(ensemble, metadata):
