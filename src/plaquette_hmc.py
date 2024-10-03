@@ -134,6 +134,9 @@ def plot(data):
         if len(reps) != 0:
             raise NotImplementedError("Only one rep per beta currently allowed.")
 
+        ax.text(
+            0.95, 0.95, f"$\\beta={beta}$", ha="right", va="top", transform=ax.transAxes
+        )
         ax.set_ylabel(r"$\langle \mathcal {P} \rangle$")
         ax.set_xlabel(f"$am_0^{{{rep.lower()}}}$")
         for datum in subset:
