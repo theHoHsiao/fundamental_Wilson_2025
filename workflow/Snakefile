@@ -7,12 +7,13 @@ include: "rules/plaquette.smk"
 plot_styles = "styles/paperdraft.mplstyle"
 plot_filetype = "pdf"
 
+h5_data = expand("data_assets/correlators_{smearing}.h5", smearing=["wall", "smear"])
 plots = expand(f"assets/plots/{{plot}}.{plot_filetype}", plot=["plaquette_phasediagram"])
 tables = expand(f"assets/tables/{{table}}.tex", table=["plaquette_table.tex", "gflow_table"])
 
 
 rule all:
     input:
-        h5_data=expand("data_assets/correlators_{smearing}.h5", smearing=["wall", "smear"]),
+        h5_data=h5_data,
         plots=plots,
         tables=tables,
