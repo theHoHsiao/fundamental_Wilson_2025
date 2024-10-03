@@ -1,6 +1,11 @@
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
 include: "rules/mpcac.smk"
+include: "rules/plaquette.smk"
+
+
+plot_styles = "styles/paperdraft.mplstyle"
+
 
 rule all:
     input:

@@ -1,8 +1,6 @@
 import pandas as pd
 
 
-plot_styles = "styles/paperdraft.mplstyle"
-
 pcac_metadata = pd.read_csv("metadata/pcac_meta.csv")
 metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
 
