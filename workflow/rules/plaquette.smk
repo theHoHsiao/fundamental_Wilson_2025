@@ -5,7 +5,7 @@ rule plot_smallvolume_plaquettes:
         data=glob("raw_data/hmc/out_hmc_8x8x8x8_*"),
         script="src/plaquette_hmc.py",
     output:
-        plot="assets/plots/plaquette_phasediagram.pdf",
+        plot="assets/plots/plaquette_phasediagram.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:

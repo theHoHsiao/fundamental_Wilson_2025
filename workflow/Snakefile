@@ -5,8 +5,11 @@ include: "rules/plaquette.smk"
 
 
 plot_styles = "styles/paperdraft.mplstyle"
+plot_filetype = "pdf"
 
+plots = expand(f"assets/plots/{{plot}}.{plot_filetype}", plot=["plaquette_phasediagram"])
 
 rule all:
     input:
         h5_data=expand("data_assets/correlators_{smearing}.h5", smearing=["wall", "smear"]),
+        plots=plots,
