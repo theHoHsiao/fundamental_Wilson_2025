@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
+
 import pandas as pd
 from uncertainties import ufloat, UFloat
 
@@ -36,3 +38,24 @@ def combine_df_ufloats(df):
                 axis=1,
             )
     return result
+
+
+def read_files(filenames):
+    search_keys = ["Q0_value", "w0_value", "mPCAC_value"]
+    data = defaultdict(list)
+    for filename in filenames:
+        file_data = pd.read_csv(filename)
+        for key in search_keys:
+            if key in file_data.columns:
+                data[key].append(file_data)
+                break
+        else:
+            raise ValueError(f"Unrecognised data in {filename}.")
+
+    data_frames = [pd.concat(obs_data) for obs_data in data.values()]
+
+    result = data_frames[0]
+    for df in data_frames[1:]:
+        result = result.join(df, on="ensemble_name")
+
+    return combine_df_ufloats(result)

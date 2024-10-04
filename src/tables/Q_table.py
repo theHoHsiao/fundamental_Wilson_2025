@@ -3,37 +3,18 @@
 from argparse import ArgumentParser, FileType
 
 import numpy as np
-import pandas as pd
 
-from ..dump import combine_df_ufloats
+from ..dump import read_files
 
 
 def get_args():
     parser = ArgumentParser()
 
     parser.add_argument(
-        "data_filenames", nargs="+", help="Filename of flow log to analyse"
+        "data_filenames", nargs="+", help="Filenames of w0 or Q result files"
     )
     parser.add_argument("--output_file", type=FileType("w"), default="-")
     return parser.parse_args()
-
-
-def read_files(filenames):
-    Q_data = []
-    w0_data = []
-    for filename in filenames:
-        data = pd.read_csv(filename)
-        if "Q0_value" in data.columns:
-            Q_data.append(data)
-        elif "w0_value" in data.columns:
-            w0_data.append(data)
-        else:
-            raise ValueError("Unrecognised data in {filename}.")
-
-    Q_df = pd.concat(Q_data)
-    w0_df = pd.concat(w0_data)
-
-    return pd.merge(Q_df, w0_df, on="ensemble_name")
 
 
 def format_table(df):
@@ -81,7 +62,7 @@ def format_table(df):
 
 def main():
     args = get_args()
-    data = combine_df_ufloats(read_files(args.data_filenames))
+    data = read_files(args.data_filenames)
     print(format_table(data.sort_values(by="ensemble_name")), file=args.output_file)
 
 
