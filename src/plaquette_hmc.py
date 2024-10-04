@@ -117,7 +117,7 @@ def get_plaquette(filename):
         plaquette
         for index, plaquette in plaquettes
         if index >= skip + result["plaq_therm"]
-        and index % int(result["plaq_tau_exp"].nominal_value) == 0
+        and index % max(1, int(result["plaq_tau_exp"].nominal_value)) == 0
     ]
     result["avg_plaquette"] = basic_bootstrap(plaquettes_subset, get_rng(filename))
     return result
