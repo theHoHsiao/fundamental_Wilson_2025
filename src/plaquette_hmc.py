@@ -101,7 +101,7 @@ def get_plaquette(filename):
                     )
             if line.startswith("[MAIN][0]Trajectory"):
                 trajectory = int(line.split()[1].strip("#.:"))
-            if line.startswith("[MAIN][0]Initial plaquette"):
+            if line.startswith("[MAIN][0]Initial plaquette") and not plaquettes:
                 plaquettes.append((0, float(line.split()[-1])))
             if line.startswith("[MAIN][0]Plaquette:"):
                 plaquettes.append((trajectory, float(line.split()[-1])))
