@@ -51,6 +51,7 @@ def get_args():
 def get_plaquette(filename):
     result = {"nAS": 0, "nF": 0, "nADJ": 0, "nS": 0}
     plaquettes = []
+    monomials_read = set()
     with open(filename, "r") as f:
         for line in f:
             if line.startswith("[SYSTEM][0]MACROS="):
@@ -75,6 +76,11 @@ def get_plaquette(filename):
                 result["Nz"] = Nz
                 result["Nt"] = Nt
             if line.startswith("[ACTION][10]Monomial"):
+                monomial_id = line.split()[1].strip(":")
+                if monomial_id in monomials_read:
+                    continue
+
+                monomials_read.add(monomial_id)
                 if "type = gauge," in line:
                     result["beta"] = float(line.split()[-1])
                 elif "type = rhmc" in line or "type = hmc" in line:
