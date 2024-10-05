@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from uncertainties import ufloat
 
-from bootstrap import get_rng, sample_bootstrap_1d
-from dump import dump_dict
+from .bootstrap import get_rng, sample_bootstrap_1d, bootstrap_finalize
+from .dump import dump_dict, dump_samples
 
 
 def get_args():

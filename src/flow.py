@@ -7,7 +7,7 @@ from flow_analysis.stats.bootstrap import bootstrap_finalize
 import numpy as np
 from uncertainties import ufloat
 
-from dump import dump_dict
+from .dump import dump_dict, dump_samples
 
 
 def get_args():

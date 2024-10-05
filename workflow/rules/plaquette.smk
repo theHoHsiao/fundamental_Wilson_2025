@@ -2,6 +2,8 @@ from glob import glob
 
 
 rule tabulate_largevolume_plaquettes:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data="data_assets/correlators_wall.h5",
         script="src/plaquette.py",
@@ -11,10 +13,12 @@ rule tabulate_largevolume_plaquettes:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python {input.script} {input.data} --metadata {input.metadata} --output_table {output.table}"
+        "python -m {params.module} {input.data} --metadata {input.metadata} --output_table {output.table}"
 
 
 rule plot_smallvolume_plaquettes:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=glob("raw_data/hmc/out_hmc_8x8x8x8_*"),
         script="src/plaquette_hmc.py",
@@ -23,4 +27,4 @@ rule plot_smallvolume_plaquettes:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python {input.script} {input.data} --plot_filename {output.plot} --plot_styles {plot_styles}"
+        "python -m {params.module} {input.data} --plot_filename {output.plot} --plot_styles {plot_styles}"

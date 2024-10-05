@@ -22,6 +22,8 @@ rule package_smeared:
 
 
 rule package_gflow:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         files=glob("raw_data/flows/*/out_wflow"),
         script="src/collate_flows_hdf5.py",
@@ -30,4 +32,4 @@ rule package_gflow:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python {input.script} {input.files} --h5_filename {output.h5}"
+        "python -m {params.module} {input.files} --h5_filename {output.h5}"

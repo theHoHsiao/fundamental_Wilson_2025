@@ -10,6 +10,7 @@ dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 
 rule w0:
     params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=flow_metadata, query=metadata_query),
     input:
         data=f"raw_data/flows/{dir_template}/out_wflow",
@@ -20,11 +21,12 @@ rule w0:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python {input.script} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
+        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
 
 
 rule topological_charge:
     params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=flow_metadata, query=metadata_query),
     input:
         data=f"raw_data/flows/{dir_template}/out_wflow",
@@ -34,7 +36,7 @@ rule topological_charge:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python {input.script} {input.data} --output_file {output.data} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --ensemble_name {params.metadata.ensemble_name}"
+        "python -m {params.module} {input.data} --output_file {output.data} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --ensemble_name {params.metadata.ensemble_name}"
 
 
 def all_flow_data(wildcards):

@@ -6,7 +6,7 @@ from flow_analysis.readers import readers
 from flow_analysis.measurements.Q import Q_fit
 from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 
-from dump import dump_dict
+from .dump import dump_dict
 
 
 def get_args():
