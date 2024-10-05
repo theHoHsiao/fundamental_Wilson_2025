@@ -19,3 +19,15 @@ rule package_smeared:
         10
     shell:
         "cd {parsing_base} && julia {params.script_file_name} ../../{params.file_dir} ../../{output.h5}"
+
+
+rule package_gflow:
+    input:
+        files=glob("raw_data/flows/*/out_wflow"),
+        script="src/collate_flows_hdf5.py",
+    output:
+        h5=protected("data_assets/flows.h5"),
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python {input.script} {input.files} --h5_filename {output.h5}"
