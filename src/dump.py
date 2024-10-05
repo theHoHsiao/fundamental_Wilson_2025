@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from uncertainties import ufloat, UFloat
 
+from .bootstrap import BootstrapSampleSet
+
 
 def dump_dict(data, filename):
     to_write = {}
@@ -71,3 +73,40 @@ def read_files(filenames):
         result = result.join(df, on="ensemble_name")
 
     return combine_df_ufloats(result)
+
+
+def read_sample_file(filename):
+    with open(filename, "r") as f:
+        raw_data = json.load(f)
+
+    data = {}
+    for k, v in raw_data.items():
+        if isinstance(v, list):
+            if len(v) == 0:
+                continue
+
+            data[k] = BootstrapSampleSet(v)
+        else:
+            data[k] = v
+
+    return data
+
+
+def read_sample_files(filenames):
+    results = {}
+    for filename in filenames:
+        file_data = read_sample_file(filename)
+        if file_data["ensemble_name"] not in results:
+            results[file_data["ensemble_name"]] = file_data
+        else:
+            target = results[file_data["ensemble_name"]]
+            for k, v in file_data.items():
+                if "samples" not in k and k in target:
+                    if target[k] != v:
+                        raise ValueError(f"Inconsistent metadata in {filename}")
+                elif "samples" in k and not v:
+                    continue
+                else:
+                    target[k] = v
+
+    return list(results.values())
