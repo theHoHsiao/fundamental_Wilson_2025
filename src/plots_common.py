@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
+from argparse import ArgumentParser
+
 import matplotlib.pyplot as plt
 from uncertainties import UFloat
+
+from .dump import read_sample_files
 
 
 def save_or_show(fig, filename=None):
@@ -46,3 +50,32 @@ def errorbar_ufloat(ax, x, y, *args, **kwargs):
         *args,
         **kwargs,
     )
+
+
+def get_standard_plot_args():
+    parser = ArgumentParser()
+
+    parser.add_argument(
+        "data_filenames",
+        nargs="+",
+        metavar="sample_filename",
+        help="Filenames of sample files containing data to plot",
+    )
+    parser.add_argument(
+        "--plot_file",
+        default=None,
+        help="Where to place the resulting plot. Default is to output to screen.",
+    )
+    parser.add_argument(
+        "--plot_styles",
+        default="styles/paperdraft.mplstyle",
+        help="Stylesheet to use for plots",
+    )
+    return parser.parse_args()
+
+
+def standard_plot_main(plot_function):
+    args = get_standard_plot_args()
+    plt.style.use(args.plot_styles)
+    data = read_sample_files(args.data_filenames)
+    save_or_show(plot_function(data), args.plot_file)
