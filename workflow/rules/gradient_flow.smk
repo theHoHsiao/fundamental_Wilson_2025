@@ -17,7 +17,7 @@ rule w0:
         script="src/flow.py",
     output:
         mean=f"intermediary_data/{dir_template}/w0_mean.csv",
-        samples=f"intermediary_data/{dir_template}/w0_samples.csv",
+        samples=f"intermediary_data/{dir_template}/w0_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:
