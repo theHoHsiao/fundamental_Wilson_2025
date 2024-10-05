@@ -6,7 +6,6 @@ import re
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-from uncertainties import ufloat
 
 from .bootstrap import get_rng, sample_bootstrap_1d, bootstrap_finalize
 from .dump import dump_dict, dump_samples
@@ -18,7 +17,11 @@ def get_args():
     )
 
     parser.add_argument("h5file", help="The file to read")
-    # parser.add_argument("--metadata", default=None, help="CSV of ensemble metadata")
+    parser.add_argument(
+        "--ensemble_name",
+        default=None,
+        help="Name of the ensemble to analyse. Only used for tagging output.",
+    )
     parser.add_argument(
         "--beta",
         type=float,
@@ -71,10 +74,16 @@ def get_args():
         help="Interval of trajectories to consider",
     )
     parser.add_argument(
-        "--output_file",
+        "--output_file_mean",
         type=FileType("w"),
         default="-",
-        help="Where to output the result. (Defaults to stdout.)",
+        help="Where to output the mean and uncertainty of mPCAC. (Defaults to stdout.)",
+    )
+    parser.add_argument(
+        "--output_file_samples",
+        type=FileType("w"),
+        default=None,
+        help="Where to output the bootstrap samples for mPCAC",
     )
     parser.add_argument(
         "--effmass_plot_file",
@@ -123,7 +132,9 @@ def get_g5_eff_mass(sampled_correlator):
     return np.mean(eff_mass_samples, axis=1), np.std(eff_mass_samples, axis=1)
 
 
-def get_eff_mass(ensemble, min_trajectory=None, max_trajectory=None, trajectory_step=1):
+def get_eff_mass_samples(
+    ensemble, min_trajectory=None, max_trajectory=None, trajectory_step=1
+):
     indices = np.asarray(
         [
             int(re.match(".*n([0-9]+)$", filename.decode()).groups()[0])
@@ -147,49 +158,41 @@ def get_eff_mass(ensemble, min_trajectory=None, max_trajectory=None, trajectory_
     # The factor g5_eff_mass / sinh(g5_eff_mass) is a correction to
     # make the derivative more closely match the continuum value.
     # See eq. B.14 of 1104.4301.
-    eff_mass_samples = (
+    return (
         g5_eff_mass
         / np.sinh(g5_eff_mass)
         * ((g5_g0g5_re_samples[:-2] - g5_g0g5_re_samples[2:]) / (4 * g5_samples[1:-1]))
     )
 
-    eff_mass_mean = np.mean(eff_mass_samples, axis=1)
-    eff_mass_error = np.std(eff_mass_samples, axis=1)
 
-    return [ufloat(mean, error) for mean, error in zip(eff_mass_mean, eff_mass_error)]
-
-
-def weighted_mean_by_uncertainty(results):
-    numerator = sum([result / result.std_dev**2 for result in results])
-    denominator = sum([1 / result.std_dev**2 for result in results])
-    mean = numerator / denominator
-    return mean
+def fit_eff_mass_samples(eff_mass_samples, plateau_start, plateau_end):
+    return eff_mass_samples[plateau_start:plateau_end].mean(axis=0)
 
 
-def fit_eff_mass(eff_mass, plaq_start, plaq_end):
-    return weighted_mean_by_uncertainty(eff_mass[plaq_start:plaq_end])
-
-
-def plot_eff_mass(eff_mass, fitted_mass, plot_filename):
+def plot_eff_mass(eff_mass_samples, fitted_mass, plot_filename):
     fig, ax = plt.subplots(layout="constrained")
 
+    num_timeslices = eff_mass_samples.shape[0]
+    eff_mass_value = eff_mass_samples.mean(axis=1)
+    eff_mass_uncertainty = eff_mass_samples.std(axis=1)
+
     ax.errorbar(
-        np.arange(len(eff_mass)),
-        [mass.nominal_value for mass in eff_mass],
-        [mass.std_dev for mass in eff_mass],
+        np.arange(num_timeslices) + 1,
+        eff_mass_value,
+        eff_mass_uncertainty,
         ls="none",
         marker=".",
         label="Effective mass",
         color="C0",
     )
     ax.plot(
-        [0, len(eff_mass) - 1],
+        [0, num_timeslices],
         [fitted_mass.nominal_value] * 2,
         color="C1",
         label="Fitted mass",
     )
     ax.fill_between(
-        [0, len(eff_mass) - 1],
+        [0, num_timeslices],
         [fitted_mass.nominal_value - fitted_mass.std_dev] * 2,
         [fitted_mass.nominal_value + fitted_mass.std_dev] * 2,
         color="C1",
@@ -210,24 +213,29 @@ def main():
     ensemble = get_correlators(
         data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
     )
-    eff_mass = get_eff_mass(
+    eff_mass_samples = get_eff_mass_samples(
         ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step
     )
-    fitted_mass = fit_eff_mass(eff_mass, args.plateau_start, args.plateau_end)
+    fitted_mass_samples = fit_eff_mass_samples(
+        eff_mass_samples, args.plateau_start, args.plateau_end
+    )
+    fitted_mass = bootstrap_finalize(fitted_mass_samples)
 
     if args.effmass_plot_file:
-        plot_eff_mass(eff_mass, fitted_mass, args.effmass_plot_file)
+        plot_eff_mass(eff_mass_samples, fitted_mass, args.effmass_plot_file)
 
-    dump_dict(
-        {
-            "beta": args.beta,
-            "mAS": args.mAS,
-            "Nt": args.Nt,
-            "Ns": args.Ns,
-            "mPCAC": fitted_mass,
-        },
-        args.output_file,
-    )
+    metadata = {
+        "ensemble_name": args.ensemble_name,
+        "beta": args.beta,
+        "mAS": args.mAS,
+        "Nt": args.Nt,
+        "Ns": args.Ns,
+    }
+    dump_dict({**metadata, "mPCAC": fitted_mass}, args.output_file_mean)
+    if args.output_file_samples:
+        dump_samples(
+            {**metadata, "mPCAC_samples": fitted_mass_samples}, args.output_file_samples
+        )
 
 
 if __name__ == "__main__":

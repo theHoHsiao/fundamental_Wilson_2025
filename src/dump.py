@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 from collections import defaultdict
+import json
 
+import numpy as np
 import pandas as pd
 from uncertainties import ufloat, UFloat
 
@@ -19,6 +21,16 @@ def dump_dict(data, filename):
             to_write[k] = v
 
     pd.DataFrame([to_write]).to_csv(filename, index=False)
+
+
+def dump_samples(data, fp):
+    to_write = {}
+    for k, v in data.items():
+        if isinstance(v, np.ndarray):
+            to_write[k] = list(v)
+        else:
+            to_write[k] = v
+    return json.dump(to_write, fp)
 
 
 def combine_df_ufloats(df):

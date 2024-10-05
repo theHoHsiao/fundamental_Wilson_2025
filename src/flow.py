@@ -91,7 +91,10 @@ def main():
         args.output_file_mean,
     )
     if args.output_file_samples:
-        print(",".join(map(str, w0_samples)), file=args.output_file_samples)
+        dump_samples(
+            {"ensemble_name": args.ensemble_name, "w0_samples": w0_samples},
+            args.output_file_samples,
+        )
 
 
 if __name__ == "__main__":
