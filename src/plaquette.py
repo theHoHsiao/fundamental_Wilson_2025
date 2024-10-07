@@ -9,7 +9,7 @@ from more_itertools import pairwise
 import pandas as pd
 import re
 
-from bootstrap import basic_bootstrap, get_rng
+from .bootstrap import basic_bootstrap, get_rng
 
 
 def get_args():
