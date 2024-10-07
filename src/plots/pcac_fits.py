@@ -19,10 +19,10 @@ def get_args():
         help="Filenames of PCAC mass results",
     )
     parser.add_argument(
-        "--fit_filenames",
+        "--linear_fit_filenames",
         nargs="+",
         metavar="fit_data_filename",
-        help="Filenames of PCAC mass results",
+        help="Filenames of PCAC mass results to fit linearly",
     )
     parser.add_argument(
         "--plot_filename",
@@ -47,7 +47,7 @@ def get_ylim(data):
     return 0, 1.1 * max([value.nominal_value for value in data.mPCAC])
 
 
-def plot(plot_data, fit_data):
+def plot(plot_data, linear_fit_data):
     fig, ax = plt.subplots(layout="constrained", figsize=(7, 3))
 
     ax.set_xlabel("$am_0$")
@@ -64,17 +64,24 @@ def plot(plot_data, fit_data):
         colour = f"C{beta_idx}"
         errorbar_ufloat(ax, subset.mAS, subset.mPCAC, color=colour, marker=".")
 
-        fit_subset = fit_data[fit_data.beta == beta]
-        if len(fit_subset) == 0:
-            continue
-        for order, dashes in (1, (5, 3)), (2, (2, 3)):
-            fit_result = np.polynomial.polynomial.Polynomial.fit(
-                fit_subset.mAS,
-                [v.nominal_value for v in fit_subset.mPCAC],
-                order,
-                w=[1 / v.std_dev for v in fit_subset.mPCAC],
+        linear_fit_subset = linear_fit_data[linear_fit_data.beta == beta]
+        if len(linear_fit_subset) > 0:
+            linear_fit_result = np.polynomial.polynomial.Polynomial.fit(
+                linear_fit_subset.mAS,
+                [v.nominal_value for v in linear_fit_subset.mPCAC],
+                1,
+                w=[1 / v.std_dev for v in linear_fit_subset.mPCAC],
             )
-            ax.plot(x_range, fit_result(x_range), color=colour, dashes=dashes)
+            ax.plot(x_range, linear_fit_result(x_range), color=colour, dashes=(5, 3))
+
+        if len(subset) >= 4:
+            quadratic_fit_result = np.polynomial.polynomial.Polynomial.fit(
+                subset.mAS,
+                [v.nominal_value for v in subset.mPCAC],
+                2,
+                w=[1 / v.std_dev for v in subset.mPCAC],
+            )
+            ax.plot(x_range, quadratic_fit_result(x_range), color=colour, dashes=(2, 3))
 
     return fig
 
@@ -83,7 +90,7 @@ def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     plot_data = read_files(args.data_filenames)
-    fit_data = read_files(args.fit_filenames)
+    fit_data = read_files(args.linear_fit_filenames)
     save_or_show(plot(plot_data, fit_data), args.plot_filename)
 
 

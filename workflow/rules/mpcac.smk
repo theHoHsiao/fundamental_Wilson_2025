@@ -32,22 +32,22 @@ def all_pcac_data(wildcards):
     ]
 
 
-def fittable_pcac_data(wildcards):
+def linear_fittable_pcac_data(wildcards):
     return [
         f"intermediary_data/{dir_template}/mpcac_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_PCAC_fits"] and row["use_in_main_plots"]
+        if row["use_in_linear_PCAC_fits"] and row["use_in_main_plots"]
     ]
 
 
 rule plot_pcac:
     input:
         plot_data=all_pcac_data,
-        fit_data=fittable_pcac_data,
+        linear_fit_data=linear_fittable_pcac_data,
         script="src/plots/pcac_fits.py",
     output:
         plot="assets/plots/mpcac_vs_m0.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m src.plots.pcac_fits {input.plot_data} --fit_filenames {input.fit_data} --plot_filename {output.plot} --plot_styles {plot_styles}"
+        "python -m src.plots.pcac_fits {input.plot_data} --linear_fit_filenames {input.linear_fit_data} --plot_filename {output.plot} --plot_styles {plot_styles}"
