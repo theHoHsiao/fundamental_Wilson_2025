@@ -58,7 +58,7 @@ def read_files(filenames):
     search_keys = ["Q0_value", "w0_value", "mPCAC_value"]
     data = defaultdict(list)
     for filename in filenames:
-        file_data = pd.read_csv(filename)
+        file_data = pd.read_csv(filename).set_index("ensemble_name")
         for key in search_keys:
             if key in file_data.columns:
                 data[key].append(file_data)
@@ -68,10 +68,7 @@ def read_files(filenames):
 
     data_frames = [pd.concat(obs_data) for obs_data in data.values()]
 
-    result = data_frames[0]
-    for df in data_frames[1:]:
-        result = result.join(df, on="ensemble_name")
-
+    result = pd.concat(data_frames, axis=1).reset_index()
     return combine_df_ufloats(result)
 
 
