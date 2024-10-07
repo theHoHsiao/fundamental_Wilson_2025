@@ -8,9 +8,28 @@ include: "rules/combined_plots.smk"
 plot_styles = "styles/paperdraft.mplstyle"
 plot_filetype = "pdf"
 
-h5_data = expand("data_assets/{datafile}.h5", datafile=["correlators_wall", "correlators_smear", "flows"])
-plots = expand(f"assets/plots/{{plot}}.{plot_filetype}", plot=["plaquette_phasediagram", "w0_vs_mpcac"])
-tables = expand(f"assets/tables/{{table}}.tex", table=["plaquette_table", "gflow_table"])
+h5_data = expand(
+    "data_assets/{datafile}.h5",
+    datafile=["correlators_wall", "correlators_smear", "flows"],
+)
+
+topology_history_plots = [
+    f"top_charge_history_{ensemble}"
+    for ensemble in [
+        "Sp4b6.7nAS3mAS-1.045T48L24",
+        "Sp4b6.7nAS3mAS-1.067T54L36",
+        "Sp4b6.8nAS3mAS-1.035T56L24",
+        "Sp4b6.8nAS3mAS-1.046T54L36",
+    ]
+]
+plots = expand(
+    f"assets/plots/{{plot}}.{plot_filetype}",
+    plot=["plaquette_phasediagram", "w0_vs_mpcac", *topology_history_plots],
+)
+tables = expand(
+    f"assets/tables/{{table}}.tex",
+    table=["plaquette_table", "gflow_table"],
+)
 
 
 rule all:
