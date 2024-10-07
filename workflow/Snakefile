@@ -24,7 +24,12 @@ topology_history_plots = [
 ]
 plots = expand(
     f"assets/plots/{{plot}}.{plot_filetype}",
-    plot=["plaquette_phasediagram", "w0_vs_mpcac", *topology_history_plots],
+    plot=[
+        "plaquette_phasediagram",
+        "w0_vs_mpcac",
+        "w0_flow_Sp4b6.8nAS3mAS-1.043T54L32",
+        *topology_history_plots,
+    ],
 )
 tables = expand(
     f"assets/tables/{{table}}.tex",

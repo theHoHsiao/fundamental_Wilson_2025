@@ -24,6 +24,21 @@ rule w0:
         "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_w0} --ensemble_name {params.metadata.ensemble_name}"
 
 
+rule w0_flow_plot:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=lookup(within=metadata, query=metadata_query),
+    input:
+        data=f"raw_data/flows/{dir_template}/out_wflow",
+        script="src/plot_w_flow.py",
+    output:
+        plot=f"assets/plots/w0_flow_{dir_template}.{{plot_filetype}}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {W0_threshold} --plot_file {output.plot} --plot_styles {plot_styles} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_w0}"
+
+
 rule topological_charge:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
