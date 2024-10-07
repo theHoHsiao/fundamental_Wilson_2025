@@ -1,14 +1,15 @@
 from functools import partial
 
 
-flow_metadata = pd.read_csv("metadata/flow_meta.csv")
+metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 
 
 def all_samples(wildcards, observables):
     return [
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
         for observable in observables
-        for row in flow_metadata.to_dict(orient="records")
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
     ]
 
 

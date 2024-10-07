@@ -1,6 +1,6 @@
 import pandas as pd
 
-flow_metadata = pd.read_csv("metadata/flow_meta.csv")
+metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
 
 W0_threshold = 0.28125
@@ -11,7 +11,7 @@ dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 rule w0:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-        metadata=lookup(within=flow_metadata, query=metadata_query),
+        metadata=lookup(within=metadata, query=metadata_query),
     input:
         data=f"raw_data/flows/{dir_template}/out_wflow",
         script="src/flow.py",
@@ -21,13 +21,13 @@ rule w0:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
+        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_w0} --ensemble_name {params.metadata.ensemble_name}"
 
 
 rule topological_charge:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-        metadata=lookup(within=flow_metadata, query=metadata_query),
+        metadata=lookup(within=metadata, query=metadata_query),
     input:
         data=f"raw_data/flows/{dir_template}/out_wflow",
         script="src/top_charge.py",
@@ -43,7 +43,8 @@ def all_flow_data(wildcards):
     return [
         f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
         for basename in ["w0_mean", "top_charge"]
-        for row in flow_metadata.to_dict(orient="records")
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
     ]
 
 
