@@ -2,9 +2,12 @@
 
 from argparse import ArgumentParser, FileType
 
+from flow_analysis.fit_forms import gaussian
 from flow_analysis.readers import readers
-from flow_analysis.measurements.Q import Q_fit
+from flow_analysis.measurements.Q import Q_fit, flat_bin_Qs
 from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+
+import numpy as np
 
 from .dump import dump_dict
 
@@ -37,9 +40,74 @@ def get_args():
         default="-",
         help="Where to output the results",
     )
+    parser.add_argument(
+        "--plot_file",
+        default=None,
+        help=(
+            "Where to place a plot of the history and histogram. "
+            "If omitted, no plot is generated."
+        ),
+    )
+    parser.add_argument(
+        "--plot_styles",
+        default="styles/paperdraft.mplstyle",
+        help="Stylesheet to use for plots",
+    )
     parser.add_argument("--ensemble_name", default=None, help="Name of ensemble")
 
     return parser.parse_args()
+
+
+def compute_stats(flows):
+    A, Q0, sigma_Q = Q_fit(flows, with_amplitude=True)
+    tau_exp_Q = exp_autocorrelation_fit(flows.Q_history())
+    return {
+        "Q_amplitude": A,
+        "Q0": Q0,
+        "sigma_Q": sigma_Q,
+        "tau_exp_Q": tau_exp_Q,
+    }
+
+
+def plot(flows, results, plot_filename, plot_styles):
+    import matplotlib.pyplot as plt
+
+    plt.style.use(plot_styles)
+    fig, (history_ax, histogram_ax) = plt.subplots(
+        1,
+        2,
+        sharey=True,
+        layout="constrained",
+        gridspec_kw={"width_ratios": [3, 1]},
+        figsize=(3.5, 2.5),
+    )
+
+    history_ax.step(flows.trajectories, flows.Q_history())
+
+    Q_range, Q_counts = flat_bin_Qs(flows.Q_history())
+    histogram_ax.step(Q_counts, Q_range - 0.5, label="Histogram")
+
+    range_min = min(Q_range) - 0.5
+    range_max = max(Q_range) + 0.5
+    histogram_ax.set_ylim(range_min, range_max)
+
+    smooth_Q_range = np.linspace(range_min, range_max, 1000)
+    histogram_ax.plot(
+        gaussian(
+            smooth_Q_range,
+            results["Q_amplitude"].nominal_value,
+            results["Q0"].nominal_value,
+            results["sigma_Q"].nominal_value,
+        ),
+        smooth_Q_range,
+        label="Fit",
+    )
+
+    history_ax.set_ylabel("$Q$")
+    history_ax.set_xlabel("Trajectory")
+    histogram_ax.set_xlabel("Count")
+
+    fig.savefig(plot_filename)
 
 
 def main():
@@ -49,18 +117,16 @@ def main():
         min_trajectory=args.min_trajectory,
         max_trajectory=args.max_trajectory,
     )
-    Q0, sigma_Q = Q_fit(flows)
-    tau_exp_Q = exp_autocorrelation_fit(flows.Q_history())
-
+    results = compute_stats(flows)
     dump_dict(
         {
             "ensemble_name": args.ensemble_name,
-            "Q0": Q0,
-            "sigma_Q": sigma_Q,
-            "tau_exp_Q": tau_exp_Q,
+            **results,
         },
         args.output_file,
     )
+    if args.plot_file:
+        plot(flows, results, args.plot_file, args.plot_styles)
 
 
 if __name__ == "__main__":
