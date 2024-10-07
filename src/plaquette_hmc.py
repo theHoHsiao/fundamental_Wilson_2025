@@ -54,7 +54,9 @@ def get_plaquette(filename):
     monomials_read = set()
     with open(filename, "r") as f:
         for line in f:
-            if line.startswith("[SYSTEM][0]MACROS="):
+            if line.startswith("[SYSTEM][0]MACROS=") or line.startswith(
+                "[MAIN][0]Compiled with macros"
+            ):
                 if "-DREPR_ANTISYMMETRIC" in line:
                     rep = "AS"
                 if "-DREPR_SYMMETRIC" in line:
