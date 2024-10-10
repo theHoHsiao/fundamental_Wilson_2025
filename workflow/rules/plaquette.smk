@@ -7,7 +7,7 @@ rule tabulate_largevolume_plaquettes:
     input:
         data="data_assets/correlators_wall.h5",
         script="src/plaquette.py",
-        metadata="metadata/flow_meta.csv",
+        metadata="metadata/ensemble_metadata.csv",
     output:
         table="assets/tables/plaquette_table.tex",
     conda:
