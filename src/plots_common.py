@@ -18,23 +18,21 @@ def save_or_show(fig, filename=None):
         plt.show()
 
 
+def is_ufloat_sequence(seq):
+    if hasattr(seq, "values"):
+        return isinstance(seq.values[0], UFloat)
+    return isinstance(seq[0], UFloat)
+
+
 def errorbar_ufloat(ax, x, y, *args, **kwargs):
-    if (
-        isinstance(x[0], UFloat)
-        or hasattr(x, "values")
-        and isinstance(x.values[0], UFloat)
-    ):
+    if is_ufloat_sequence(x):
         x_values = [xi.nominal_value for xi in x]
         x_errors = [xi.std_dev for xi in x]
     else:
         x_values = x
         x_errors = None
 
-    if (
-        isinstance(y[0], UFloat)
-        or hasattr(y, "values")
-        and isinstance(y.values[0], UFloat)
-    ):
+    if is_ufloat_sequence(y):
         y_values = [yi.nominal_value for yi in y]
         y_errors = [yi.std_dev for yi in y]
     else:
