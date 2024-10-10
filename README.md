@@ -12,6 +12,35 @@ the analyses presented in the paper
 - [Snakemake][snakemake], which may be installed using Conda
 - LaTeX, for example, from [TeX Live][texlive]
 
+### Notes for Apple silicon users
+
+This project uses Julia,
+installed via a Conda environment,
+which at time of writing is not available on Apple silicon.
+To automate the environment setup process for the workflow,
+an x86-64 version of Snakemake must be used.
+
+To set this up,
+create a new x86-64 Conda environment with Snakemake,
+using
+
+``` shellsession
+conda create -n snakemake_x86 -c conda-forge -c bioconda snakemake
+```
+
+then activate this and install Mamba.
+At time of writing,
+Snakemake is not compatible with versions of Mamba from 2.0.0 onwards,
+so this version must be constrained for the Conda integration to work correctly:
+
+``` shellsession
+conda activate snakemake_x86
+conda install -c conda-forge 'mamba<2.0.0'
+```
+
+With this environment active,
+the steps below involving running `snakemake` should work correctly.
+
 ## Setup
 
 1. Install the dependencies above.
