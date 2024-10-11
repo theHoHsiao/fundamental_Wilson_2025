@@ -5,6 +5,7 @@ import numpy as np
 
 from flow_analysis.stats.bootstrap import (
     basic_bootstrap,
+    sample_bootstrap_0d,
     sample_bootstrap_1d,
     bootstrap_finalize,
     BOOTSTRAP_SAMPLE_COUNT,
@@ -62,6 +63,7 @@ class BootstrapSampleSet:
 
 __all__ = [
     "basic_bootstrap",
+    "sample_bootstrap_0d",
     "sample_bootstrap_1d",
     "bootstrap_finalize",
     "BOOTSTRAP_SAMPLE_COUNT",

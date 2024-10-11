@@ -30,6 +30,8 @@ def dump_samples(data, fp):
     for k, v in data.items():
         if isinstance(v, np.ndarray):
             to_write[k] = list(v)
+        elif isinstance(v, np.int64):
+            to_write[k] = int(v)
         else:
             to_write[k] = v
     return json.dump(to_write, fp)
@@ -55,7 +57,13 @@ def combine_df_ufloats(df):
 
 
 def read_files(filenames):
-    search_keys = ["Q0_value", "w0_value", "mPCAC_value"]
+    search_keys = [
+        "Q0_value",
+        "w0_value",
+        "mPCAC_value",
+        "avg_plaquette_value",
+        "plaq_autocorr_value",
+    ]
     data = defaultdict(list)
     for filename in filenames:
         file_data = pd.read_csv(filename).set_index("ensemble_name")
