@@ -21,10 +21,10 @@ def plot(data):
             if "w0_samples" not in datum or "mPCAC_samples" not in datum:
                 continue
 
-            w0_value = datum["w0_samples"].mean()
+            w0_value = datum["w0_samples"].mean
             w0_error = datum["w0_samples"].std()
             w0_mPCAC = datum["w0_samples"] * datum["mPCAC_samples"]
-            to_plot.append((w0_value, w0_error, w0_mPCAC.mean(), w0_mPCAC.std()))
+            to_plot.append((w0_value, w0_error, w0_mPCAC.mean, w0_mPCAC.std()))
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)
         ax.errorbar(

@@ -77,16 +77,16 @@ def read_sample_file(filename):
         raw_data = json.load(f)
 
     data = {}
-    for k, v in raw_data.items():
-        if isinstance(v, list):
-            if len(v) == 0:
-                continue
+    samples_fields = [key for key in raw_data if key.endswith("_samples")]
+    for samples_field in samples_fields:
+        value_field = samples_field.replace("_samples", "_value")
+        if value_field not in raw_data:
+            raise ValueError("Bootstrap samples with no central value")
+        data[samples_field] = BootstrapSampleSet(
+            raw_data.pop(value_field), raw_data.pop(samples_field)
+        )
 
-            data[k] = BootstrapSampleSet(v)
-        else:
-            data[k] = v
-
-    return data
+    return {**data, **raw_data}
 
 
 def read_sample_files(filenames):
