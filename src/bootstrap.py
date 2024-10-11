@@ -21,36 +21,43 @@ def get_rng(name):
 
 
 class BootstrapSampleSet:
-    def __init__(self, samples):
-        assert len(samples) == BOOTSTRAP_SAMPLE_COUNT
-        self.samples = np.asarray(samples)
+    def __init__(self, mean, samples):
+        self.mean = mean
+
+        if samples is None or len(samples) == 0:
+            self.samples = np.ones(BOOTSTRAP_SAMPLE_COUNT) * np.nan
+        elif len(samples) != BOOTSTRAP_SAMPLE_COUNT:
+            raise ValueError("Bootstrap sample count mismatch")
+        else:
+            self.samples = np.asarray(samples)
 
     def __mul__(self, other):
         if isinstance(other, BootstrapSampleSet):
-            return BootstrapSampleSet(self.samples * other.samples)
+            return BootstrapSampleSet(
+                self.mean * other.mean, self.samples * other.samples
+            )
         else:
-            return BootstrapSampleSet(self.samples * other)
+            return BootstrapSampleSet(self.mean * other, self.samples * other)
 
     def __truediv__(self, other):
         if isinstance(other, BootstrapSampleSet):
-            return BootstrapSampleSet(self.samples / other.samples)
+            return BootstrapSampleSet(
+                self.mean / other.mean, self.samples / other.samples
+            )
         else:
-            return BootstrapSampleSet(self.samples / other)
+            return BootstrapSampleSet(self.mean / other, self.samples / other)
 
     def __repr__(self):
-        return f"BootstrapSampleSet[mean={self.mean()}, std={self.std()}]"
+        return f"BootstrapSampleSet[mean={self.mean}, std={self.std()}]"
 
     def __format__(self, format_spec):
         return f"{{:{format_spec}}}".format(self.to_ufloat())
-
-    def mean(self):
-        return self.samples.mean()
 
     def std(self):
         return self.samples.std()
 
     def to_ufloat(self):
-        return ufloat(self.mean(), self.std())
+        return ufloat(self.mean, self.std())
 
 
 __all__ = [

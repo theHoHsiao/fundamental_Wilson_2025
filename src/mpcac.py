@@ -234,7 +234,12 @@ def main():
     dump_dict({**metadata, "mPCAC": fitted_mass}, args.output_file_mean)
     if args.output_file_samples:
         dump_samples(
-            {**metadata, "mPCAC_samples": fitted_mass_samples}, args.output_file_samples
+            {
+                **metadata,
+                "mPCAC_samples": fitted_mass_samples,
+                "mPCAC_value": fitted_mass.nominal_value,
+            },
+            args.output_file_samples,
         )
 
 

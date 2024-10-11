@@ -92,7 +92,11 @@ def main():
     )
     if args.output_file_samples:
         dump_samples(
-            {"ensemble_name": args.ensemble_name, "w0_samples": w0_samples},
+            {
+                "ensemble_name": args.ensemble_name,
+                "w0_value": w0_mean.nominal_value,
+                "w0_samples": w0_samples,
+            },
             args.output_file_samples,
         )
 
