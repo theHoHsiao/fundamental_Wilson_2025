@@ -18,7 +18,7 @@ def get_args():
 
 def tabulate(results, skip_missing_names=True):
     header = (
-        "\\begin{tabular}{ccccccccc}\n\\hline\\hline\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|}\n\\hline\\hline\n"
         + " & ".join(
             [
                 "Ensemble",
