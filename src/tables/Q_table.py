@@ -36,8 +36,8 @@ def format_table(df):
 
         if np.isnan(row.w0.nominal_value) or np.isnan(row.w0.std_dev):
             w0 = r"\cdots"
-            num_configs = r"$\cdots"
-            trajectory_step = r"$\cdots"
+            num_configs = r"$\cdots$"
+            trajectory_step = r"$\cdots$"
         else:
             w0 = f"{row.w0:.02uSL}"
             num_configs = row.num_configs
