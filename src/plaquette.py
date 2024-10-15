@@ -6,12 +6,12 @@ from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 
 import h5py
 import logging
-from more_itertools import pairwise
 import re
 
 from .bootstrap import sample_bootstrap_0d, bootstrap_finalize, get_rng
 from .dump import dump_dict, dump_samples
 from .read_hdf5 import get_ensemble
+from .utils import get_index_separation
 
 
 def get_args():
@@ -96,16 +96,6 @@ def get_mass(ensemble):
     if len(ensemble["quarkmasses"]) != 1:
         raise NotImplementedError("This code expects one fermion mass per ensemble.")
     return ensemble["quarkmasses"][0]
-
-
-def get_index_separation(indices):
-    separation = indices[1] - indices[0]
-    for idx1, idx2 in pairwise(indices):
-        if idx2 - idx1 != separation:
-            raise NotImplementedError(
-                "Configurations have non-uniform separation or are out of order."
-            )
-    return separation
 
 
 def get_cfg_indices(cfgs, start_cfg=0, end_cfg=None, cfg_step=1):

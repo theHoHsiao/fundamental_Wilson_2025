@@ -9,8 +9,8 @@ import matplotlib.ticker as ticker
 import numpy as np
 
 from .bootstrap import basic_bootstrap, get_rng
-from .plaquette import get_index_separation
 from .plots_common import save_or_show
+from .utils import get_index_separation
 
 
 def get_skip(plaquettes):
