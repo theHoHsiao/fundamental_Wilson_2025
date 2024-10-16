@@ -1,8 +1,10 @@
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
 include: "rules/mpcac.smk"
+include: "rules/mass.smk"
 include: "rules/plaquette.smk"
 include: "rules/combined_plots.smk"
+include: "rules/spectrum_plots.smk"
 
 
 plot_styles = "styles/paperdraft.mplstyle"
@@ -34,7 +36,7 @@ plots = expand(
 )
 tables = expand(
     f"assets/tables/{{table}}.tex",
-    table=["plaquette_table", "gflow_table"],
+    table=["plaquette_table", "gflow_table", "mass_table"],
 )
 
 
