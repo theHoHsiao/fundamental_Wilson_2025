@@ -53,8 +53,8 @@ rule fit_mass_GEVP: # for rhoE1 only
         data="data_assets/correlators_smear.h5",
         script="src/mass_gevp.py",
     output:
-        mean=f"intermediary_data/{dir_template}/GEVP_meson_rhoE1_mean.csv",
-        samples=f"intermediary_data/{dir_template}/GEVP_meson_rhoE1_samples.json",
+        mean=f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_mean.csv",
+        samples=f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -79,7 +79,7 @@ def smear_mass_data(wildcards):
 
 def gevp_mass_data(wildcards):
     return [
-        f"intermediary_data/{dir_template}/GEVP_meson_rhoE1_mean.csv".format(**row)
+        f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
         if row["use_smear"]
