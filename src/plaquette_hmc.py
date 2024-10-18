@@ -178,7 +178,7 @@ def plot(data):
             0.95, 0.95, f"$\\beta={beta}$", ha="right", va="top", transform=ax.transAxes
         )
         ax.set_ylabel(r"$\langle \mathcal {P} \rangle$")
-        ax.set_xlabel(f"$am_0^{{{rep.lower()}}}$")
+        ax.set_xlabel("$am_0$")
         for datum in subset:
             ax.errorbar(
                 [datum[f"m{rep}"]],
