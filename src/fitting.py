@@ -179,7 +179,7 @@ def fit_cosh_booerr(C_boot, TI, TF):
         a_sample[n] = gv.mean(a[0])
         chi2_dof[n] = chi2 / dof
 
-    return E_sample, a_sample, chi2_dof[-1]
+    return E_sample, a_sample, chi2_dof.mean()
 
 
 def fit_exp_booerr(C_boot, TI, TF):
@@ -223,7 +223,7 @@ def fit_exp_booerr(C_boot, TI, TF):
         a_sample[n] = gv.mean(a[0])
         chi2_dof[n] = chi2 / dof
 
-    return E_sample, a_sample, chi2_dof[-1]
+    return E_sample, a_sample, chi2_dof.mean()
 
 
 def sim_model(T, tmin, tmax, tp):
@@ -318,7 +318,7 @@ def fit_cosh_simultaneous(Css, Csp, TI, TF, GLB_T):
         b_sample[n] = gv.mean(b[0])
         chi2_dof[n] = chi2 / dof
 
-    return E_sample, b_sample, chi2_dof[-1]
+    return E_sample, b_sample, chi2_dof.mean()
 
 
 def sim_coshsinh_fit(C1, C2, T, ti, tf):
@@ -404,7 +404,7 @@ def fit_exp_simultaneous(Css, Csp, TI, TF, GLB_T):
     E_err = E_sample[0:-1].std()
     b_err = b_sample[0:-1].std()
 
-    return E_sample, E_err, chi2_dof[-1], b_sample, b_err
+    return E_sample, E_err, chi2_dof.mean(), b_sample, b_err
 
 
 def meson_M2(X, LAT_A, Y):
@@ -424,7 +424,7 @@ def meson_M2(X, LAT_A, Y):
 
     size = np.shape(X)[0]
 
-    M = np.mat(np.zeros(shape=(size, size)))
+    M = np.asmatrix(np.zeros(shape=(size, size)))
 
     for a in range(size):
         M[a, a] = Cov(a, a)
@@ -442,7 +442,7 @@ def meson_M2(X, LAT_A, Y):
 
         (a, b, c) = pars
 
-        V = np.mat(Cf_vector())
+        V = np.asmatrix(Cf_vector())
 
         return V * M_I * V.T
 
@@ -451,7 +451,7 @@ def meson_M2(X, LAT_A, Y):
         for i in range(size):
             V[i] = Y[i, -1] - func((X[i, -1], LAT_A[i, -1]), a, b, c)
 
-        V = np.mat(V)
+        V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
         print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars - 1))))
@@ -465,7 +465,7 @@ def meson_M2(X, LAT_A, Y):
         for n_pars in range(num_pars):
             fit_val[n_pars, N] = res.x[n_pars]
 
-    X2 = nor_X2(res.x[0], res.x[1], res.x[2])
+    X2 = nor_X2(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
 
     return fit_val, X2 / (size - num_pars - 1)
 
@@ -486,7 +486,7 @@ def meson_beta(X, Y):
 
     size = np.shape(X)[0]
 
-    M = np.mat(np.zeros(shape=(size, size)))
+    M = np.asmatrix(np.zeros(shape=(size, size)))
 
     for a in range(size):
         M[a, a] = Cov(a, a)
@@ -503,7 +503,7 @@ def meson_beta(X, Y):
 
         (a, b) = pars
 
-        V = np.mat(Cf_vector())
+        V = np.asmatrix(Cf_vector())
 
         return V * M_I * V.T
 
@@ -512,7 +512,7 @@ def meson_beta(X, Y):
         for i in range(size):
             V[i] = Y[i, -1] - func(X[i, -1], a, b)
 
-        V = np.mat(V)
+        V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
         print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
@@ -526,7 +526,7 @@ def meson_beta(X, Y):
         for n_pars in range(num_pars):
             fit_val[n_pars, N] = res.x[n_pars]
 
-    X2 = nor_X2(res.x[0], res.x[1])
+    X2 = nor_X2(fit_val[0].mean(), fit_val[1].mean())
 
     return fit_val, X2 / (size - num_pars)
 
@@ -547,7 +547,7 @@ def meson_beta_quad(X, Y):
 
     size = np.shape(X)[0]
 
-    M = np.mat(np.zeros(shape=(size, size)))
+    M = np.asmatrix(np.zeros(shape=(size, size)))
 
     for a in range(size):
         M[a, a] = Cov(a, a)
@@ -564,7 +564,7 @@ def meson_beta_quad(X, Y):
 
         (a, b, c) = pars
 
-        V = np.mat(Cf_vector())
+        V = np.asmatrix(Cf_vector())
 
         return V * M_I * V.T
 
@@ -573,7 +573,7 @@ def meson_beta_quad(X, Y):
         for i in range(size):
             V[i] = Y[i, -1] - func(X[i, -1], a, b, c)
 
-        V = np.mat(V)
+        V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
         print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
@@ -587,6 +587,6 @@ def meson_beta_quad(X, Y):
         for n_pars in range(num_pars):
             fit_val[n_pars, N] = res.x[n_pars]
 
-    X2 = nor_X2(res.x[0], res.x[1], res.x[2])
+    X2 = nor_X2(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
 
     return fit_val, X2 / (size - num_pars)

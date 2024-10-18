@@ -107,3 +107,23 @@ def read_sample_files(filenames):
                     target[k] = v
 
     return list(results.values())
+
+
+def read_extp_sample_files(filenames):
+    results = {}
+    for filename in filenames:
+        file_data = read_sample_file(filename)
+        if file_data["channel"] not in results:
+            results[file_data["channel"]] = file_data
+        else:
+            target = results[file_data["channel"]]
+            for k, v in file_data.items():
+                if "samples" not in k and k in target:
+                    if target[k] != v:
+                        raise ValueError(f"Inconsistent metadata in {filename}")
+                elif "samples" in k and not v:
+                    continue
+                else:
+                    target[k] = v
+
+    return list(results.values())
