@@ -56,14 +56,32 @@ def combine_df_ufloats(df):
     return result
 
 
+def drop_duplicate_columns(df):
+    # Verify that duplicated columns are consistent
+    for column in set(df.columns):
+        column_subset = df[column]
+        if hasattr(column_subset, "columns"):
+            # Column is name duplicated, as we get more than one column when using it
+            first_column = column_subset.iloc[:, 0]
+            for column_idx in range(1, len(column_subset.columns)):
+                if not (first_column == column_subset.iloc[:, column_idx]).all():
+                    raise ValueError(f"Inconsistent data for column {column}.")
+
+    # Drop the duplicated columns
+    return df.loc[:, ~df.columns.duplicated()].copy()
+
+
 def read_files(filenames):
+    # A key on which to search; only one is needed per file type.
+    # (More will create duplicates.)
     search_keys = [
         "Q0_value",
         "w0_value",
         "mPCAC_value",
         "avg_plaquette_value",
-        "plaq_autocorr_value",
+        "ps_mass_value",
     ]
+
     data = defaultdict(list)
     for filename in filenames:
         file_data = pd.read_csv(filename).set_index("ensemble_name")
@@ -76,7 +94,7 @@ def read_files(filenames):
 
     data_frames = [pd.concat(obs_data) for obs_data in data.values()]
 
-    result = pd.concat(data_frames, axis=1).reset_index()
+    result = drop_duplicate_columns(pd.concat(data_frames, axis=1).reset_index())
     return combine_df_ufloats(result)
 
 
