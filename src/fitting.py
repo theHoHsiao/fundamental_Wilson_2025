@@ -136,8 +136,10 @@ def fit_cosh_std(C_boot, TI, TF, GLB_T):
     return gv.mean(E[0]), gv.sdev(E[0]), chi2 / dof
 
 
-def fit_cosh_booerr(C_boot, TI, TF):
+def fit_cosh_booerr(C, TI, TF):
     # This function fits the correlators with a cosh function
+
+    C_boot = C.samples
 
     num_sample = C_boot.shape[0]
     GLB_T = C_boot.shape[1]
@@ -145,15 +147,12 @@ def fit_cosh_booerr(C_boot, TI, TF):
     def func(t, a, M):
         return a * a * M * (np.exp(-M * t) + np.exp(-M * (GLB_T - t))) / 2
 
-    x0, pcov = curve_fit(func, np.arange(TI, TF), C_boot[-1, TI:TF])
+    x0, pcov = curve_fit(func, np.arange(TI, TF), C.mean[0, TI:TF])
     # print("p0=", x0)
 
     p0 = dict(
         {"log(a)": np.array([np.log(abs(x0[0]))]), "log(dE)": np.array([np.log(x0[1])])}
     )
-
-    # load the ensamble info
-    num_sample = C_boot.shape[0]
 
     # print("A* ( exp[-mt] + exp[-m(T-t)] ) fitting time region ", TI, "to", TF, ": ")
 
@@ -167,29 +166,36 @@ def fit_cosh_booerr(C_boot, TI, TF):
     for n in range(num_sample):
         CORR = dict(Gab=gv.gvar(C_boot[n], cov))
 
-        pp = False
-
-        if n == num_sample - 1:
-            pp = True
-
         E, a, chi2, dof = fit_correlator_without_bootstrap(
-            CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=pp
+            CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         chi2_dof[n] = chi2 / dof
 
-    return E_sample, a_sample, chi2_dof.mean()
+    CORR = dict(Gab=gv.gvar(C.mean[0], cov))
+    E_mean, a_mean, chi2, dof = fit_correlator_without_bootstrap(
+        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=True
+    )
+
+    return (
+        gv.mean(E_mean[0]),
+        gv.mean(a_mean[0]),
+        chi2 / dof,
+        E_sample,
+        a_sample,
+    )
 
 
-def fit_exp_booerr(C_boot, TI, TF):
+def fit_exp_booerr(C, TI, TF):
     # This function fits the correlators with a cosh function
-    # the error is estimated by the bootstrap distribution width ( 68% )
+
+    C_boot = C.samples
 
     def func(t, a, M):
         return a * a * M * (np.exp(-M * t)) / 2
 
-    x0, pcov = curve_fit(func, np.arange(TI, TF), C_boot[-1, TI:TF])
+    x0, pcov = curve_fit(func, np.arange(TI, TF), C.mean[0, TI:TF])
     # print("p0=", x0)
 
     p0 = dict(
@@ -211,19 +217,25 @@ def fit_exp_booerr(C_boot, TI, TF):
     for n in range(num_sample):
         CORR = dict(Gab=gv.gvar(C_boot[n], cov))
 
-        pp = False
-
-        if n == num_sample - 1:
-            pp = True
-
         E, a, chi2, dof = fit_correlator_without_bootstrap(
-            CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=pp
+            CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=False
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         chi2_dof[n] = chi2 / dof
 
-    return E_sample, a_sample, chi2_dof.mean()
+    CORR = dict(Gab=gv.gvar(C.mean[0], cov))
+    E_mean, a_mean, chi2, dof = fit_correlator_without_bootstrap(
+        CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=True
+    )
+
+    return (
+        gv.mean(E_mean[0]),
+        gv.mean(a_mean[0]),
+        chi2 / dof,
+        E_sample,
+        a_sample,
+    )
 
 
 def sim_model(T, tmin, tmax, tp):
