@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-from ..dump import read_sample_files, read_extp_sample_files
+from ..dump import read_sample_files
 from ..plots_common import save_or_show
 from argparse import ArgumentParser
 import numpy as np
@@ -212,7 +212,7 @@ def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
-    fit_pars = read_extp_sample_files(args.fit_parameters)
+    fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
     fig, fig2 = plot(data, fit_pars)
     save_or_show(fig, args.plot_file)
     save_or_show(fig2, args.plot_file2)
