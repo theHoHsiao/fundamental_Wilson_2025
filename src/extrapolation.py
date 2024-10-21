@@ -4,7 +4,7 @@ from . import fitting
 from argparse import ArgumentParser, FileType
 import numpy as np
 from .dump import dump_dict, dump_samples
-from .bootstrap import bootstrap_finalize
+from uncertainties import ufloat
 
 
 def get_args():
@@ -49,19 +49,22 @@ def prepare_data(data, args):
         if np.isnan((datum[f"smear_{args.channel}_mass_samples"].samples).mean()):
             continue
 
-        m_ps_sqr.append(
-            (datum["w0_samples"].samples * datum["smear_ps_mass_samples"].samples) ** 2
+        w0 = np.append(datum["w0_samples"].samples, datum["w0_samples"].mean)
+        m_ps = np.append(
+            datum["smear_ps_mass_samples"].samples, datum["smear_ps_mass_samples"].mean
+        )
+        m_ch = np.append(
+            datum[f"smear_{args.channel}_mass_samples"].samples,
+            datum[f"smear_{args.channel}_mass_samples"].mean,
         )
 
-        m_ch_sqr.append(
-            (
-                datum["w0_samples"].samples
-                * datum[f"smear_{args.channel}_mass_samples"].samples
-            )
-            ** 2
-        )
+        print(m_ps.shape)
 
-        lat_a.append(1 / datum["w0_samples"].samples)
+        m_ps_sqr.append((w0 * m_ps) ** 2)
+
+        m_ch_sqr.append((w0 * m_ch) ** 2)
+
+        lat_a.append(1 / w0)
 
     return np.array(m_ps_sqr), np.array(lat_a), np.array(m_ch_sqr)
 
@@ -74,9 +77,10 @@ def main():
 
     fit_val, X2 = fitting.meson_M2(m_ps_sqr, lat_a, m_ch_sqr)
 
-    fit_M = bootstrap_finalize(fit_val[0])
-    fit_L = bootstrap_finalize(fit_val[1])
-    fit_W = bootstrap_finalize(fit_val[2])
+    print(fit_val[0, 0:-1])
+    fit_M = ufloat(fit_val[0, -1], fit_val[0, 0:-1].std())
+    fit_L = ufloat(fit_val[1, -1], fit_val[1, 0:-1].std())
+    fit_W = ufloat(fit_val[2, -1], fit_val[2, 0:-1].std())
 
     dump_dict(
         {
@@ -93,12 +97,12 @@ def main():
         dump_samples(
             {
                 "channel": f"m_{args.channel}",
-                f"M_{args.channel}_samples": fit_val[0],
-                f"M_{args.channel}_value": fit_val[0].mean(),
-                f"L_{args.channel}_samples": fit_val[1],
-                f"L_{args.channel}_value": fit_val[1].mean(),
-                f"W_{args.channel}_samples": fit_val[2],
-                f"W_{args.channel}_value": fit_val[2].mean(),
+                f"M_{args.channel}_samples": fit_val[0, 0:-1],
+                f"M_{args.channel}_value": fit_val[0, -1],
+                f"L_{args.channel}_samples": fit_val[1, 0:-1],
+                f"L_{args.channel}_value": fit_val[1, -1],
+                f"W_{args.channel}_samples": fit_val[2, 0:-1],
+                f"W_{args.channel}_value": fit_val[2, -1],
             },
             args.output_file_samples,
         )

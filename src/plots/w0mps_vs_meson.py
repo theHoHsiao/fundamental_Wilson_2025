@@ -143,6 +143,7 @@ def plot(data, fit_pars):
                 xerr=x_errors,
                 yerr=y_errors,
                 ls="none",
+                alpha=0.7,
                 color=beta_color(beta),
                 marker=marker,
                 label=f"{beta}",

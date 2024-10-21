@@ -4,8 +4,9 @@ from argparse import ArgumentParser, FileType
 import re
 import h5py
 import numpy as np
+from uncertainties import ufloat
 
-from .bootstrap import get_rng, sample_bootstrap_1d, bootstrap_finalize
+from .bootstrap import get_rng, sample_bootstrap_1d, BootstrapSampleSet
 from .dump import dump_dict, dump_samples
 from . import extract
 
@@ -147,6 +148,7 @@ def fold_correlators(C):
 
 def bin_multi_source(ensemble, ch, args):
     tmp_bin = []
+    tmp_bin_mean = []
     for n in range(args.num_source):
         tmp_bin.append(
             get_correlator_samples(
@@ -156,9 +158,23 @@ def bin_multi_source(ensemble, ch, args):
                 args.min_trajectory,
                 args.max_trajectory,
                 args.trajectory_step,
-            )
+            ).samples
         )
-    return np.array(tmp_bin).mean(axis=0)
+        tmp_bin_mean.append(
+            get_correlator_samples(
+                ensemble[n],
+                ch,
+                args.N_sink,
+                args.min_trajectory,
+                args.max_trajectory,
+                args.trajectory_step,
+            ).mean
+        )
+
+    mean = np.zeros(shape=(1, args.Nt))
+    mean[0] = np.array(tmp_bin_mean).mean(axis=0)
+
+    return BootstrapSampleSet(mean, np.array(tmp_bin).mean(axis=0))
 
 
 def get_correlator_samples(
@@ -183,7 +199,10 @@ def get_correlator_samples(
 
     C = ensemble[f"source_N100_sink_N{N_sink}"][f"TRIPLET {ch}"][:, filtered_indices]
 
-    return sample_bootstrap_1d(C.T, get_rng(ensemble.name))
+    # return sample_bootstrap_1d(C.T, get_rng(ensemble.name))
+    return BootstrapSampleSet(
+        C.mean(axis=1), sample_bootstrap_1d(C.T, get_rng(ensemble.name))
+    )
 
 
 def channel_tags(ch):
@@ -201,13 +220,24 @@ def ch_extraction(ensemble, args):
     CHs = channel_tags(args.channel)
 
     tmp_bin = []
+    mean = []
     for j in range(len(CHs)):
-        tmp_bin.append(bin_multi_source(ensemble, CHs[j], args))
+        tmp_bin.append(
+            fold_correlators(bin_multi_source(ensemble, CHs[j], args).samples)
+            * args.Ns**3
+        )
+        mean.append(
+            fold_correlators(bin_multi_source(ensemble, CHs[j], args).mean) * args.Ns**3
+        )
 
-    corr = np.array(tmp_bin).mean(axis=0) * args.Ns**3
+    corr = BootstrapSampleSet(
+        np.array(mean).mean(axis=0), np.array(tmp_bin).mean(axis=0)
+    )
+
+    # print(corr)
 
     m_tmp, a_tmp, chi2 = extract.meson_mass_sample(
-        fold_correlators(corr), args.plateau_start, args.plateau_end
+        corr, args.plateau_start, args.plateau_end
     )
 
     return m_tmp, a_tmp, chi2
@@ -230,8 +260,8 @@ def main():
 
     m_tmp, a_tmp, chi2 = ch_extraction(ensemble, args)
 
-    fitted_m = bootstrap_finalize(m_tmp)
-    fitted_a = bootstrap_finalize(a_tmp)
+    fitted_m = ufloat(m_tmp.mean, m_tmp.samples.std())
+    fitted_a = ufloat(a_tmp.mean, a_tmp.samples.std())
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -253,10 +283,10 @@ def main():
         dump_samples(
             {
                 **metadata,
-                f"smear_{args.channel}_mass_samples": m_tmp,
-                f"smear_{args.channel}_mass_value": fitted_m.nominal_value,
-                f"smear_{args.channel}_matrix_element_samples": a_tmp,
-                f"smear_{args.channel}_matrix_element_value": fitted_a.nominal_value,
+                f"smear_{args.channel}_mass_samples": m_tmp.samples,
+                f"smear_{args.channel}_mass_value": m_tmp.mean,
+                f"smear_{args.channel}_matrix_element_samples": a_tmp.samples,
+                f"smear_{args.channel}_matrix_element_value": a_tmp.mean,
             },
             args.output_file_samples,
         )

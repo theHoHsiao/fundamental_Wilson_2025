@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
-import re
 import h5py
 import numpy as np
+from uncertainties import ufloat
 
-from .bootstrap import (
-    get_rng,
-    sample_bootstrap_1d,
-    bootstrap_finalize,
-    BOOTSTRAP_SAMPLE_COUNT,
-)
+from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT
 from .dump import dump_dict, dump_samples
 from . import extract, fitting
+from .mass_smear import bin_multi_source, get_correlators
 
 
 def get_args():
@@ -116,37 +112,6 @@ def get_args():
     return parser.parse_args()
 
 
-def get_correlators(
-    ensembles, beta=None, mAS=None, Nt=None, Ns=None, num_source=None, epsilon=None
-):
-    candidate_ensembles = []
-    for ensemble in ensembles.values():
-        if beta is not None and ensemble.get("beta", {(): None})[()] != beta:
-            continue
-        if mAS is not None and (
-            len(masses := ensemble.get("quarkmasses", [])) != 1 or masses[0] != mAS
-        ):
-            continue
-        if Nt is not None and ensemble.get("lattice", [None])[0] != Nt:
-            continue
-        if Ns is not None and tuple(ensemble.get("lattice", [None])[-3:]) != (
-            Ns,
-            Ns,
-            Ns,
-        ):
-            continue
-        if epsilon is not None and ensemble.get("Wuppertal_eps_anti", [])[0] != epsilon:
-            continue
-        candidate_ensembles.append(ensemble)
-    if num_source is not None and len(candidate_ensembles) != num_source:
-        print(candidate_ensembles, ensemble.get("Wuppertal_eps_anti", [])[0])
-        raise ValueError("Did not uniquely identify one ensemble.")
-    elif len(candidate_ensembles) == 0:
-        raise ValueError("No ensembles found.")
-    else:
-        return candidate_ensembles
-
-
 def fold_correlators(C):
     return (C + np.roll(np.flip(C, axis=1), 1, axis=1)) / 2
 
@@ -159,51 +124,11 @@ def fold_correlators_cross(C):
     return C_fold
 
 
-def bin_multi_source(ensemble, ch, args):
-    tmp_bin = []
-    for n in range(args.num_source):
-        tmp_bin.append(
-            get_correlator_samples(
-                ensemble[n],
-                ch,
-                args.N_sink,
-                args.min_trajectory,
-                args.max_trajectory,
-                args.trajectory_step,
-            )
-        )
-    return np.array(tmp_bin).mean(axis=0)
-
-
-def get_correlator_samples(
-    ensemble,
-    ch,
-    N_sink,
-    min_trajectory=None,
-    max_trajectory=None,
-    trajectory_step=1,
-):
-    indices = np.asarray(
-        [
-            int(re.match(".*n([0-9]+)$", filename.decode()).groups()[0])
-            for filename in ensemble["configurations"]
-        ]
-    )
-    filtered_indices = (
-        ((indices >= min_trajectory) if min_trajectory is not None else True)
-        & ((indices <= max_trajectory) if max_trajectory is not None else True)
-        & ((indices - (min_trajectory or 0)) % trajectory_step == 0)
-    )
-
-    C = ensemble[f"source_N100_sink_N{N_sink}"][f"TRIPLET {ch}"][:, filtered_indices]
-
-    return sample_bootstrap_1d(C.T, get_rng(ensemble.name))
-
-
 def get_meson_Cmat_mix_N(ensemble, args, ch1, ch2):
     mixing_channel = [ch1, ch2]
 
     mat = np.zeros(shape=(BOOTSTRAP_SAMPLE_COUNT, args.Nt, 2, 2))
+    mat_mean = np.zeros(shape=(1, args.Nt, 2, 2))
 
     for a in range(2):
         for b in range(2):
@@ -211,17 +136,21 @@ def get_meson_Cmat_mix_N(ensemble, args, ch1, ch2):
                 for j in range(1):
                     if a == b:
                         ch = mixing_channel[a]
-                        mat[:, :, a + i, b + j] = fold_correlators(
-                            bin_multi_source(ensemble, ch, args)
-                        )
+                        corr_set = bin_multi_source(ensemble, ch, args)
+                        mat[:, :, a + i, b + j] = fold_correlators(corr_set.samples)
+                        mat_mean[:, :, a + i, b + j] = fold_correlators(corr_set.mean)
 
                     else:
                         ch = mixing_channel[a] + "_" + mixing_channel[b] + "_re"
+                        corr_set = bin_multi_source(ensemble, ch, args)
                         mat[:, :, a + i, b + j] = -fold_correlators_cross(
-                            bin_multi_source(ensemble, ch, args)
+                            corr_set.samples
+                        )
+                        mat_mean[:, :, a + i, b + j] = -fold_correlators_cross(
+                            corr_set.mean
                         )
 
-    return mat
+    return mat_mean, mat
 
 
 def get_Cmat_VTmix(ensemble, args):
@@ -232,12 +161,16 @@ def get_Cmat_VTmix(ensemble, args):
     ]
 
     tmp_bin = []
+    mean_bin = []
     for i in range(len(CHs)):
         ch = CHs[i]
 
-        tmp_bin.append(get_meson_Cmat_mix_N(ensemble, args, ch[0], ch[1]))
+        mean, samples = get_meson_Cmat_mix_N(ensemble, args, ch[0], ch[1])
 
-    return np.array(tmp_bin).mean(axis=0)
+        mean_bin.append(mean)
+        tmp_bin.append(samples)
+
+    return np.array(mean_bin).mean(axis=0), np.array(tmp_bin).mean(axis=0)
 
 
 def main():
@@ -247,8 +180,8 @@ def main():
     if args.plateau_start == 0 and args.plateau_end == 0:
         print("no plateau to fit...")
         m_tmp, a_tmp, chi2 = (
-            np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan,
-            np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan,
+            BootstrapSampleSet(np.nan, np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan),
+            BootstrapSampleSet(np.nan, np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan),
             0,
         )
 
@@ -264,16 +197,22 @@ def main():
             epsilon=args.epsilon,
         )
 
-        Cmat = get_Cmat_VTmix(ensemble, args)
+        Cmat_mean, Cmat = get_Cmat_VTmix(ensemble, args)
 
-        LAM, VEC = extract.GEVP_fixT(Cmat, args.GEVP_t0, args.GEVP_t0 + 1, args.Nt)
-
-        m_tmp, a_tmp, chi2 = fitting.fit_exp_booerr(
-            LAM[:, :, 1], args.plateau_start, args.plateau_end
+        LAM = extract.GEVP_fixT(
+            Cmat_mean, Cmat, args.GEVP_t0, args.GEVP_t0 + 1, args.Nt
         )
 
-    fitted_m = bootstrap_finalize(m_tmp)
-    fitted_a = bootstrap_finalize(a_tmp)
+        E_mean, A_mean, chi2, E_samples, A_samples = fitting.fit_exp_booerr(
+            LAM[1], args.plateau_start, args.plateau_end
+        )
+        m_tmp = BootstrapSampleSet(E_mean, E_samples)
+        a_tmp = BootstrapSampleSet(
+            A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples)
+        )
+
+    fitted_m = ufloat(m_tmp.mean, m_tmp.samples.std())
+    fitted_a = ufloat(a_tmp.mean, a_tmp.samples.std())
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -295,10 +234,10 @@ def main():
         dump_samples(
             {
                 **metadata,
-                "smear_rhoE1_mass_samples": m_tmp,
-                "smear_rhoE1_mass_value": fitted_m.nominal_value,
-                "smear_rhoE1_matrix_element_samples": a_tmp,
-                "smear_rhoE1_matrix_element_value": fitted_a.nominal_value,
+                "smear_rhoE1_mass_samples": m_tmp.samples,
+                "smear_rhoE1_mass_value": m_tmp.mean,
+                "smear_rhoE1_matrix_element_samples": a_tmp.samples,
+                "smear_rhoE1_matrix_element_value": a_tmp.mean,
             },
             args.output_file_samples,
         )
