@@ -77,3 +77,20 @@ def standard_plot_main(plot_function):
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
     save_or_show(plot_function(data), args.plot_file)
+
+
+def beta_color(b):
+    return {
+        6.6: "k",
+        6.65: "r",
+        6.7: "b",
+        6.75: "m",
+        6.8: "g",
+        6.9: "tab:brown",
+    }.get(b, b)
+
+
+def ch_tag(ch):
+    return {
+        "rhoE1": r"v^\prime",
+    }.get(ch, ch)
