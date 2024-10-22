@@ -175,7 +175,7 @@ def fit_cosh_booerr(C, TI, TF):
 
     CORR = dict(Gab=gv.gvar(C.mean[0], cov))
     E_mean, a_mean, chi2, dof = fit_correlator_without_bootstrap(
-        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=True
+        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
     )
 
     return (
@@ -226,7 +226,7 @@ def fit_exp_booerr(C, TI, TF):
 
     CORR = dict(Gab=gv.gvar(C.mean[0], cov))
     E_mean, a_mean, chi2, dof = fit_correlator_without_bootstrap(
-        CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=True
+        CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=False
     )
 
     return (
@@ -290,11 +290,10 @@ def fit_correlator_simultaneous(
     return E, a, b, chi2, dof
 
 
-def fit_cosh_simultaneous(Css, Csp, TI, TF, GLB_T):
+def fit_cosh_simultaneous(Corr_ss, Corr_sp, TI, TF, GLB_T):
     # This function fits the correlators with cosh x sinh functions
 
-    x0 = sim_coshsinh_fit(Csp.mean(axis=0), Css.mean(axis=0), GLB_T, TI, TF)
-
+    x0 = sim_coshsinh_fit(Corr_sp.mean[0], Corr_ss.mean[0], GLB_T, TI, TF)
     p0 = dict(
         {
             "log(a)": np.array([np.log(abs(x0[0]))]),
@@ -304,6 +303,9 @@ def fit_cosh_simultaneous(Css, Csp, TI, TF, GLB_T):
     )
 
     # load the ensamble info
+    Css = Corr_ss.samples
+    Csp = Corr_sp.samples
+
     num_sample = Css.shape[0]
 
     E_sample = np.zeros(num_sample)
@@ -317,20 +319,23 @@ def fit_cosh_simultaneous(Css, Csp, TI, TF, GLB_T):
     for n in range(num_sample):
         CORR = dict(Gab=gv.gvar(Csp[n], cov_sp), Gaa=gv.gvar(Css[n], cov_ss))
 
-        pp = False
-
-        if n == num_sample - 1:
-            pp = True
-
         E, a, b, chi2, dof = fit_correlator_simultaneous(
-            CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=pp
+            CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         b_sample[n] = gv.mean(b[0])
         chi2_dof[n] = chi2 / dof
 
-    return E_sample, b_sample, chi2_dof.mean()
+    CORR = dict(
+        Gab=gv.gvar(Corr_ss.mean[0], cov_sp), Gaa=gv.gvar(Corr_ss.mean[0], cov_ss)
+    )
+
+    E_mean, a_mean, b_mean, chi2, dof = fit_correlator_simultaneous(
+        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
+    )
+
+    return gv.mean(E_mean[0]), gv.mean(b_mean[0]), chi2 / dof, E_sample, b_sample
 
 
 def sim_coshsinh_fit(C1, C2, T, ti, tf):
