@@ -27,17 +27,18 @@ def meson_mass_sample(C_tmp, TI, TF):
 
 def meson_decay_sample(Css, Csp, TI, TF):
     # load the ensamble info
-    GLB_T = np.shape(Css)[1]
+    GLB_T = np.shape(Css.mean)[1]
 
-    (
-        E_fit,
-        b_fit,
-        X2,
-    ) = fitting.fit_cosh_simultaneous(Css, Csp, TI, TF, GLB_T)
+    (E_mean, A_mean, X2, E_samples, A_samples) = fitting.fit_cosh_simultaneous(
+        Css, Csp, TI, TF, GLB_T
+    )
+
+    E_fit = BootstrapSampleSet(E_mean, E_samples)
+    A_fit = BootstrapSampleSet(A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples))
 
     return (
         E_fit,
-        b_fit / np.sqrt(E_fit),
+        A_fit,
         round(X2, 2),
     )
 
