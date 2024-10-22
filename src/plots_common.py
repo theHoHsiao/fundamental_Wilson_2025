@@ -12,7 +12,7 @@ def save_or_show(fig, filename=None):
     if filename == "/dev/null":
         plt.close(fig)
     elif filename is not None:
-        fig.savefig(filename)
+        fig.savefig(filename, transparent=True)
         plt.close(fig)
     else:
         plt.show()
