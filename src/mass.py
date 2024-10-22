@@ -4,8 +4,9 @@ from argparse import ArgumentParser, FileType
 import re
 import h5py
 import numpy as np
+from uncertainties import ufloat
 
-from .bootstrap import get_rng, sample_bootstrap_1d, bootstrap_finalize
+from .bootstrap import get_rng, sample_bootstrap_1d, BootstrapSampleSet
 from .dump import dump_dict, dump_samples
 from . import extract
 
@@ -140,7 +141,9 @@ def get_correlator_samples(
 
     C = ensemble["TRIPLET"][f"{ch}"][:, filtered_indices]
 
-    return sample_bootstrap_1d(C.T, get_rng(ensemble.name))
+    return BootstrapSampleSet(
+        C.mean(axis=1), sample_bootstrap_1d(C.T, get_rng(ensemble.name))
+    )
 
 
 def channel_tags(ch):
@@ -154,30 +157,32 @@ def channel_tags(ch):
 
 
 def ps_extraction(ensemble, args):
-    corr_aa = (
-        get_correlator_samples(
-            ensemble,
-            "g5",
-            args.min_trajectory,
-            args.max_trajectory,
-            args.trajectory_step,
-        )
-        * args.Ns**3
+    corr_aa = get_correlator_samples(
+        ensemble,
+        "g5",
+        args.min_trajectory,
+        args.max_trajectory,
+        args.trajectory_step,
     )
 
-    corr_ab = (
-        get_correlator_samples(
-            ensemble,
-            "g5_g0g5_re",
-            args.min_trajectory,
-            args.max_trajectory,
-            args.trajectory_step,
-        )
-        * args.Ns**3
+    aa_mean = np.zeros(shape=(1, args.Nt))
+    aa_mean[0] = corr_aa.mean * args.Ns**3
+    C_aa = BootstrapSampleSet(aa_mean, corr_aa.samples * args.Ns**3)
+
+    corr_ab = get_correlator_samples(
+        ensemble,
+        "g5_g0g5_re",
+        args.min_trajectory,
+        args.max_trajectory,
+        args.trajectory_step,
     )
+
+    ab_mean = np.zeros(shape=(1, args.Nt))
+    ab_mean[0] = corr_ab.mean * args.Ns**3
+    C_ab = BootstrapSampleSet(ab_mean, corr_ab.samples * args.Ns**3)
 
     m_tmp, a_tmp, chi2 = extract.meson_decay_sample(
-        corr_aa, corr_ab, args.plateau_start, args.plateau_end
+        C_aa, C_ab, args.plateau_start, args.plateau_end
     )
     return m_tmp, a_tmp, chi2
 
@@ -186,6 +191,7 @@ def ch_extraction(ensemble, args):
     CHs = channel_tags(args.channel)
 
     tmp_bin = []
+    tmp_bin_mean = []
     for j in range(len(CHs)):
         tmp_bin.append(
             get_correlator_samples(
@@ -194,10 +200,24 @@ def ch_extraction(ensemble, args):
                 args.min_trajectory,
                 args.max_trajectory,
                 args.trajectory_step,
-            )
+            ).samples
+            * args.Ns**3
+        )
+        tmp_bin_mean.append(
+            get_correlator_samples(
+                ensemble,
+                CHs[j],
+                args.min_trajectory,
+                args.max_trajectory,
+                args.trajectory_step,
+            ).mean
+            * args.Ns**3
         )
 
-    corr = np.array(tmp_bin).mean(axis=0) * args.Ns**3
+    mean = np.zeros(shape=(1, args.Nt))
+    mean[0] = np.array(tmp_bin_mean).mean(axis=0)
+
+    corr = BootstrapSampleSet(mean, np.array(tmp_bin).mean(axis=0))
 
     m_tmp, a_tmp, chi2 = extract.meson_mass_sample(
         corr, args.plateau_start, args.plateau_end
@@ -221,8 +241,8 @@ def main():
     else:
         m_tmp, a_tmp, chi2 = ch_extraction(ensemble, args)
 
-    fitted_m = bootstrap_finalize(m_tmp)
-    fitted_a = bootstrap_finalize(a_tmp)
+    fitted_m = ufloat(m_tmp.mean, m_tmp.samples.std())
+    fitted_a = ufloat(a_tmp.mean, a_tmp.samples.std())
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -244,8 +264,8 @@ def main():
         dump_samples(
             {
                 **metadata,
-                f"{args.channel}_mass_samples": m_tmp,
-                f"{args.channel}_matrix_element_samples": a_tmp,
+                f"{args.channel}_mass_samples": m_tmp.samples,
+                f"{args.channel}_matrix_element_samples": a_tmp.samples,
             },
             args.output_file_samples,
         )
