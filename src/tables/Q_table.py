@@ -36,8 +36,8 @@ def format_table(df):
 
         if np.isnan(row.w0.nominal_value) or np.isnan(row.w0.std_dev):
             w0 = r"\cdots"
-            num_configs = r"$\cdots"
-            trajectory_step = r"$\cdots"
+            num_configs = r"$\cdots$"
+            trajectory_step = r"$\cdots$"
         else:
             w0 = f"{row.w0:.02uSL}"
             num_configs = row.num_configs
@@ -63,7 +63,17 @@ def format_table(df):
 def main():
     args = get_args()
     data = read_files(args.data_filenames)
-    print(format_table(data.sort_values(by="ensemble_name")), file=args.output_file)
+    print(
+        format_table(
+            data.sort_values(
+                by="ensemble_name",
+                key=lambda col: col.apply(
+                    lambda e: ((elems := e.split("M"))[0], int(elems[1]))
+                ),
+            )
+        ),
+        file=args.output_file,
+    )
 
 
 if __name__ == "__main__":

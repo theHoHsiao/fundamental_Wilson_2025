@@ -9,6 +9,7 @@ import numpy as np
 
 from .bootstrap import get_rng, sample_bootstrap_1d, bootstrap_finalize
 from .dump import dump_dict, dump_samples
+from .read_hdf5 import get_ensemble
 
 
 def get_args():
@@ -98,32 +99,6 @@ def get_args():
     return parser.parse_args()
 
 
-def get_correlators(ensembles, beta=None, mAS=None, Nt=None, Ns=None):
-    candidate_ensembles = []
-    for ensemble in ensembles.values():
-        if beta is not None and ensemble.get("beta", {(): None})[()] != beta:
-            continue
-        if mAS is not None and (
-            len(masses := ensemble.get("quarkmasses", [])) != 1 or masses[0] != mAS
-        ):
-            continue
-        if Nt is not None and ensemble.get("lattice", [None])[0] != Nt:
-            continue
-        if Ns is not None and tuple(ensemble.get("lattice", [None])[-3:]) != (
-            Ns,
-            Ns,
-            Ns,
-        ):
-            continue
-        candidate_ensembles.append(ensemble)
-    if len(candidate_ensembles) > 1:
-        raise ValueError("Did not uniquely identify one ensemble.")
-    elif len(candidate_ensembles) == 0:
-        raise ValueError("No ensembles found.")
-    else:
-        return candidate_ensembles[0]
-
-
 def get_g5_eff_mass(sampled_correlator):
     eff_mass_samples = np.arccosh(
         (sampled_correlator[:-2] + sampled_correlator[2:])
@@ -210,9 +185,7 @@ def main():
     plt.style.use(args.plot_styles)
 
     data = h5py.File(args.h5file, "r")
-    ensemble = get_correlators(
-        data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
-    )
+    ensemble = get_ensemble(data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns)
     eff_mass_samples = get_eff_mass_samples(
         ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step
     )

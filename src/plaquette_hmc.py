@@ -7,18 +7,44 @@ from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
+import uncertainties
 
 from .bootstrap import basic_bootstrap, get_rng
-from .plaquette import get_index_separation
 from .plots_common import save_or_show
+from .utils import get_index_separation
 
 
 def get_skip(plaquettes):
     initial_plaquette = plaquettes[0][1]
     for index, (traj_index, plaquette) in enumerate(plaquettes):
         if plaquette != initial_plaquette:
-            return index
-    return -1
+            first_movement_index = index
+            break
+    else:
+        return None
+    tau_exp = max(
+        exp_autocorrelation_fit(
+            [plaquette for index, plaquette in plaquettes[first_movement_index:]]
+        ).nominal_value,
+        1,
+    )
+    num_possible = (len(plaquettes) - first_movement_index - 3 * int(tau_exp)) // int(
+        tau_exp
+    )
+
+    for division_exponent in range(1, int(np.log2(num_possible))):
+        data_len = num_possible // 2**division_exponent * int(tau_exp)
+        left_plaquettes = [
+            plaquette for _, plaquette in plaquettes[-2 * data_len : -data_len]
+        ]
+        right_plaquettes = [plaquette for _, plaquette in plaquettes[-data_len:]]
+        difference = basic_bootstrap(right_plaquettes) - basic_bootstrap(
+            left_plaquettes
+        )
+        if abs(difference.nominal_value) < data_len**0.5 * difference.std_dev:
+            return len(plaquettes) - 2 * data_len
+    else:
+        return None
 
 
 def get_args():
@@ -110,6 +136,12 @@ def get_plaquette(filename):
 
     separation = get_index_separation([index for index, plaquette in plaquettes])
     skip = get_skip(plaquettes)
+    if skip is None:
+        result["plaq_tau_exp"] = np.nan
+        result["plaq_therm"] = np.nan
+        result["avg_plaquette"] = uncertainties.ufloat(np.nan, np.nan)
+        return result
+
     result["plaq_tau_exp"] = (
         exp_autocorrelation_fit([plaquette for index, plaquette in plaquettes[skip:]])
         * separation
@@ -146,7 +178,7 @@ def plot(data):
             0.95, 0.95, f"$\\beta={beta}$", ha="right", va="top", transform=ax.transAxes
         )
         ax.set_ylabel(r"$\langle \mathcal {P} \rangle$")
-        ax.set_xlabel(f"$am_0^{{{rep.lower()}}}$")
+        ax.set_xlabel("$am_0$")
         for datum in subset:
             ax.errorbar(
                 [datum[f"m{rep}"]],

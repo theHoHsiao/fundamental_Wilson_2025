@@ -10,6 +10,7 @@ from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 import numpy as np
 
 from .dump import dump_dict
+from .utils import get_index_separation
 
 
 def get_args():
@@ -60,7 +61,9 @@ def get_args():
 
 def compute_stats(flows):
     A, Q0, sigma_Q = Q_fit(flows, with_amplitude=True)
-    tau_exp_Q = exp_autocorrelation_fit(flows.Q_history())
+    tau_exp_Q = exp_autocorrelation_fit(flows.Q_history()) * get_index_separation(
+        flows.trajectories
+    )
     return {
         "Q_amplitude": A,
         "Q0": Q0,

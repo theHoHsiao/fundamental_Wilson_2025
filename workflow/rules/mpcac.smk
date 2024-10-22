@@ -41,6 +41,8 @@ def linear_fittable_pcac_data(wildcards):
 
 
 rule plot_pcac:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         plot_data=all_pcac_data,
         linear_fit_data=linear_fittable_pcac_data,
@@ -50,4 +52,4 @@ rule plot_pcac:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m src.plots.pcac_fits {input.plot_data} --linear_fit_filenames {input.linear_fit_data} --plot_filename {output.plot} --plot_styles {plot_styles}"
+        "python -m {params.module} {input.plot_data} --linear_fit_filenames {input.linear_fit_data} --plot_filename {output.plot} --plot_styles {plot_styles}"
