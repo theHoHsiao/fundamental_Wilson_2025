@@ -13,8 +13,6 @@ def all_samples(wildcards, observables):
         if row["use_smear"]
     ]
 
-
-
 def mass_extp(wildcards, observables):
     return [
         f"intermediary_data/extrapolation_results/{observable}_samples.json".format(**row)
@@ -34,11 +32,15 @@ def volume_samples(wildcards, observables):
 
 rule plot_finite_volume:
     input:
-        data=partial(mass_extp, observables=["meson_ps_mean","meson_v_mean"]),
-        script="src/plots/m_psL.py",
+        data=partial(volume_samples, observables=["meson_ps","meson_v"]),
     output:
         plot="assets/plots/mps_vs_mpsL.{plot_filetype}",
         plot2="assets/plots/mv_vs_mpsL.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m src.plots.finite_volume {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2}"
+
 
 rule plot_w0mps_vs_w0mv:
     input:
@@ -52,6 +54,7 @@ rule plot_w0mps_vs_w0mv:
         "../envs/flow_analysis.yml"
     shell:
         "python -m src.plots.w0mps_vs_meson {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"
+
 
 rule plot_mL:
     input:
