@@ -90,7 +90,7 @@ def plot(data, fit_pars):
     for ch in ["v", "t", "s", "av", "at", "rhoE1"]:
         ax = axs[subplot_row, subplot_col]
 
-        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
+        ax.set_xlabel(r"$m_{\rm ps}^{\rm inf} L$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
         betas = sorted(set([datum["beta"] for datum in data]))
@@ -113,7 +113,7 @@ def plot(data, fit_pars):
                     datum["w0_samples"].samples
                     * datum[f"smear_{ch}_mass_samples"].samples
                 ) ** 2
-                # print(w0_meson.mean(), w0_meson.std(), w0_mps.mean(), w0_mps.std())
+                print(w0_meson.mean(), w0_meson.std(), w0_mps.mean(), w0_mps.std())
 
                 to_plot.append(
                     (w0_meson.mean(), w0_meson.std(), w0_mps.mean(), w0_mps.std())

@@ -265,7 +265,9 @@ def main():
             {
                 **metadata,
                 f"{args.channel}_mass_samples": m_tmp.samples,
+                f"{args.channel}_mass_value": m_tmp.mean,
                 f"{args.channel}_matrix_element_samples": a_tmp.samples,
+                f"{args.channel}_matrix_element_value": a_tmp.mean,
             },
             args.output_file_samples,
         )
