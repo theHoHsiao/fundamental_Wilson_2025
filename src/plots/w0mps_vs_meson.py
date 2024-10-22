@@ -2,26 +2,9 @@
 
 import matplotlib.pyplot as plt
 from ..dump import read_sample_files
-from ..plots_common import save_or_show
+from ..plots_common import save_or_show, beta_color, ch_tag
 from argparse import ArgumentParser
 import numpy as np
-
-
-def beta_color(b):
-    return {
-        6.6: "k",
-        6.65: "r",
-        6.7: "b",
-        6.75: "m",
-        6.8: "g",
-        6.9: "tab:brown",
-    }.get(b, b)
-
-
-def ch_tag(ch):
-    return {
-        "rhoE1": r"v^\prime",
-    }.get(ch, ch)
 
 
 def get_args():
