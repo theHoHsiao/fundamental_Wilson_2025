@@ -90,6 +90,18 @@ def beta_color(b):
     }.get(b, b)
 
 
+def channel_color(ch):
+    return {
+        "ps": "b",
+        "v": "r",
+        "t": "y",
+        "s": "m",
+        "av": "g",
+        "at": "k",
+        "rhoE1": "cyan",
+    }.get(ch, ch)
+
+
 def ch_tag(ch):
     return {
         "rhoE1": r"v^\prime",
