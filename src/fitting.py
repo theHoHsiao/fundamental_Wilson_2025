@@ -294,6 +294,7 @@ def fit_cosh_simultaneous(Corr_ss, Corr_sp, TI, TF, GLB_T):
     # This function fits the correlators with cosh x sinh functions
 
     x0 = sim_coshsinh_fit(Corr_sp.mean[0], Corr_ss.mean[0], GLB_T, TI, TF)
+
     p0 = dict(
         {
             "log(a)": np.array([np.log(abs(x0[0]))]),
@@ -328,7 +329,7 @@ def fit_cosh_simultaneous(Corr_ss, Corr_sp, TI, TF, GLB_T):
         chi2_dof[n] = chi2 / dof
 
     CORR = dict(
-        Gab=gv.gvar(Corr_ss.mean[0], cov_sp), Gaa=gv.gvar(Corr_ss.mean[0], cov_ss)
+        Gab=gv.gvar(Corr_sp.mean[0], cov_sp), Gaa=gv.gvar(Corr_ss.mean[0], cov_ss)
     )
 
     E_mean, a_mean, b_mean, chi2, dof = fit_correlator_simultaneous(

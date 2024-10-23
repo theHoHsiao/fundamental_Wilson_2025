@@ -11,6 +11,14 @@ from .dump import dump_dict, dump_samples
 from . import extract
 
 
+def C_R(ch):
+    return {
+        "V": -20.57,
+        "AV": -15.82,
+        "PS": -15.82,
+    }.get(ch, ch)
+
+
 def get_args():
     parser = ArgumentParser(
         description="Compute the mass and matrix element from correlators in an HDF5 file"

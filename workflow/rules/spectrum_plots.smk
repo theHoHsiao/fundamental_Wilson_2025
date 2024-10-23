@@ -51,12 +51,24 @@ rule plot_finite_volume:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
-rule plot_mpcac_vs_ratio:
+rule plot_mpsmv_vs_mpcac:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "mpcac"]),
-        script="src/plots/mpcac_vs_ratio.py"
+    output:
+        plot="assets/plots/mpsmv_vs_mpcac_b6p7.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+rule plot_mpsfps_vs_mpcac:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(ASB2s_samples, observables=["meson_ps", "plaquette","mpcac"]),
+        script="src/plots/mpsfps_vs_mpcac.py"
     output:
         plot="assets/plots/mpsfps_vs_mpcac_b6p7.{plot_filetype}",
     conda:
