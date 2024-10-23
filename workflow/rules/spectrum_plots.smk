@@ -115,6 +115,20 @@ rule plot_meson_mass_fps_vs_mpcac:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+rule plot_mv_vs_mps:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "w0"]),
+        fund_data="data_assets/meson_meta_fund.csv",
+        script="src/plots/mv_vs_mps.py"
+    output:
+        plot="assets/plots/m2v_vs_m2ps_GF_b6p7.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 rule plot_w0mps_vs_w0mv:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
