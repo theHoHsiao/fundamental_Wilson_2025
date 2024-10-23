@@ -121,7 +121,9 @@ def plot(data):
 
     # print(np.array(to_fit_x).shape)
     fit_val, X2 = meson_beta_quad(np.array(to_fit_x), np.array(to_fit_y))
-    plot_poly_M4(ax[0], fit_val[0], fit_val[1], fit_val[2], "", 0, "b", 0, np.sqrt(0.7))
+    plot_poly_M4(
+        ax[0], fit_val[0], fit_val[1], fit_val[2], "", 0, "b", 0, 0.8366600265340756
+    )
 
     ax[0].errorbar(
         x_values,
