@@ -39,6 +39,8 @@ def ASB2s_samples(wildcards, observables):
     ]
 
 rule plot_finite_volume:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(volume_samples, observables=["meson_ps","meson_v"]),
         script="src/plots/finite_volume.py"
@@ -47,9 +49,11 @@ rule plot_finite_volume:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m src.plots.finite_volume {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
 rule plot_mpcac_vs_ratio:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "mpcac"]),
         script="src/plots/mpcac_vs_ratio.py"
@@ -58,9 +62,11 @@ rule plot_mpcac_vs_ratio:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m src.plots.mpcac_vs_ratio {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
 rule plot_w0mps_vs_w0mv:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(all_samples, observables=["w0", "smear_meson_ps", "smear_meson_v", "smear_meson_t","smear_meson_av","smear_meson_at","smear_meson_s", "gevp_smear_meson_rhoE1"]),
         fit_results=partial(mass_extp, observables=["v_extp_mass","t_extp_mass","av_extp_mass","at_extp_mass","s_extp_mass","rhoE1_extp_mass"]),
@@ -71,4 +77,4 @@ rule plot_w0mps_vs_w0mv:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m src.plots.w0mps_vs_meson {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"
