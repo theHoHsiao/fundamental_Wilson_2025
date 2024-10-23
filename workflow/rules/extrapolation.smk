@@ -15,7 +15,7 @@ def all_samples(wildcards, observables):
     ]
 
 
-rule continuum_massless_extrapolation:
+rule Mass_continuum_massless_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
@@ -24,6 +24,20 @@ rule continuum_massless_extrapolation:
     output:
         mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_mass_mean.csv",
         samples=f"intermediary_data/extrapolation_results/{{channel}}_extp_mass_samples.json",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
+
+rule Decay_continuum_massless_extrapolation:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=["w0", "meson_ps", "meson_v", "meson_av", "plaquette"]),
+        script="src/extrapolation_decay.py",
+    output:
+        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_deacy_mean.csv",
+        samples=f"intermediary_data/extrapolation_results/{{channel}}_extp_decay_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:

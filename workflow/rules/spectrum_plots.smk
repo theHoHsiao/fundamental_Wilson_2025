@@ -143,3 +143,18 @@ rule plot_w0mps_vs_w0mv:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"
+
+rule plot_extrapolations_meson_decay:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=["w0", "meson_ps", "meson_v","meson_av", "plaquette"]),
+        fit_results=partial(mass_extp, observables=["ps_extp_decay", "v_extp_decay", "av_extp_decay"]),
+        script="src/plots/w0mps_vs_decay.py",
+    output:
+        plot="assets/plots/f2_up_con_sp4as.{plot_filetype}",
+        plot2="assets/plots/f2_low_con_sp4as.{plot_filetype}"
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"

@@ -553,7 +553,7 @@ def meson_beta_quad(X, Y):
     num_sample = np.shape(X)[1]
     num_pars = 3
 
-    print("meson M2 fitting... Y = A + BX^2 ")
+    # print("meson M2 fitting... Y = A + BX^2 ")
 
     def func(m, a, b, c):
         return a + b * m + c * m**2
@@ -594,7 +594,7 @@ def meson_beta_quad(X, Y):
         V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
-        print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
+        # print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
