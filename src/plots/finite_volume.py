@@ -2,34 +2,6 @@
 
 import matplotlib.pyplot as plt
 from ..plots_common import standard_plot_main, ch_tag
-from argparse import ArgumentParser
-
-
-def get_args():
-    parser = ArgumentParser()
-
-    parser.add_argument(
-        "data_filenames",
-        nargs="+",
-        metavar="sample_filename",
-        help="Filenames of sample files containing data to plot",
-    )
-    parser.add_argument(
-        "--plot_file",
-        default=None,
-        help="Where to place the resulting plot. Default is to output to screen.",
-    )
-    parser.add_argument(
-        "--plot_file2",
-        default=None,
-        help="Where to place the resulting plot. Default is to output to screen.",
-    )
-    parser.add_argument(
-        "--plot_styles",
-        default="styles/paperdraft.mplstyle",
-        help="Stylesheet to use for plots",
-    )
-    return parser.parse_args()
 
 
 def plot(data):
@@ -73,23 +45,12 @@ def plot(data):
                 alpha=0.7,
                 color="b",
                 marker="s",
-                label=f"{beta}",
             )
 
         # ax.set_xlim(2, 11)
         ch_i += 1
 
     return fig
-
-
-"""
-def main():
-    args = get_args()
-    plt.style.use(args.plot_styles)
-    data = read_sample_files(args.data_filenames)
-    fig = plot(data)
-    save_or_show(fig, args.plot_file)
-"""
 
 
 if __name__ == "__main__":
