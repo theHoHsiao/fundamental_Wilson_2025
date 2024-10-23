@@ -13,9 +13,9 @@ from . import extract
 
 def C_R(ch):
     return {
-        "V": -20.57,
-        "AV": -15.82,
-        "PS": -15.82,
+        "v": -20.57,
+        "av": -15.82,
+        "ps": -15.82,
     }.get(ch, ch)
 
 
