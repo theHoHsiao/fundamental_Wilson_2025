@@ -43,12 +43,11 @@ rule plot_finite_volume:
         data=partial(volume_samples, observables=["meson_ps","meson_v"]),
         script="src/plots/finite_volume.py"
     output:
-        plot="assets/plots/mps_vs_mpsL.{plot_filetype}",
-        plot2="assets/plots/mv_vs_mpsL.{plot_filetype}",
+        plot="assets/plots/mps_mv_vs_mpsL.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m src.plots.finite_volume {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2}"
+        "python -m src.plots.finite_volume {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
 rule plot_mpcac_vs_ratio:
     input:

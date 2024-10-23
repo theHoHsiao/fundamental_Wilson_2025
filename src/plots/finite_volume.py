@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-from ..dump import read_sample_files
-from ..plots_common import save_or_show, ch_tag
+from ..plots_common import standard_plot_main, ch_tag
 from argparse import ArgumentParser
 
 
@@ -34,12 +33,8 @@ def get_args():
 
 
 def plot(data):
-    fig, ax1 = plt.subplots(1, 1, num="Figure_2a", figsize=(6, 4), layout="constrained")
-    fig2, ax2 = plt.subplots(
-        1, 1, num="Figure_2b", figsize=(6, 4), layout="constrained"
-    )
+    fig, axs = plt.subplots(2, 1, num="Figure_2a", figsize=(6, 8), layout="constrained")
 
-    axs = [ax1, ax2]
     ch_i = 0
 
     for ch in ["ps", "v"]:
@@ -84,17 +79,18 @@ def plot(data):
         # ax.set_xlim(2, 11)
         ch_i += 1
 
-    return fig, fig2
+    return fig
 
 
+"""
 def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
-    fig, fig2 = plot(data)
+    fig = plot(data)
     save_or_show(fig, args.plot_file)
-    save_or_show(fig2, args.plot_file2)
+"""
 
 
 if __name__ == "__main__":
-    main()
+    standard_plot_main(plot)
