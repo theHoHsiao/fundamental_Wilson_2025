@@ -76,6 +76,19 @@ rule plot_mpsfps_vs_mpcac:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+rule plot_meson_mass_vs_fermion_mass:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "meson_t", "meson_av","meson_at", "meson_s", "mpcac"]),
+        script="src/plots/meson_vs_fermion.py"
+    output:
+        plot="assets/plots/meson_masses_b6p7_m0.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 rule plot_w0mps_vs_w0mv:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
