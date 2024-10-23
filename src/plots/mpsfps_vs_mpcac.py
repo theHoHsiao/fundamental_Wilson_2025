@@ -24,7 +24,7 @@ def plot(data):
             if "ps_mass_samples" not in datum:
                 continue
 
-            Z_factor = 1 + 2 * (C_R("PS")) * (8 / beta) / (
+            Z_factor = 1 + 2 * (C_R("ps")) * (8 / beta) / (
                 16 * 3.141592653589793**2 * datum["plaquette_samples"].samples
             )
 
