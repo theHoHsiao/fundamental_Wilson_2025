@@ -27,7 +27,7 @@ def volume_samples(wildcards, observables):
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
         for observable in observables
         for row in metadata.to_dict(orient="records")
-        if row["ASB4M3Ls"]
+        if row["use_in_finite_volume"]
     ]
 
 def ASB2s_samples(wildcards, observables):
@@ -35,7 +35,7 @@ def ASB2s_samples(wildcards, observables):
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
         for observable in observables
         for row in metadata.to_dict(orient="records")
-        if row["ASB2s"]
+        if row["ensembles_B6p7"]
     ]
 
 rule plot_finite_volume:
