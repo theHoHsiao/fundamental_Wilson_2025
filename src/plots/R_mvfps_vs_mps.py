@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+
 from ..plots_common import standard_plot_main
 from ..mass import C_R
 from ..dump import read_sample_files
@@ -22,9 +24,9 @@ def plot(data):
 
     ax.errorbar(
         csv_fund[0].values,
-        csv_fund[2].values * 1.4142135623730951,
+        csv_fund[2].values * 2**0.5,
         xerr=csv_fund[1].values,
-        yerr=csv_fund[3].values * 1.4142135623730951,
+        yerr=csv_fund[3].values * 2**0.5,
         linestyle="",
         marker="o",
         markerfacecolor="none",
@@ -45,7 +47,7 @@ def plot(data):
             continue
 
         Z_factor = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-            16 * 3.141592653589793**2 * datum["plaquette_samples"].samples
+            16 * np.pi**2 * datum["plaquette_samples"].samples
         )
 
         w0 = datum["w0_samples"].samples

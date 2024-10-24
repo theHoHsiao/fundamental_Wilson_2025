@@ -96,7 +96,7 @@ def plot(data, fit_pars):
                     continue
 
                 Z_factor = 1 + 2 * (C_R(f"{ch}")) * (8 / datum["beta"]) / (
-                    16 * 3.141592653589793**2 * datum["plaquette_samples"].samples
+                    16 * np.pi**2 * datum["plaquette_samples"].samples
                 )
                 w0_mps = (
                     datum["w0_samples"].samples * datum["ps_mass_samples"].samples

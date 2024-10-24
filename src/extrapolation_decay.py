@@ -51,11 +51,11 @@ def prepare_data(data, args):
             continue
 
         Z_factor = 1 + 2 * (C_R(f"{args.channel}")) * (8 / datum["beta"]) / (
-            16 * 3.141592653589793**2 * datum["plaquette_samples"].samples
+            16 * np.pi**2 * datum["plaquette_samples"].samples
         )
 
         Z_factor_mean = 1 + 2 * (C_R(f"{args.channel}")) * (8 / datum["beta"]) / (
-            16 * 3.141592653589793**2 * datum["plaquette_samples"].mean
+            16 * np.pi**2 * datum["plaquette_samples"].mean
         )
 
         w0 = np.append(datum["w0_samples"].samples, datum["w0_samples"].mean)

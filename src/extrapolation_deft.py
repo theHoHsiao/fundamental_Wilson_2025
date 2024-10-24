@@ -51,11 +51,11 @@ def prepare_data(data, args):
         )
 
         Z_factor = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-            16 * 3.141592653589793**2 * datum["plaquette_samples"].samples
+            16 * np.pi**2 * datum["plaquette_samples"].samples
         )
 
         Z_factor_mean = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-            16 * 3.141592653589793**2 * datum["plaquette_samples"].mean
+            16 * np.pi**2 * datum["plaquette_samples"].mean
         )
 
         f_ps = np.append(

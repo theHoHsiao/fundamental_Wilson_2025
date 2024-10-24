@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
+import numpy as np
+
 from ..plots_common import standard_plot_main, beta_color
 from ..mass import C_R
 
@@ -28,7 +30,7 @@ def plot(data):
             w0 = datum["w0_samples"].samples
 
             Z_factor = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-                16 * 3.141592653589793**2 * datum["plaquette_samples"].samples
+                16 * np.pi**2 * datum["plaquette_samples"].samples
             )
 
             X = (datum["ps_mass_samples"].samples * w0) ** 2
