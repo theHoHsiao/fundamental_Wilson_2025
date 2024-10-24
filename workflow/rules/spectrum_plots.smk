@@ -13,6 +13,14 @@ def all_samples(wildcards, observables):
         if row["use_smear"]
     ]
 
+def extp_samples(wildcards, observables):
+    return [
+        f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
+        for observable in observables
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_extrapolation"]
+    ]
+
 def mass_extp(wildcards, observables):
     return [
         f"intermediary_data/extrapolation_results/{observable}_samples.json".format(**row)
@@ -133,7 +141,7 @@ rule plot_extrapolations_meson_mass:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=["w0", "smear_meson_ps", "smear_meson_v", "smear_meson_t","smear_meson_av","smear_meson_at","smear_meson_s", "gevp_smear_meson_rhoE1"]),
+        data=partial(extp_samples, observables=["w0", "smear_meson_ps", "smear_meson_v", "smear_meson_t","smear_meson_av","smear_meson_at","smear_meson_s", "gevp_smear_meson_rhoE1"]),
         fit_results=partial(mass_extp, observables=["v_extp_mass","t_extp_mass","av_extp_mass","at_extp_mass","s_extp_mass","rhoE1_extp_mass"]),
         script="src/plots/w0mps_vs_meson.py",
     output:
@@ -148,7 +156,7 @@ rule plot_extrapolations_meson_decay:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=["w0", "meson_ps", "meson_v","meson_av", "plaquette"]),
+        data=partial(extp_samples, observables=["w0", "meson_ps", "meson_v","meson_av", "plaquette"]),
         fit_results=partial(mass_extp, observables=["ps_extp_decay", "v_extp_decay", "av_extp_decay"]),
         script="src/plots/w0mps_vs_decay.py",
     output:
@@ -164,11 +172,12 @@ rule plot_R_mvfps_vs_mps:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "w0"]),
+        data=partial(extp_samples, observables=["meson_ps","meson_v", "w0", "plaquette"]),
         fund_data="data_assets/mv_fps_fund.csv",
-        script="src/plots/mv_vs_mps.py"
+        extp_data="intermediary_data/extrapolation_results/R_mvdfps_extp_samples.json",
+        script="src/plots/R_mvfps_vs_mps.py"
     output:
-        plot="assets/plots/m2v_vs_m2ps_GF_b6p7.{plot_filetype}",
+        plot="assets/plots/mvfps_vs_m2ps_GF_F_vs_AS.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
