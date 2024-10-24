@@ -5,6 +5,7 @@ from argparse import ArgumentParser, FileType
 import numpy as np
 
 from ..dump import read_files
+from ..tables_common import by_ensemble_name
 
 
 def get_args():
@@ -64,14 +65,7 @@ def main():
     args = get_args()
     data = read_files(args.data_filenames)
     print(
-        format_table(
-            data.sort_values(
-                by="ensemble_name",
-                key=lambda col: col.apply(
-                    lambda e: ((elems := e.split("M"))[0], int(elems[1]))
-                ),
-            )
-        ),
+        format_table(data.sort_values(by="ensemble_name", key=by_ensemble_name)),
         file=args.output_file,
     )
 
