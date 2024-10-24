@@ -28,6 +28,19 @@ def mass_extp(wildcards, observables):
         if row["use_in_extrapolation"]
     ]
 
+
+def chipt_extp(wildcards):
+    return [
+        f"intermediary_data/chipt_extrapolation_results/chipt_b{beta}_extp_samples.json"
+        for beta in [6.6,6.65,6.7,6.75,6.8]
+    ]
+
+def deft_extp(wildcards):
+    return [
+        f"intermediary_data/deft_extrapolation_results/deft_b{beta}_extp_samples.json"
+        for beta in [6.6,6.65,6.7,6.75,6.8]
+    ]
+
 def volume_samples(wildcards, observables):
     return [
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
@@ -228,6 +241,35 @@ rule plot_gmor:
         script="src/plots/gmor.py"
     output:
         plot="assets/plots/gmor_b6p7.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+rule plot_chipt:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=["meson_ps", "plaquette"]),
+        fit_parameters=chipt_extp,
+        script="src/plots/chipt.py"
+    output:
+        plot="assets/plots/chipt2.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+
+rule plot_deft:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=["meson_ps", "plaquette", "mpcac"]),
+        fit_parameters=deft_extp,
+        script="src/plots/deft.py"
+    output:
+        plot="assets/plots/deft1.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:

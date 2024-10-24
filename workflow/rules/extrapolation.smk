@@ -70,3 +70,17 @@ rule Chipt_extrapolation:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --beta {wildcards.beta}"
+
+rule DEFT_extrapolation:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=[ "meson_ps", "plaquette", "mpcac"]),
+        script="src/extrapolation_deft.py",
+    output:
+        mean=f"intermediary_data/deft_extrapolation_results/deft_b{{beta}}_extp_mean.csv",
+        samples=f"intermediary_data/deft_extrapolation_results/deft_b{{beta}}_extp_samples.json",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --beta {wildcards.beta}"
