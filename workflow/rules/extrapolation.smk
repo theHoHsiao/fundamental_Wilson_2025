@@ -56,3 +56,17 @@ rule Ratio_continuum_massless_extrapolation:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
+
+rule Chipt_extrapolation:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=[ "meson_ps", "plaquette"]),
+        script="src/extrapolation_chipt.py",
+    output:
+        mean=f"intermediary_data/chipt_extrapolation_results/chipt_b{{beta}}_extp_mean.csv",
+        samples=f"intermediary_data/chipt_extrapolation_results/chipt_b{{beta}}_extp_samples.json",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --beta {wildcards.beta}"
