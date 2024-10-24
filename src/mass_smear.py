@@ -273,7 +273,7 @@ def main():
     dump_dict(
         {
             **metadata,
-            "chi_sqr_dof": chi2,
+            f"smear_{args.channel}_chisquare": chi2,
             f"smear_{args.channel}_mass": fitted_m,
             f"smear_{args.channel}_matrix_element": fitted_a,
         },

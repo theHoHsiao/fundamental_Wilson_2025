@@ -224,7 +224,7 @@ def main():
     dump_dict(
         {
             **metadata,
-            "chi_sqr_dof": chi2,
+            "smear_rhoE1_chisquare": chi2,
             "smear_rhoE1_mass": fitted_m,
             "smear_rhoE1_matrix_element": fitted_a,
         },
