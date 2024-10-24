@@ -10,7 +10,6 @@ def all_samples(wildcards, observables):
         for observable in observables
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
-        if row["use_smear"]
     ]
 
 def extp_samples(wildcards, observables):
@@ -191,6 +190,19 @@ rule plot_R_mvprime_dmv_vs_mps:
         script="src/plots/R_mvprime_dmv_vs_mps.py"
     output:
         plot="assets/plots/excited_vector_ratio.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+rule plot_w0_vs_mps:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=["meson_ps","w0"]),
+        script="src/plots/w0_vs_mps.py"
+    output:
+        plot="assets/plots/w0vsmps2.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
