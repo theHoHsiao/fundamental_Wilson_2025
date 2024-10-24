@@ -4,19 +4,7 @@
 
 # from .bootstrap import BootstrapSampleSet
 
-from argparse import ArgumentParser, FileType
-from ..dump import read_files
-from ..tables_common import by_ensemble_name
-
-
-def get_args():
-    parser = ArgumentParser()
-
-    parser.add_argument(
-        "data_filenames", nargs="+", help="Filenames of meson extraction result files"
-    )
-    parser.add_argument("--output_file", type=FileType("w"), default="-")
-    return parser.parse_args()
+from ..tables_common import ensemble_table_main
 
 
 def format_table(df):
@@ -53,14 +41,5 @@ def format_table(df):
     return header + "".join(content) + footer
 
 
-def main():
-    args = get_args()
-    data = read_files(args.data_filenames)
-    print(
-        format_table(data.sort_values(by="ensemble_name", key=by_ensemble_name)),
-        file=args.output_file,
-    )
-
-
 if __name__ == "__main__":
-    main()
+    ensemble_table_main(format_table)
