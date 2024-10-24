@@ -207,3 +207,16 @@ rule plot_w0_vs_mps:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+rule plot_R_mps_dfps_vs_mps:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(all_samples, observables=["meson_ps","w0", "plaquette"]),
+        script="src/plots/R_mps_dfps_vs_mps.py"
+    output:
+        plot="assets/plots/mfpsvsmps2.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
