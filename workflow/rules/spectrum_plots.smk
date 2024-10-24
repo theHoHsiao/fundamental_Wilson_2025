@@ -182,3 +182,16 @@ rule plot_R_mvfps_vs_mps:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+rule plot_R_mvprime_dmv_vs_mps:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(extp_samples, observables=["smear_meson_ps","smear_meson_v", "w0", "gevp_smear_meson_rhoE1"]),
+        script="src/plots/R_mvprime_dmv_vs_mps.py"
+    output:
+        plot="assets/plots/excited_vector_ratio.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
