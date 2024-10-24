@@ -17,7 +17,7 @@ def plot(data):
     ax[1].set_xlabel(r"$am_{\rm PCAC}$")
     ax[1].set_ylabel(r"$am_{\rm M}$")
 
-    channels = ["ps", "v", "t", "av", "at", "s"]
+    channels = ["ps", "v", "av", "at", "s"]
     markers = "o^vsx+"
 
     for channel_idx, (channel, marker) in enumerate(zip(channels, markers)):
