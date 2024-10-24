@@ -69,6 +69,13 @@ def all_mass_data(wildcards):
         if row["use_in_main_plots"]
     ]
 
+def mpcac_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/mpcac_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
+    ]
+
 def smear_mass_data(wildcards):
     return [
         f"intermediary_data/{dir_template}/smear_meson_{channel}_mean.csv".format(channel=channel, **row)
@@ -99,7 +106,8 @@ rule mass_table:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=all_mass_data,
+        mass_data=all_mass_data,
+        mpcac_data=mpcac_data,
         metadata_csv="metadata/ensemble_metadata.csv",
         script="src/tables/mass_table.py",
     output:
@@ -107,7 +115,7 @@ rule mass_table:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.table}"
+        "python -m {params.module} {input.mass_data} {input.mpcac_data} --output_file {output.table}"
 
 rule smear_mass_table:
     params:
