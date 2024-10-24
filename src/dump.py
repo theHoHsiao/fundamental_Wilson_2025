@@ -74,18 +74,15 @@ def drop_duplicate_columns(df):
 def read_files(filenames):
     # A key on which to search; only one is needed per file type.
     # (More will create duplicates.)
-    search_keys = [
-        "Q0_value",
-        "w0_value",
-        "mPCAC_value",
-        "avg_plaquette_value",
-        "ps_mass_value",
+    key_observables = ["Q0", "w0", "mPCAC", "avg_plaquette"] + [
+        f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]
     ]
 
     data = defaultdict(list)
     for filename in filenames:
         file_data = pd.read_csv(filename).set_index("ensemble_name")
-        for key in search_keys:
+        for observable in key_observables:
+            key = f"{observable}_value"
             if key in file_data.columns:
                 data[key].append(file_data)
                 break
