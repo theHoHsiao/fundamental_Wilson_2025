@@ -220,3 +220,16 @@ rule plot_R_mps_dfps_vs_mps:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+rule plot_gmor:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(ASB2s_samples, observables=["meson_ps","w0", "plaquette", "mpcac"]),
+        script="src/plots/gmor.py"
+    output:
+        plot="assets/plots/gmor_b6p7.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
