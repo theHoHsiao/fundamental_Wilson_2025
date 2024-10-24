@@ -113,7 +113,6 @@ def plot(data, fit_pars):
                     datum["w0_samples"].samples
                     * datum[f"smear_{ch}_mass_samples"].samples
                 ) ** 2
-                print(w0_meson.mean(), w0_meson.std(), w0_mps.mean(), w0_mps.std())
 
                 to_plot.append(
                     (w0_meson.mean(), w0_meson.std(), w0_mps.mean(), w0_mps.std())
