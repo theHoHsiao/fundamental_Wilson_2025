@@ -32,6 +32,12 @@ def dump_samples(data, fp):
             to_write[k] = list(v)
         elif isinstance(v, np.int64):
             to_write[k] = int(v)
+        elif isinstance(v, BootstrapSampleSet):
+            if isinstance(v.mean, np.ndarray):
+                to_write[f"{k}_value"] = list(v.mean)
+            else:
+                to_write[f"{k}_value"] = v.mean
+            to_write[f"{k}_samples"] = v.samples.tolist()
         else:
             to_write[k] = v
     return json.dump(to_write, fp)
