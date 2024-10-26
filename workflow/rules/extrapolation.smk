@@ -33,7 +33,7 @@ rule Decay_continuum_massless_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(extp_samples, observables=["w0", "meson_ps", "meson_v", "meson_av", "plaquette"]),
+        data=partial(extp_samples, observables=["w0", "meson_ps", "decay_constant_ps", "decay_constant_v", "decay_constant_av"]),
         script="src/extrapolation_decay.py",
     output:
         mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_deacy_mean.csv",
@@ -47,7 +47,7 @@ rule Ratio_continuum_massless_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(extp_samples, observables=["w0", "meson_ps", "meson_v", "plaquette"]),
+        data=partial(extp_samples, observables=["w0", "meson_ps", "meson_v", "decay_constant_ps"]),
         script="src/extrapolation_ratio.py",
     output:
         mean=f"intermediary_data/extrapolation_results/R_m{{channel}}dfps_extp_mean.csv",
@@ -61,7 +61,7 @@ rule Chipt_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=[ "meson_ps", "plaquette"]),
+        data=partial(all_samples, observables=[ "meson_ps", "decay_constant_ps"]),
         script="src/extrapolation_chipt.py",
     output:
         mean=f"intermediary_data/chipt_extrapolation_results/chipt_b{{beta}}_extp_mean.csv",
@@ -75,7 +75,7 @@ rule DEFT_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=[ "meson_ps", "plaquette", "mpcac"]),
+        data=partial(all_samples, observables=[ "meson_ps", "decay_constant_ps", "mpcac"]),
         script="src/extrapolation_deft.py",
     output:
         mean=f"intermediary_data/deft_extrapolation_results/deft_b{{beta}}_extp_mean.csv",

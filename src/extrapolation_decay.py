@@ -5,7 +5,6 @@ from argparse import ArgumentParser, FileType
 import numpy as np
 from .dump import dump_dict, dump_samples
 from uncertainties import ufloat
-from .mass import C_R
 
 
 def get_args():
@@ -50,14 +49,6 @@ def prepare_data(data, args):
         if np.isnan((datum[f"{args.channel}_mass_samples"].samples).mean()):
             continue
 
-        Z_factor = 1 + 2 * (C_R(f"{args.channel}")) * (8 / datum["beta"]) / (
-            16 * np.pi**2 * datum["plaquette_samples"].samples
-        )
-
-        Z_factor_mean = 1 + 2 * (C_R(f"{args.channel}")) * (8 / datum["beta"]) / (
-            16 * np.pi**2 * datum["plaquette_samples"].mean
-        )
-
         w0 = np.append(datum["w0_samples"].samples, datum["w0_samples"].mean)
 
         m_ps = np.append(
@@ -65,8 +56,8 @@ def prepare_data(data, args):
         )
 
         f_ch = np.append(
-            (datum[f"{args.channel}_matrix_element_samples"].samples * Z_factor),
-            (datum[f"{args.channel}_matrix_element_samples"].mean * Z_factor_mean),
+            (datum[f"{args.channel}_decay_constant_samples"].samples),
+            (datum[f"{args.channel}_decay_constant_samples"].mean),
         )
 
         # print(m_ps.shape)

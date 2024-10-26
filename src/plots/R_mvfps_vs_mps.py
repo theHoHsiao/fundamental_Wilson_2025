@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from ..plots_common import standard_plot_main
-from ..mass import C_R
 from ..dump import read_sample_files
 
 
@@ -46,17 +44,11 @@ def plot(data):
         if "v_mass_samples" not in datum:
             continue
 
-        Z_factor = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-            16 * np.pi**2 * datum["plaquette_samples"].samples
-        )
-
         w0 = datum["w0_samples"].samples
 
         X = (datum["ps_mass_samples"].samples * w0) ** 2
         Y = (
-            datum["v_mass_samples"].samples
-            / datum["ps_matrix_element_samples"].samples
-            / Z_factor
+            datum["v_mass_samples"].samples / datum["ps_decay_constant_samples"].samples
             - extp_data[0]["W_vdfps_samples"].samples / w0
         )
 

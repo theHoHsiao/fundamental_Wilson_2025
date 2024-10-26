@@ -138,7 +138,7 @@ def ch_extraction(ensemble, args):
     for j in range(len(CHs)):
         tmp_set = get_correlator_samples(
             ensemble,
-            CHs[j],
+            f"TRIPLET/{CHs[j]}",
             args.min_trajectory,
             args.max_trajectory,
             args.trajectory_step,

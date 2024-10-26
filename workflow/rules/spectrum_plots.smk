@@ -86,7 +86,7 @@ rule plot_mpsfps_vs_mpcac:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps", "plaquette","mpcac"]),
+        data=partial(ASB2s_samples, observables=["meson_ps", "decay_constant_ps","mpcac"]),
         script="src/plots/mpsfps_vs_mpcac.py"
     output:
         plot="assets/plots/mpsfps_vs_mpcac_b6p7.{plot_filetype}",
@@ -112,7 +112,7 @@ rule plot_decay_constant_vs_fermion_mass:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "meson_av", "mpcac", "plaquette"]),
+        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "meson_av", "mpcac", "decay_constant_ps", "decay_constant_v", "decay_constant_av"]),
         script="src/plots/decay_vs_fermion.py"
     output:
         plot="assets/plots/meson_decay_b6p7_m0.{plot_filetype}",
@@ -125,7 +125,7 @@ rule plot_meson_mass_fps_vs_mpcac:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "meson_av","meson_at", "meson_s", "mpcac", "plaquette"]),
+        data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "meson_av","meson_at", "meson_s", "mpcac", "decay_constant_ps"]),
         script="src/plots/meson_fps_vs_mpcac.py"
     output:
         plot="assets/plots/mmfps_vs_mpcac_b6p7.{plot_filetype}",
@@ -167,7 +167,7 @@ rule plot_extrapolations_meson_decay:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(extp_samples, observables=["w0", "meson_ps", "meson_v","meson_av", "plaquette"]),
+        data=partial(extp_samples, observables=["w0", "meson_ps", "meson_v","meson_av", "decay_constant_ps", "decay_constant_v", "decay_constant_av"]),
         fit_results=partial(mass_extp, observables=["ps_extp_decay", "v_extp_decay", "av_extp_decay"]),
         script="src/plots/w0mps_vs_decay.py",
     output:
@@ -183,7 +183,7 @@ rule plot_R_mvfps_vs_mps:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(extp_samples, observables=["meson_ps","meson_v", "w0", "plaquette"]),
+        data=partial(extp_samples, observables=["meson_ps","meson_v", "w0", "decay_constant_ps"]),
         fund_data="data_assets/mv_fps_fund.csv",
         extp_data="intermediary_data/extrapolation_results/R_mvdfps_extp_samples.json",
         script="src/plots/R_mvfps_vs_mps.py"
@@ -224,7 +224,7 @@ rule plot_R_mps_dfps_vs_mps:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=["meson_ps","w0", "plaquette"]),
+        data=partial(all_samples, observables=["meson_ps","w0", "decay_constant_ps"]),
         script="src/plots/R_mps_dfps_vs_mps.py"
     output:
         plot="assets/plots/mfpsvsmps2.{plot_filetype}",
@@ -237,7 +237,7 @@ rule plot_gmor:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps","w0", "plaquette", "mpcac"]),
+        data=partial(ASB2s_samples, observables=["meson_ps","w0", "decay_constant_ps", "mpcac"]),
         script="src/plots/gmor.py"
     output:
         plot="assets/plots/gmor_b6p7.{plot_filetype}",
@@ -250,7 +250,7 @@ rule plot_chipt:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=["meson_ps", "plaquette"]),
+        data=partial(all_samples, observables=["meson_ps", "decay_constant_ps"]),
         fit_parameters=chipt_extp,
         script="src/plots/chipt.py"
     output:
@@ -265,7 +265,7 @@ rule plot_deft:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(all_samples, observables=["meson_ps", "plaquette", "mpcac"]),
+        data=partial(all_samples, observables=["meson_ps", "decay_constant_ps", "mpcac"]),
         fit_parameters=deft_extp,
         script="src/plots/deft.py"
     output:

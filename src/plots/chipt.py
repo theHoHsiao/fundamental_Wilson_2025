@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ..plots_common import standard_plot_main, beta_color, read_sample_files
-from ..mass import C_R
 
 
 def plot_YABX(ax, A, B, ch, offset, color, x_i, x_f):
@@ -49,13 +48,9 @@ def plot(data):
             if "ps_mass_samples" not in datum:
                 continue
 
-            Z_factor = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-                16 * np.pi**2 * datum["plaquette_samples"].samples
-            )
-
             X = (datum["ps_mass_samples"].samples) ** 2
 
-            Y = (datum["ps_matrix_element_samples"].samples * Z_factor) ** 2
+            Y = (datum["ps_decay_constant_samples"].samples) ** 2
 
             to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
 

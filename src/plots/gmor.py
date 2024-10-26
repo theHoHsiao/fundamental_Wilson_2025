@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from ..plots_common import standard_plot_main
-from ..mass import C_R
 
 
 def plot(data):
@@ -22,15 +20,10 @@ def plot(data):
         if "mPCAC_samples" not in datum:
             continue
 
-        Z_factor = 1 + 2 * (C_R("ps")) * (8 / datum["beta"]) / (
-            16 * np.pi**2 * datum["plaquette_samples"].samples
-        )
-
         X = datum["mPCAC_samples"].samples
         Y = (
             datum["ps_mass_samples"].samples
-            * datum["ps_matrix_element_samples"].samples
-            * Z_factor
+            * datum["ps_decay_constant_samples"].samples
         ) ** 2
 
         to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
