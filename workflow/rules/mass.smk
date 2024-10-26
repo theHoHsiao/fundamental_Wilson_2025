@@ -19,7 +19,7 @@ rule fit_mass_wall:
         plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_plateau_end"),
     input:
         data="data_assets/correlators_wall.h5",
-        script="src/mass.py",
+        script="src/mass_wall.py",
     output:
         mean=f"intermediary_data/{dir_template}/meson_{{channel}}_mean.csv",
         samples=f"intermediary_data/{dir_template}/meson_{{channel}}_samples.json",

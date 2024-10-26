@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
-import re
 import h5py
 import numpy as np
 from uncertainties import ufloat
 
-from .bootstrap import get_rng, sample_bootstrap_1d, BootstrapSampleSet
+from .bootstrap import BootstrapSampleSet
 from .dump import dump_dict, dump_samples
 from . import extract
+from .mass import (
+    get_correlators,
+    get_correlator_samples,
+    channel_tags,
+    fold_correlators,
+)
 
 
 def get_args():
@@ -112,108 +117,25 @@ def get_args():
     return parser.parse_args()
 
 
-def get_correlators(
-    ensembles, beta=None, mAS=None, Nt=None, Ns=None, num_source=None, epsilon=None
-):
-    candidate_ensembles = []
-    for ensemble in ensembles.values():
-        if beta is not None and ensemble.get("beta", {(): None})[()] != beta:
-            continue
-        if mAS is not None and (
-            len(masses := ensemble.get("quarkmasses", [])) != 1 or masses[0] != mAS
-        ):
-            continue
-        if Nt is not None and ensemble.get("lattice", [None])[0] != Nt:
-            continue
-        if Ns is not None and tuple(ensemble.get("lattice", [None])[-3:]) != (
-            Ns,
-            Ns,
-            Ns,
-        ):
-            continue
-        if epsilon is not None and ensemble.get("Wuppertal_eps_anti", [])[0] != epsilon:
-            continue
-        candidate_ensembles.append(ensemble)
-    if num_source is not None and len(candidate_ensembles) != num_source:
-        raise ValueError("Did not uniquely identify one ensemble.")
-    elif len(candidate_ensembles) == 0:
-        raise ValueError("No ensembles found.")
-    else:
-        return candidate_ensembles
-
-
-def fold_correlators(C):
-    return (C + np.roll(np.flip(C, axis=1), 1, axis=1)) / 2
-
-
 def bin_multi_source(ensemble, ch, args):
     tmp_bin = []
     tmp_bin_mean = []
     for n in range(args.num_source):
-        tmp_bin.append(
-            get_correlator_samples(
-                ensemble[n],
-                ch,
-                args.N_sink,
-                args.min_trajectory,
-                args.max_trajectory,
-                args.trajectory_step,
-            ).samples
+        tmp_set = get_correlator_samples(
+            ensemble[n],
+            f"source_N100_sink_N{args.N_sink}/TRIPLET {ch}",
+            args.min_trajectory,
+            args.max_trajectory,
+            args.trajectory_step,
         )
-        tmp_bin_mean.append(
-            get_correlator_samples(
-                ensemble[n],
-                ch,
-                args.N_sink,
-                args.min_trajectory,
-                args.max_trajectory,
-                args.trajectory_step,
-            ).mean
-        )
+
+        tmp_bin.append(tmp_set.samples)
+        tmp_bin_mean.append(tmp_set.mean)
 
     mean = np.zeros(shape=(1, args.Nt))
     mean[0] = np.array(tmp_bin_mean).mean(axis=0)
 
     return BootstrapSampleSet(mean, np.array(tmp_bin).mean(axis=0))
-
-
-def get_correlator_samples(
-    ensemble,
-    ch,
-    N_sink,
-    min_trajectory=None,
-    max_trajectory=None,
-    trajectory_step=1,
-):
-    indices = np.asarray(
-        [
-            int(re.match(".*n([0-9]+)$", filename.decode()).groups()[0])
-            for filename in ensemble["configurations"]
-        ]
-    )
-    filtered_indices = (
-        ((indices >= min_trajectory) if min_trajectory is not None else True)
-        & ((indices <= max_trajectory) if max_trajectory is not None else True)
-        & ((indices - (min_trajectory or 0)) % trajectory_step == 0)
-    )
-
-    C = ensemble[f"source_N100_sink_N{N_sink}"][f"TRIPLET {ch}"][:, filtered_indices]
-
-    # return sample_bootstrap_1d(C.T, get_rng(ensemble.name))
-    return BootstrapSampleSet(
-        C.mean(axis=1), sample_bootstrap_1d(C.T, get_rng(ensemble.name))
-    )
-
-
-def channel_tags(ch):
-    return {
-        "ps": ["g5"],
-        "v": ["g1", "g2", "g3"],
-        "t": ["g0g1", "g0g2", "g0g3"],
-        "av": ["g5g1", "g5g2", "g5g3"],
-        "at": ["g0g5g1", "g0g5g2", "g0g5g3"],
-        "s": ["id"],
-    }.get(ch, ch)
 
 
 def ch_extraction(ensemble, args):
@@ -222,19 +144,13 @@ def ch_extraction(ensemble, args):
     tmp_bin = []
     mean = []
     for j in range(len(CHs)):
-        tmp_bin.append(
-            fold_correlators(bin_multi_source(ensemble, CHs[j], args).samples)
-            * args.Ns**3
-        )
-        mean.append(
-            fold_correlators(bin_multi_source(ensemble, CHs[j], args).mean) * args.Ns**3
-        )
+        tmp_set = bin_multi_source(ensemble, CHs[j], args)
+        tmp_bin.append(fold_correlators(tmp_set.samples) * args.Ns**3)
+        mean.append(fold_correlators(tmp_set.mean) * args.Ns**3)
 
     corr = BootstrapSampleSet(
         np.array(mean).mean(axis=0), np.array(tmp_bin).mean(axis=0)
     )
-
-    # print(corr)
 
     m_tmp, a_tmp, chi2 = extract.meson_mass_sample(
         corr, args.plateau_start, args.plateau_end
