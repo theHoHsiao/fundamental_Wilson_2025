@@ -4,7 +4,6 @@ import pandas as pd
 
 metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 
-
 def extp_samples(wildcards, observables):
     return [
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
@@ -13,7 +12,6 @@ def extp_samples(wildcards, observables):
         if row["use_in_main_plots"]
         if row["use_in_extrapolation"]
     ]
-
 
 rule Mass_continuum_massless_extrapolation:
     params:

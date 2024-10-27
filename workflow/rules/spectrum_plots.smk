@@ -2,7 +2,6 @@ from functools import partial
 
 metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 
-
 def all_samples(wildcards, observables):
     return [
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
