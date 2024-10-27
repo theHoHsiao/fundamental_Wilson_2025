@@ -103,17 +103,12 @@ def smear_mass_data(wildcards):
         for channel in channels
         if row["use_in_main_plots"]
         if row["use_smear"]
-    ]
-
-def gevp_mass_data(wildcards):
-    return [
+    ] + [
         f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
         if row["use_smear"]
     ]
-
-
 
 def linear_fittable_pcac_data(wildcards):
     return [
@@ -131,7 +126,7 @@ rule mass_table:
         metadata_csv="metadata/ensemble_metadata.csv",
         script="src/tables/mass_table.py",
     output:
-        table="assets/tables/mass_table.tex",
+        table="assets/tables/wall_mass_table.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -142,7 +137,6 @@ rule smear_mass_table:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=smear_mass_data,
-        data2=gevp_mass_data,
         script="src/tables/mass_table.py",
     output:
         table="assets/tables/smear_mass_table.tex",
