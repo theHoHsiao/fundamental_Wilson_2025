@@ -74,9 +74,15 @@ def drop_duplicate_columns(df):
 def read_files(filenames):
     # A key on which to search; only one is needed per file type.
     # (More will create duplicates.)
-    key_observables = ["Q0", "w0", "mPCAC", "avg_plaquette"] + [
-        f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]
-    ]
+    key_observables = (
+        ["Q0", "w0", "mPCAC", "avg_plaquette"]
+        + [f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]]
+        + [f"{state}_decay_constant" for state in ["ps", "v", "av"]]
+        + [
+            f"smear_{state}_mass"
+            for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
+        ]
+    )
 
     data = defaultdict(list)
     for filename in filenames:

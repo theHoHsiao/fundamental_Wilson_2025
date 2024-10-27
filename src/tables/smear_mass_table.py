@@ -9,10 +9,10 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $am_{\mathrm{PCAC}}$ & $am_{\mathrm{ps}}$ & $af_{\mathrm{ps}}$ & "
-        r"$am_{\mathrm{s}}$ & $m_{\mathrm{ps}}L$ & $f_{\mathrm{ps}}L$ \\"
+        r"Ensemble & ~~~~~~$am_{\mathrm{ps}}$~~~~~~ & ~~~~~~$am_{\mathrm{s}}$~~~~~~ & ~~~~~~$m_{\mathrm{v}}$~~~~~~ & "
+        r"~~~~~~$am_{\mathrm{t}}$~~~~~~ & ~~~~~~$m_{\mathrm{av}}$~~~~~~ & ~~~~~~$m_{\mathrm{at}}$~~~~~~ & ~~~~~~$m_{\mathrm{v}^\prime}$~~~~~~ \\"
         "\n\\hline"
     )
     footer = "\\hline\\hline\n\\end{tabular}"
@@ -26,15 +26,16 @@ def format_table(df):
         content.append(
             (
                 "{} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
-                "${:.02uSL}$ & ${:.02uSL}$ \\\\\n"
+                "${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ \\\\\n"
             ).format(
                 row.ensemble_name,
-                row.mPCAC,
-                row.ps_mass,
-                row.ps_matrix_element,  # TODO
-                row.s_mass,
-                row.ps_mass * row.Ns,
-                row.ps_matrix_element * row.Ns,  # TODO
+                row.smear_ps_mass,
+                row.smear_s_mass,
+                row.smear_v_mass,
+                row.smear_t_mass,
+                row.smear_av_mass,
+                row.smear_at_mass,
+                row.smear_rhoE1_mass,
             )
         )
 

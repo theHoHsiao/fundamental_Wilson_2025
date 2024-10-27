@@ -87,6 +87,11 @@ def all_mass_data(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in channels
         if row["use_in_main_plots"]
+    ] + [
+        f"intermediary_data/{dir_template}/decay_constant_{channel}_mean.csv".format(channel=channel, **row)
+        for row in metadata.to_dict(orient="records")
+        for channel in ["ps", "v", "av"]
+        if row["use_in_main_plots"]
     ]
 
 def mpcac_data(wildcards):
@@ -105,6 +110,11 @@ def smear_mass_data(wildcards):
         if row["use_smear"]
     ] + [
         f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
+        if row["use_smear"]
+    ] + [
+        f"intermediary_data/{dir_template}/decay_constant_ps_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
         if row["use_smear"]
@@ -137,9 +147,22 @@ rule smear_mass_table:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=smear_mass_data,
-        script="src/tables/mass_table.py",
+        script="src/tables/smear_mass_table.py",
     output:
-        table="assets/tables/smear_mass_table.tex",
+        table="assets/tables/table_IX.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+rule smear_mass__fps_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=smear_mass_data,
+        script="src/tables/smear_mass_fps_table.py",
+    output:
+        table="assets/tables/table_X.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
