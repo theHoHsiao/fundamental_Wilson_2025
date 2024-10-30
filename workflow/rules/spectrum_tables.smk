@@ -47,6 +47,13 @@ def decay_constant_data(wildcards):
         for channel in ["ps", "v", "av"]
         if row["use_in_main_plots"]
     ]
+def wall_Rfps_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/Rfps_{channel}_mean.csv".format(channel=channel, **row)
+        for row in metadata.to_dict(orient="records")
+        for channel in channels
+        if row["use_in_main_plots"]
+    ]
 
 def smear_Rfps_data(wildcards):
     return [
@@ -102,6 +109,19 @@ rule wall_mass_table2:
     shell:
         "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.decay_data} --output_file {output.table}"
 
+
+rule wall_mass_fps_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=wall_Rfps_data,
+        script="src/tables/wall_mass_fps_table.py",
+    output:
+        table="assets/tables/table_VIII.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
 
 rule smear_mass_table:
     params:
