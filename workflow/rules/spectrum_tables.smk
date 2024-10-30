@@ -86,6 +86,23 @@ rule wall_mass_table:
     shell:
         "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.decay_data} --output_file {output.table}"
 
+rule wall_mass_table2:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        mass_data=wall_mass_data,
+        mpcac_data=mpcac_data,
+        decay_data=decay_constant_data,
+        metadata_csv="metadata/ensemble_metadata.csv",
+        script="src/tables/wall_mass_table2.py",
+    output:
+        table="assets/tables/table_VII.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.decay_data} --output_file {output.table}"
+
+
 rule smear_mass_table:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
