@@ -114,6 +114,12 @@ def ratio_fps_rhoE1_samples(wildcards):
         f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_samples.json",
     ]
 
+def ratio_mv_rhoE1_samples(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/smear_meson_v_samples.json",
+        f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_samples.json",
+    ]
+
 rule get_fps_smear_meson_ratio:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -137,6 +143,20 @@ rule get_fps_smear_rhoE1_ratio:
     output:
         mean=f"intermediary_data/{dir_template}/gevp_smear_Rfps_rhoE1_mean.csv",
         samples=f"intermediary_data/{dir_template}/gevp_smear_Rfps_rhoE1_samples.json",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --channel rhoE1 --output_file_mean {output.mean} --output_file_samples {output.samples} --smear True"
+
+rule get_Rmv_smear_rhoE1_ratio:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=ratio_mv_rhoE1_samples,
+        script="src/get_Rmv.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/gevp_smear_Rmv_rhoE1_mean.csv",
+        samples=f"intermediary_data/{dir_template}/gevp_smear_Rmv_rhoE1_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:

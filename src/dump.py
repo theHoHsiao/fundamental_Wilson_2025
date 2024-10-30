@@ -87,6 +87,7 @@ def read_files(filenames):
             for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
         ]
         + [f"{state}_Rfps" for state in ["ps", "v", "t", "av", "at", "s"]]
+        + ["smear_rhoE1_Rmv"]
     )
 
     data = defaultdict(list)

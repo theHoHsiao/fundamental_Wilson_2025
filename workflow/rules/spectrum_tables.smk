@@ -62,6 +62,14 @@ def smear_Rfps_data(wildcards):
         if row["use_smear"]
     ]
 
+def smear_Rmv_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/gevp_smear_Rmv_rhoE1_mean.csv".format( **row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
+        if row["use_smear"]
+    ]
+
 rule wall_mass_table:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -96,10 +104,11 @@ rule smear_mass_fps_table:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=smear_Rfps_data,
+        data_Rmv=smear_Rmv_data,
         script="src/tables/smear_mass_fps_table.py",
     output:
         table="assets/tables/table_X.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.table}"
+        "python -m {params.module} {input.data} {input.data_Rmv} --output_file {output.table}"
