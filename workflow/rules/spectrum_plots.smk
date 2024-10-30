@@ -27,7 +27,6 @@ def mass_extp(wildcards, observables):
         if row["use_in_extrapolation"]
     ]
 
-
 def chipt_extp(wildcards):
     return [
         f"intermediary_data/chipt_extrapolation_results/chipt_b{beta}_extp_samples.json"

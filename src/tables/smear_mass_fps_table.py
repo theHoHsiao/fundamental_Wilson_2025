@@ -29,13 +29,13 @@ def format_table(df):
                 "${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ \\\\\n"
             ).format(
                 row.ensemble_name,
-                row.smear_ps_mass / row.ps_decay_constant,
-                row.smear_s_mass / row.ps_decay_constant,
-                row.smear_v_mass / row.ps_decay_constant,
-                row.smear_t_mass / row.ps_decay_constant,
-                row.smear_av_mass / row.ps_decay_constant,
-                row.smear_at_mass / row.ps_decay_constant,
-                row.smear_rhoE1_mass / row.ps_decay_constant,
+                row.smear_ps_Rfps,
+                row.smear_s_Rfps,
+                row.smear_v_Rfps,
+                row.smear_t_Rfps,
+                row.smear_av_Rfps,
+                row.smear_at_Rfps,
+                row.smear_rhoE1_Rfps,
             )
         )
 

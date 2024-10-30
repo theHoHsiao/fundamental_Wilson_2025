@@ -5,6 +5,7 @@ include: "rules/mass.smk"
 include: "rules/plaquette.smk"
 include: "rules/combined_plots.smk"
 include: "rules/spectrum_plots.smk"
+include: "rules/spectrum_tables.smk"
 include: "rules/extrapolation.smk"
 
 

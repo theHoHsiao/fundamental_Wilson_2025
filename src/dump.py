@@ -82,6 +82,11 @@ def read_files(filenames):
             f"smear_{state}_mass"
             for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
         ]
+        + [
+            f"smear_{state}_Rfps"
+            for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
+        ]
+        + [f"{state}_Rfps" for state in ["ps", "v", "t", "av", "at", "s"]]
     )
 
     data = defaultdict(list)
