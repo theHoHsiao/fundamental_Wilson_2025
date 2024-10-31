@@ -100,11 +100,11 @@ def get_args():
 
 
 def get_g5_eff_mass(sampled_correlator):
-    eff_mass_samples = np.arccosh(
+    eff_mass_samples = (
         (sampled_correlator[:-2] + sampled_correlator[2:])
         / (2 * sampled_correlator[1:-1])
-    )
-    return np.mean(eff_mass_samples, axis=1), np.std(eff_mass_samples, axis=1)
+    ).arccosh()
+    return eff_mass_samples.mean, eff_mass_samples.std()
 
 
 def get_eff_mass_samples(
@@ -125,31 +125,31 @@ def get_eff_mass_samples(
     g5 = ensemble["TRIPLET"]["g5"][:, filtered_indices]
     g5_g0g5_re = ensemble["TRIPLET"]["g5_g0g5_re"][:, filtered_indices]
 
-    g5_samples = sample_bootstrap_1d(g5.T, get_rng(ensemble.name)).T
-    g5_g0g5_re_samples = sample_bootstrap_1d(g5_g0g5_re.T, get_rng(ensemble.name)).T
+    g5_samples = sample_bootstrap_1d(g5.T, get_rng(ensemble.name))
+    g5_g0g5_re_samples = sample_bootstrap_1d(g5_g0g5_re.T, get_rng(ensemble.name))
 
-    g5_eff_mass = get_g5_eff_mass(g5_samples)[0][:, np.newaxis]
+    g5_eff_mass = get_g5_eff_mass(g5_samples)[0]
 
     # The factor g5_eff_mass / sinh(g5_eff_mass) is a correction to
     # make the derivative more closely match the continuum value.
     # See eq. B.14 of 1104.4301.
     return (
-        g5_eff_mass
+        ((g5_g0g5_re_samples[:-2] - g5_g0g5_re_samples[2:]) / (4 * g5_samples[1:-1]))
+        * g5_eff_mass
         / np.sinh(g5_eff_mass)
-        * ((g5_g0g5_re_samples[:-2] - g5_g0g5_re_samples[2:]) / (4 * g5_samples[1:-1]))
     )
 
 
 def fit_eff_mass_samples(eff_mass_samples, plateau_start, plateau_end):
-    return eff_mass_samples[plateau_start:plateau_end].mean(axis=0)
+    return eff_mass_samples[plateau_start:plateau_end]
 
 
 def plot_eff_mass(eff_mass_samples, fitted_mass, plot_filename):
     fig, ax = plt.subplots(layout="constrained")
 
-    num_timeslices = eff_mass_samples.shape[0]
-    eff_mass_value = eff_mass_samples.mean(axis=1)
-    eff_mass_uncertainty = eff_mass_samples.std(axis=1)
+    eff_mass_value = eff_mass_samples.mean
+    num_timeslices = len(eff_mass_value)
+    eff_mass_uncertainty = eff_mass_samples.std()
 
     ax.errorbar(
         np.arange(num_timeslices) + 1,
@@ -189,9 +189,9 @@ def main():
     eff_mass_samples = get_eff_mass_samples(
         ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step
     )
-    fitted_mass_samples = fit_eff_mass_samples(
-        eff_mass_samples, args.plateau_start, args.plateau_end
-    )
+    fitted_mass_samples = eff_mass_samples[
+        args.plateau_start : args.plateau_end
+    ].weighted_mean()
     fitted_mass = bootstrap_finalize(fitted_mass_samples)
 
     if args.effmass_plot_file:
@@ -207,11 +207,7 @@ def main():
     dump_dict({**metadata, "mPCAC": fitted_mass}, args.output_file_mean)
     if args.output_file_samples:
         dump_samples(
-            {
-                **metadata,
-                "mPCAC_samples": fitted_mass_samples,
-                "mPCAC_value": fitted_mass.nominal_value,
-            },
+            {**metadata, "mPCAC": fitted_mass_samples},
             args.output_file_samples,
         )
 
