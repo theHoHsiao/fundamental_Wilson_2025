@@ -66,9 +66,7 @@ def get_correlator_samples(
 
     C = ensemble[measurement][:, filtered_indices]
 
-    return BootstrapSampleSet(
-        C.mean(axis=1), sample_bootstrap_1d(C.T, get_rng(ensemble.name))
-    )
+    return sample_bootstrap_1d(C.T, get_rng(ensemble.name))
 
 
 def channel_tags(ch):

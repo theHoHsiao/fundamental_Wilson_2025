@@ -3,9 +3,9 @@
 from argparse import ArgumentParser, FileType
 import h5py
 import numpy as np
-from uncertainties import ufloat
 
-from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT
+
+from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract, fitting
 from .mass_smear import bin_multi_source, get_correlators
@@ -211,8 +211,8 @@ def main():
             A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples)
         )
 
-    fitted_m = ufloat(m_tmp.mean, m_tmp.samples.std())
-    fitted_a = ufloat(a_tmp.mean, a_tmp.samples.std())
+    fitted_m = bootstrap_finalize(m_tmp)
+    fitted_a = bootstrap_finalize(a_tmp)
 
     metadata = {
         "ensemble_name": args.ensemble_name,

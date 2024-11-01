@@ -3,9 +3,9 @@
 from argparse import ArgumentParser, FileType
 import h5py
 import numpy as np
-from uncertainties import ufloat
 
-from .bootstrap import BootstrapSampleSet
+
+from .bootstrap import BootstrapSampleSet, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract
 from .mass import (
@@ -176,8 +176,8 @@ def main():
     else:
         m_tmp, a_tmp, chi2 = ch_extraction(ensemble, args)
 
-    fitted_m = ufloat(m_tmp.mean, m_tmp.samples.std())
-    fitted_a = ufloat(a_tmp.mean, a_tmp.samples.std())
+    fitted_m = bootstrap_finalize(m_tmp)
+    fitted_a = bootstrap_finalize(a_tmp)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
