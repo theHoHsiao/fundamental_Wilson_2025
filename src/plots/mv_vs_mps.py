@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+
 from ..plots_common import standard_plot_main
 from ..fitting import meson_beta_quad
 
@@ -30,10 +30,7 @@ def plot_poly_M4(ax, A, B, C, ch, offset, color, x_i, x_f):
     )  # color=plt.gca().lines[-1].get_color()
 
 
-def plot(data):
-    mass_fund = pd.read_csv("data_assets/meson_meta_fund.csv")
-    fund_fit_pars = pd.read_csv("data_assets/m2v_fit_pms.csv", header=None)
-
+def plot(data, external_data, fit_results):
     fig, ax = plt.subplots(2, 1, num="Figure_11a", figsize=(6, 8), layout="constrained")
 
     ax[0].set_ylim(0, 0.8)
@@ -49,10 +46,10 @@ def plot(data):
     # plot fund. rep. results
 
     ax[0].errorbar(
-        mass_fund.am_ps_sq_avg.values,
-        mass_fund.am_v_sq_avg.values,
-        xerr=mass_fund.am_ps_sq_err.values,
-        yerr=mass_fund.am_v_sq_err.values,
+        external_data.am_ps_sq_avg.values,
+        external_data.am_v_sq_avg.values,
+        xerr=external_data.am_ps_sq_err.values,
+        yerr=external_data.am_v_sq_err.values,
         linestyle="",
         marker="o",
         markerfacecolor="none",
@@ -64,11 +61,13 @@ def plot(data):
         label=r"$N_f=2$ (f) $Sp(4)$",
     )
 
+    print(fit_results["m_V_vs_m_PS"])
+
     plot_poly_M4(
         ax[0],
-        fund_fit_pars[0],
-        fund_fit_pars[1],
-        fund_fit_pars[2],
+        np.array(fit_results["m_V_vs_m_PS"]),
+        np.array(fit_results["L"]),
+        np.array(fit_results["W"]),
         "",
         0,
         "r",
@@ -77,10 +76,10 @@ def plot(data):
     )
 
     ax[1].errorbar(
-        mass_fund.w0m_ps_sq_avg.values,
-        mass_fund.w0m_v_sq_avg.values,
-        xerr=mass_fund.w0m_ps_sq_err.values,
-        yerr=mass_fund.w0m_v_sq_err.values,
+        external_data.w0m_ps_sq_avg.values,
+        external_data.w0m_v_sq_avg.values,
+        xerr=external_data.w0m_ps_sq_err.values,
+        yerr=external_data.w0m_v_sq_err.values,
         linestyle="",
         marker="o",
         markerfacecolor="none",

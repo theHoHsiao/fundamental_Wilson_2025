@@ -1,30 +1,22 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import pandas as pd
 
 from ..plots_common import standard_plot_main
-from ..dump import read_sample_files
 
 
-def plot(data):
+def plot(data, external_data, fit_results):
     fig, ax = plt.subplots(1, 1, num="Figure_15", figsize=(6, 4), layout="constrained")
-
-    csv_fund = pd.read_csv("data_assets/mv_fps_fund.csv", header=None)
-    extp_data = read_sample_files(
-        ["intermediary_data/extrapolation_results/R_mvdfps_extp_samples.json"],
-        group_key="channel",
-    )
 
     ax.set_xlim(0, 1.5)
     ax.set_xlabel(r"$\hat{m}_{\rm ps(PS)}^2$")
     ax.set_ylabel(r"$m_{\rm v(V)} / f_{\rm ps(PS)}$")
 
     ax.errorbar(
-        csv_fund[0].values,
-        csv_fund[2].values * 2**0.5,
-        xerr=csv_fund[1].values,
-        yerr=csv_fund[3].values * 2**0.5,
+        external_data.get("R_value").values,
+        external_data.get("L_value").values * 2**0.5,
+        xerr=external_data.get("R_uncertainty").values,
+        yerr=external_data.get("L_uncertainty").values * 2**0.5,
         linestyle="",
         marker="o",
         markerfacecolor="none",
@@ -49,7 +41,7 @@ def plot(data):
         X = (datum["ps_mass_samples"].samples * w0) ** 2
         Y = (
             datum["v_mass_samples"].samples / datum["ps_decay_constant_samples"].samples
-            - extp_data[0]["W_vdfps_samples"].samples / w0
+            - fit_results["W_vdfps_samples"].samples / w0
         )
 
         to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))

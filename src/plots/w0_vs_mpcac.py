@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from ..plots_common import standard_plot_main
 
 
-def plot(data):
+def plot(data, **kwargs):
     fig, ax = plt.subplots(layout="constrained", figsize=(3.5, 3.0))
 
     ax.set_xlabel(r"$\hat{m}_{\mathrm{PCAC}}$")

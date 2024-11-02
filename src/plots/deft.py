@@ -29,7 +29,7 @@ def plot_axpb_y_minus(ax, A, B, ch, offset, color, x_i, x_f):
     )  # color=plt.gca().lines[-1].get_color()
 
 
-def plot(data):
+def plot(data, **kwargs):
     fig, ax = plt.subplots(1, 1, num="Figure_22", figsize=(6, 4), layout="constrained")
 
     ax.set_ylim(0.4, 1.7)

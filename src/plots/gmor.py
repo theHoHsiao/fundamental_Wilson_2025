@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from ..plots_common import standard_plot_main
 
 
-def plot(data):
+def plot(data, **kwargs):
     fig, ax = plt.subplots(1, 1, num="Figure_20", figsize=(6, 4), layout="constrained")
 
     ax.set_xlim(0, 0.16)

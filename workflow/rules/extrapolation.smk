@@ -34,7 +34,7 @@ rule Decay_continuum_massless_extrapolation:
         data=partial(extp_samples, observables=["w0", "meson_ps", "decay_constant_ps", "decay_constant_v", "decay_constant_av"]),
         script="src/extrapolation_decay.py",
     output:
-        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_deacy_mean.csv",
+        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_decay_mean.csv",
         samples=f"intermediary_data/extrapolation_results/{{channel}}_extp_decay_samples.json",
     conda:
         "../envs/flow_analysis.yml"

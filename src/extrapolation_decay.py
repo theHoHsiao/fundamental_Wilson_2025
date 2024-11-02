@@ -44,9 +44,7 @@ def prepare_data(data, args):
             continue
         if "ps_mass_samples" not in datum:
             continue
-        if f"{args.channel}_matrix_element_samples" not in datum:
-            continue
-        if np.isnan((datum[f"{args.channel}_mass_samples"].samples).mean()):
+        if f"{args.channel}_decay_constant_samples" not in datum:
             continue
 
         w0 = np.append(datum["w0_samples"].samples, datum["w0_samples"].mean)
