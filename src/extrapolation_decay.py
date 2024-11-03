@@ -96,7 +96,7 @@ def main():
     if args.output_file_samples:
         dump_samples(
             {
-                "channel": f"m_{args.channel}",
+                "channel": f"f_{args.channel}",
                 f"F_{args.channel}_samples": fit_val[0, 0:-1],
                 f"F_{args.channel}_value": fit_val[0, -1],
                 f"L_{args.channel}_samples": fit_val[1, 0:-1],
