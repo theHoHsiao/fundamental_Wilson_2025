@@ -77,6 +77,18 @@ def smear_Rmv_data(wildcards):
         if row["use_smear"]
     ]
 
+def chipt_extrapolation_results(wildcards):
+    return [
+        f"intermediary_data/chipt_extrapolation_results/chipt_b{beta}_extp_mean.csv".format()
+        for beta in [6.6, 6.7, 6.75, 6.8]
+    ]
+
+def deft_extrapolation_results(wildcards):
+    return [
+        f"intermediary_data/deft_extrapolation_results/deft_b{beta}_extp_mean.csv".format()
+        for beta in [6.6, 6.7, 6.75, 6.8]
+    ]
+
 rule wall_mass_table:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -149,3 +161,30 @@ rule smear_mass_fps_table:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} {input.data_Rmv} --output_file {output.table}"
+
+rule chipt_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=chipt_extrapolation_results,
+        script="src/tables/chipt_table.py",
+    output:
+        table="assets/tables/table_XI.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule deft_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=deft_extrapolation_results,
+        script="src/tables/deft_table.py",
+    output:
+        table="assets/tables/table_XII.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"

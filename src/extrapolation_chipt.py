@@ -38,12 +38,15 @@ def get_args():
 def prepare_data(data, args):
     m_ps_sqr = []
     m_ch_sqr = []
+    bare_mass = []
 
     for datum in data:
         if "ps_mass_samples" not in datum:
             continue
         if datum["beta"] != args.beta:
             continue
+
+        bare_mass.append(datum["mAS"])
 
         m_ps = np.append(
             datum["ps_mass_samples"].samples, datum["ps_mass_samples"].mean
@@ -57,14 +60,14 @@ def prepare_data(data, args):
         m_ps_sqr.append(m_ps**2)
         m_ch_sqr.append(f_ps**2)
 
-    return np.array(m_ps_sqr), np.array(m_ch_sqr)
+    return np.array(m_ps_sqr), np.array(m_ch_sqr), np.array(bare_mass)
 
 
 def main():
     args = get_args()
     data = read_sample_files(args.data_filenames)
 
-    m_ps, f_ps = prepare_data(data, args)
+    m_ps, f_ps, bare_mass = prepare_data(data, args)
 
     fit_val, X2 = meson_beta(m_ps, f_ps)
 
@@ -74,6 +77,7 @@ def main():
     dump_dict(
         {
             "beta": f"{args.beta}",
+            "bare_mass_range": f"[{bare_mass.min()}, {bare_mass.max()}]",
             "chi_sqr_dof": X2,
             "A": fit_A,
             "B": fit_B,
