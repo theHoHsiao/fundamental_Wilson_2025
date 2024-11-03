@@ -77,17 +77,55 @@ def smear_Rmv_data(wildcards):
         if row["use_smear"]
     ]
 
+def continuum_massless_extrapolation_mass(wildcards):
+    return [
+        f"intermediary_data/extrapolation_results/{channel}_extp_mass_mean.csv".format()
+        for channel in ["v", "t", "av", "at", "s", "rhoE1"]
+    ]
+
+def continuum_massless_extrapolation_decay(wildcards):
+    return [
+        f"intermediary_data/extrapolation_results/{channel}_extp_decay_mean.csv".format()
+        for channel in ["ps", "v", "av"]
+    ]
+
 def chipt_extrapolation_results(wildcards):
     return [
         f"intermediary_data/chipt_extrapolation_results/chipt_b{beta}_extp_mean.csv".format()
-        for beta in [6.6, 6.7, 6.75, 6.8]
+        for beta in [6.6, 6.65, 6.7, 6.75, 6.8]
     ]
 
 def deft_extrapolation_results(wildcards):
     return [
         f"intermediary_data/deft_extrapolation_results/deft_b{beta}_extp_mean.csv".format()
-        for beta in [6.6, 6.7, 6.75, 6.8]
+        for beta in [6.6, 6.65, 6.7, 6.75, 6.8]
     ]
+
+rule continuum_massless_decay:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_decay,
+        script="src/tables/continuum_massless_decay.py",
+    output:
+        table="assets/tables/table_V_decay.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+rule continuum_massless_mass:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_mass,
+        script="src/tables/continuum_massless_mass.py",
+    output:
+        table="assets/tables/table_V_mass.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
 
 rule wall_mass_table:
     params:

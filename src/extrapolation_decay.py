@@ -84,11 +84,11 @@ def main():
 
     dump_dict(
         {
-            "channel": f"m_{args.channel}",
+            "channel": f"f_{args.channel}",
             "chi_sqr_dof": X2,
-            f"F_{args.channel}": fit_M,
-            f"L_{args.channel}": fit_L,
-            f"W_{args.channel}": fit_W,
+            "F": fit_M,
+            "L": fit_L,
+            "W": fit_W,
         },
         args.output_file_mean,
     )

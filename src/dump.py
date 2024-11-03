@@ -153,11 +153,32 @@ def read_sample_files(filenames, group_key="ensemble_name"):
 def read_files_single_beta(filenames):
     # A key on which to search; only one is needed per file type.
     # (More will create duplicates.)
-    key_observables = ["A", "B"]
+    key_observables = ["A", "B", "y"]
 
     data = defaultdict(list)
     for filename in filenames:
         file_data = pd.read_csv(filename).set_index("beta")
+        for observable in key_observables:
+            key = f"{observable}_value"
+            if key in file_data.columns:
+                data[key].append(file_data)
+                break
+        else:
+            raise ValueError(f"Unrecognised data in {filename}.")
+
+    data_frames = [pd.concat(obs_data) for obs_data in data.values()]
+
+    result = drop_duplicate_columns(pd.concat(data_frames, axis=1).reset_index())
+    return combine_df_ufloats(result)
+
+
+def read_files_single_channel(filenames):
+    # A key on which to search; only one is needed per file type.
+    # (More will create duplicates.)
+    key_observables = ["M", "L", "W", "F"]
+    data = defaultdict(list)
+    for filename in filenames:
+        file_data = pd.read_csv(filename).set_index("channel")
         for observable in key_observables:
             key = f"{observable}_value"
             if key in file_data.columns:

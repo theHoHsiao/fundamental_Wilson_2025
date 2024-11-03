@@ -83,9 +83,9 @@ def main():
         {
             "channel": f"m_{args.channel}",
             "chi_sqr_dof": X2,
-            f"M_{args.channel}": fit_M,
-            f"L_{args.channel}": fit_L,
-            f"W_{args.channel}": fit_W,
+            "M": fit_M,
+            "L": fit_L,
+            "W": fit_W,
         },
         args.output_file_mean,
     )
@@ -94,12 +94,12 @@ def main():
         dump_samples(
             {
                 "channel": f"m_{args.channel}",
-                f"M_{args.channel}_samples": fit_val[0, 0:-1],
-                f"M_{args.channel}_value": fit_val[0, -1],
-                f"L_{args.channel}_samples": fit_val[1, 0:-1],
-                f"L_{args.channel}_value": fit_val[1, -1],
-                f"W_{args.channel}_samples": fit_val[2, 0:-1],
-                f"W_{args.channel}_value": fit_val[2, -1],
+                "M_samples": fit_val[0, 0:-1],
+                "M_value": fit_val[0, -1],
+                "L_samples": fit_val[1, 0:-1],
+                "L_value": fit_val[1, -1],
+                "W_samples": fit_val[2, 0:-1],
+                "W_value": fit_val[2, -1],
             },
             args.output_file_samples,
         )
