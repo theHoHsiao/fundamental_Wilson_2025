@@ -75,6 +75,7 @@ rule plot_mpsmv_vs_mpcac:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(ASB2s_samples, observables=["meson_ps","meson_v", "mpcac"]),
+        script="src/plots/mpsmv_vs_mpcac.py"
     output:
         plot="assets/plots/mpsmv_vs_mpcac_b6p7.{plot_filetype}",
     conda:
