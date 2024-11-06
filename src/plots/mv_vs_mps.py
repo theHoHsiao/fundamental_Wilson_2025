@@ -61,13 +61,11 @@ def plot(data, external_data, fit_results):
         label=r"$N_f=2$ (f) $Sp(4)$",
     )
 
-    print(fit_results["m_V_vs_m_PS"])
-
     plot_poly_M4(
         ax[0],
-        np.array(fit_results["m_V_vs_m_PS"]),
-        np.array(fit_results["L"]),
-        np.array(fit_results["W"]),
+        np.array(fit_results[0]["m_V_vs_m_PS"]),
+        np.array(fit_results[0]["L"]),
+        np.array(fit_results[0]["W"]),
         "",
         0,
         "r",

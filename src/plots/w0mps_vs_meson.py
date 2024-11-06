@@ -132,11 +132,11 @@ def plot(data, fit_pars):
             )
 
         for parameter in fit_pars:
-            if f"M_{ch}_samples" in parameter:
+            if parameter["channel"] == f"m_{ch}":
                 plot_axpb_y(
                     ax,
-                    parameter[f"M_{ch}_samples"].samples,
-                    parameter[f"L_{ch}_samples"].samples,
+                    parameter["M_samples"].samples,
+                    parameter["L_samples"].samples,
                     "",
                     0,
                     "k",
@@ -146,13 +146,13 @@ def plot(data, fit_pars):
 
                 plot_axpb_y(
                     ax2,
-                    parameter[f"M_{ch}_samples"].samples,
-                    parameter[f"L_{ch}_samples"].samples,
+                    parameter["M_samples"].samples,
+                    parameter["L_samples"].samples,
                     r"$ \rm " + ch_tag(ch) + "$",
                     0,
                     channel_color(ch),
-                    0.8944271909999159,
-                    1.224744871391589,
+                    0.8944,
+                    1.2247,
                 )
 
         ax.set_xlim(0.8, 1.5)

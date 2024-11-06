@@ -41,7 +41,7 @@ def plot(data, external_data, fit_results):
         X = (datum["ps_mass_samples"].samples * w0) ** 2
         Y = (
             datum["v_mass_samples"].samples / datum["ps_decay_constant_samples"].samples
-            - fit_results["W_vdfps_samples"].samples / w0
+            - fit_results[0]["W_vdfps_samples"].samples / w0
         )
 
         to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
