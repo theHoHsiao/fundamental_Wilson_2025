@@ -63,7 +63,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
     )
 
 
-def plot(data, fit_pars):
+def plot(data, fit_pars, **kwargs):
     fig, ax1 = plt.subplots(
         1, 2, num="Figure_13_up", figsize=(12, 4), layout="constrained"
     )
