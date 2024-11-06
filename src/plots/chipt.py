@@ -3,7 +3,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..plots_common import standard_plot_main, beta_color, read_sample_files
+from ..plots_common import standard_plot_main, beta_color
+from ..bootstrap import BOOTSTRAP_SAMPLE_COUNT
 
 
 def plot_YABX(ax, A, B, ch, offset, color, x_i, x_f):
@@ -29,7 +30,7 @@ def plot_YABX(ax, A, B, ch, offset, color, x_i, x_f):
     )  # color=plt.gca().lines[-1].get_color()
 
 
-def plot(data, **kwargs):
+def plot(data, fit_results, **kwargs):
     fig, ax = plt.subplots(1, 1, num="Figure_21", figsize=(6, 4), layout="constrained")
 
     ax.set_ylim(0, 0.018)
@@ -56,24 +57,29 @@ def plot(data, **kwargs):
 
         if len(to_plot) < 3:
             continue
-        fit_results = read_sample_files(
-            [
-                f"intermediary_data/chipt_extrapolation_results/chipt_b{beta}_extp_samples.json"
-            ],
-            group_key="beta",
-        )
-        # print(fit_results)
+
+        for tmp_result in fit_results:
+            if tmp_result["beta"] == str(beta):
+                fit_result = tmp_result
+
+        arbitrary_line_width = 0.00005
         plot_YABX(
             ax,
-            np.random.normal(fit_results[0][f"A_{beta}_samples"].mean, 0.00005, 200),
             np.random.normal(
-                fit_results[0][f"B_{beta}_samples"].mean, 0.00005, 200
-            ),  # line with a small band
+                fit_result[f"A_{beta}_samples"].mean,
+                arbitrary_line_width,
+                BOOTSTRAP_SAMPLE_COUNT,
+            ),
+            np.random.normal(
+                fit_result[f"B_{beta}_samples"].mean,
+                arbitrary_line_width,
+                BOOTSTRAP_SAMPLE_COUNT,
+            ),  # Construct a distribution that will give a narrow band that looks like a line
             "",
             0,
             beta_color(beta),
             0,
-            0.8366600265340756,
+            0.84,
         )
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)

@@ -55,6 +55,7 @@ def ASB2s_samples(wildcards, observables):
         if row["ensembles_B6p7"]
     ]
 
+
 rule plot_finite_volume:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -68,6 +69,7 @@ rule plot_finite_volume:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+
 rule plot_mpsmv_vs_mpcac:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -79,6 +81,7 @@ rule plot_mpsmv_vs_mpcac:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 
 rule plot_mpsfps_vs_mpcac:
     params:
@@ -93,6 +96,7 @@ rule plot_mpsfps_vs_mpcac:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+
 rule plot_meson_mass_vs_fermion_mass:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -105,6 +109,7 @@ rule plot_meson_mass_vs_fermion_mass:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 
 rule plot_decay_constant_vs_fermion_mass:
     params:
@@ -119,6 +124,7 @@ rule plot_decay_constant_vs_fermion_mass:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+
 rule plot_meson_mass_fps_vs_mpcac:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -131,6 +137,7 @@ rule plot_meson_mass_fps_vs_mpcac:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 
 rule plot_mv_vs_mps:
     params:
@@ -147,6 +154,7 @@ rule plot_mv_vs_mps:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --external_data {input.external_data} --fit_results {input.fit_results}"
 
+
 rule plot_extrapolations_meson_mass:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -161,6 +169,7 @@ rule plot_extrapolations_meson_mass:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"
+
 
 rule plot_extrapolations_meson_decay:
     params:
@@ -193,6 +202,7 @@ rule plot_R_mvfps_vs_mps:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --external_data {input.external_data} --fit_results {input.fit_results}"
 
+
 rule plot_R_mvprime_dmv_vs_mps:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -205,6 +215,7 @@ rule plot_R_mvprime_dmv_vs_mps:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 
 rule plot_w0_vs_mps:
     params:
@@ -219,6 +230,7 @@ rule plot_w0_vs_mps:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+
 rule plot_R_mps_dfps_vs_mps:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -231,6 +243,7 @@ rule plot_R_mps_dfps_vs_mps:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
 
 rule plot_gmor:
     params:
@@ -245,19 +258,20 @@ rule plot_gmor:
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
 
+
 rule plot_chipt:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(all_samples, observables=["meson_ps", "decay_constant_ps"]),
-        fit_parameters=chipt_extp,
+        fit_results=chipt_extp,
         script="src/plots/chipt.py"
     output:
         plot="assets/plots/chipt2.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --fit_results {input.fit_results}"
 
 
 rule plot_deft:
@@ -265,11 +279,11 @@ rule plot_deft:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(all_samples, observables=["meson_ps", "decay_constant_ps", "mpcac"]),
-        fit_parameters=deft_extp,
+        fit_results=deft_extp,
         script="src/plots/deft.py"
     output:
         plot="assets/plots/deft1.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --fit_results {input.fit_results}"

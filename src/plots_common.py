@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from uncertainties import UFloat
 
-from .dump import read_sample_files, read_sample_file
+from .dump import read_sample_files
 
 
 def save_or_show(fig, filename=None):
@@ -89,16 +89,12 @@ def standard_plot_main(plot_function, **args_options):
     args = get_standard_plot_args(**args_options)
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
+
     external_data = (
         pd.read_csv(args.external_data) if args.external_data is not None else None
     )
 
-    if (
-        len(args.fit_results) == 1
-    ):  # having different `group_key`, there should be a better solutions
-        fit_results = read_sample_file(args.fit_results[0])
-    else:
-        fit_results = read_sample_files(args.fit_results, group_key="channel")
+    fit_results = read_sample_files(args.fit_results, group_key="beta")
 
     save_or_show(
         plot_function(data, external_data=external_data, fit_results=fit_results),

@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..plots_common import standard_plot_main, beta_color, read_sample_files
+from ..plots_common import standard_plot_main, beta_color
 
 
 def plot_axpb_y_minus(ax, A, B, ch, offset, color, x_i, x_f):
@@ -29,7 +29,7 @@ def plot_axpb_y_minus(ax, A, B, ch, offset, color, x_i, x_f):
     )  # color=plt.gca().lines[-1].get_color()
 
 
-def plot(data, **kwargs):
+def plot(data, fit_results, **kwargs):
     fig, ax = plt.subplots(1, 1, num="Figure_22", figsize=(6, 4), layout="constrained")
 
     ax.set_ylim(0.4, 1.7)
@@ -59,23 +59,22 @@ def plot(data, **kwargs):
 
         if len(to_plot) < 3:
             continue
-        fit_results = read_sample_files(
-            [
-                f"intermediary_data/deft_extrapolation_results/deft_b{beta}_extp_samples.json"
-            ],
-            group_key="beta",
-        )
+
+        for tmp_result in fit_results:
+            if tmp_result["beta"] == str(beta):
+                fit_result = tmp_result
+
         # print(fit_results)
         plot_axpb_y_minus(
             ax,
-            np.random.normal(fit_results[0][f"A_b{beta}_samples"].mean, 0.0005, 200),
+            np.random.normal(fit_result[f"A_b{beta}_samples"].mean, 0.0005, 200),
             np.random.normal(
-                fit_results[0][f"B_b{beta}_samples"].mean, 0.0005, 200
+                fit_result[f"B_b{beta}_samples"].mean, 0.0005, 200
             ),  # line with a small band
             "",
             0,
             beta_color(beta),
-            2.6457513110645907,
+            2.645,
             2,
         )
 
