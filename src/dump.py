@@ -77,10 +77,8 @@ def drop_duplicate_columns(df):
     return df.loc[:, ~df.columns.duplicated()].copy()
 
 
-def read_files(filenames):
-    # A key on which to search; only one is needed per file type.
-    # (More will create duplicates.)
-    key_observables = (
+key_observables = {
+    "ensemble_name": (
         ["Q0", "w0", "mPCAC", "avg_plaquette"]
         + [f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]]
         + [f"{state}_decay_constant" for state in ["ps", "v", "av"]]
@@ -94,12 +92,19 @@ def read_files(filenames):
         ]
         + [f"{state}_Rfps" for state in ["ps", "v", "t", "av", "at", "s"]]
         + ["smear_rhoE1_Rmv"]
-    )
+    ),
+    "beta": ["A"],
+    "channel": ["M"],
+}
 
+
+def read_files(filenames, index_name="ensemble_name"):
+    # A key on which to search; only one is needed per file type.
+    # (More will create duplicates.)
     data = defaultdict(list)
     for filename in filenames:
-        file_data = pd.read_csv(filename).set_index("ensemble_name")
-        for observable in key_observables:
+        file_data = pd.read_csv(filename).set_index(index_name)
+        for observable in key_observables[index_name]:
             key = f"{observable}_value"
             if key in file_data.columns:
                 data[key].append(file_data)
@@ -134,10 +139,10 @@ def read_sample_files(filenames, group_key="ensemble_name"):
     results = {}
     for filename in filenames:
         file_data = read_sample_file(filename)
-        if file_data[group_key] not in results:
-            results[file_data[group_key]] = file_data
+        if file_data.get(group_key) not in results:
+            results[file_data.get(group_key)] = file_data
         else:
-            target = results[file_data[group_key]]
+            target = results[file_data.get(group_key)]
             for k, v in file_data.items():
                 if "samples" not in k and k in target:
                     if target[k] != v:
@@ -148,46 +153,3 @@ def read_sample_files(filenames, group_key="ensemble_name"):
                     target[k] = v
 
     return list(results.values())
-
-
-def read_files_single_beta(filenames):
-    # A key on which to search; only one is needed per file type.
-    # (More will create duplicates.)
-    key_observables = ["A", "B", "y"]
-
-    data = defaultdict(list)
-    for filename in filenames:
-        file_data = pd.read_csv(filename).set_index("beta")
-        for observable in key_observables:
-            key = f"{observable}_value"
-            if key in file_data.columns:
-                data[key].append(file_data)
-                break
-        else:
-            raise ValueError(f"Unrecognised data in {filename}.")
-
-    data_frames = [pd.concat(obs_data) for obs_data in data.values()]
-
-    result = drop_duplicate_columns(pd.concat(data_frames, axis=1).reset_index())
-    return combine_df_ufloats(result)
-
-
-def read_files_single_channel(filenames):
-    # A key on which to search; only one is needed per file type.
-    # (More will create duplicates.)
-    key_observables = ["M", "L", "W", "F"]
-    data = defaultdict(list)
-    for filename in filenames:
-        file_data = pd.read_csv(filename).set_index("channel")
-        for observable in key_observables:
-            key = f"{observable}_value"
-            if key in file_data.columns:
-                data[key].append(file_data)
-                break
-        else:
-            raise ValueError(f"Unrecognised data in {filename}.")
-
-    data_frames = [pd.concat(obs_data) for obs_data in data.values()]
-
-    result = drop_duplicate_columns(pd.concat(data_frames, axis=1).reset_index())
-    return combine_df_ufloats(result)
