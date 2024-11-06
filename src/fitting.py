@@ -472,7 +472,7 @@ def meson_M2(X, LAT_A, Y):
         V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
-        print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars - 1))))
+        # print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars - 1))))
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
@@ -533,7 +533,7 @@ def meson_beta(X, Y):
         V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
-        print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
+        # print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
