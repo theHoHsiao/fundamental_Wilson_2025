@@ -65,8 +65,6 @@ def prepare_data(data, args):
             (datum["ps_decay_constant_samples"].mean),
         )
 
-        # print(m_ps.shape)
-
         m_ps_sqr.append((w0 * m_ps) ** 2)
 
         R.append(m_ch / f_ps)
@@ -84,7 +82,6 @@ def main():
 
     fit_val, X2 = fitting.meson_M2(m_ps_sqr, lat_a, m_ch_sqr)
 
-    # print(fit_val[0, 0:-1])
     fit_M = ufloat(fit_val[0, -1], fit_val[0, 0:-1].std())
     fit_L = ufloat(fit_val[1, -1], fit_val[1, 0:-1].std())
     fit_W = ufloat(fit_val[2, -1], fit_val[2, 0:-1].std())
