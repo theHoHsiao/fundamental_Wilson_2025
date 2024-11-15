@@ -29,7 +29,7 @@ def first_fit_parameters(fit):
 
 def bootstrap_fit(fitter, dset, T, tmin, tmax, tp):
     gv.ranseed(12)
-    # dset = gv.dataset.Dataset(ifile)
+
     pdatalist = (
         cf.process_dataset(ds, make_models(T, tmin, tmax, tp))
         for ds in gv.dataset.bootstrap_iter(dset, n=10)
@@ -54,7 +54,6 @@ def fit_correlator_without_bootstrap(
 
     fitter = cf.CorrFitter(models=make_models(T, tmin, tmax, tp))
 
-    # p0 = None
     for N in range(1, Nmax + 1):
         prior = make_prior(N)
         fit = fitter.lsqfit(data=data_corr, prior=prior, p0=p0)
@@ -66,21 +65,15 @@ def fit_correlator_without_bootstrap(
 
     E, a, chi2, dof = first_fit_parameters(fit)
     if plotting:
-        # fit.show_plots(view='ratio')
         fit.show_plots(view="log")
 
     return E, a, chi2, dof
 
 
-def fit_exp_std(C_boot, TI, TF):
-    # This function fits the correlators with a cosh function
+def fit_exp_std(C_boot, plateau_start, plateau_end):
+    # This function fits the correlators with a exp function
     # the error is estimated by standard deviation with a covariance matrix
 
-    # load the ensamble info
-
-    # print("A* ( exp[-mt] ) fitting time region ", TI, "to", TF, ": ")
-
-    # std = np.std(C_boot, axis=0)
     cov = np.cov(C_boot[0:-1].T)
 
     if np.isnan(cov.sum()):
@@ -89,34 +82,47 @@ def fit_exp_std(C_boot, TI, TF):
     if np.isnan(cov.T.sum()):
         print("cov contain nan")
 
-    CORR = dict(Gab=gv.gvar(C_boot[-1], cov))
+    correlator_set = dict(Gab=gv.gvar(C_boot[-1], cov))
 
     E, a, chi2, dof = fit_correlator_without_bootstrap(
-        CORR, 0, TI, TF, 1, None, plotting=False, printing=True
+        correlator_set,
+        0,
+        plateau_start,
+        plateau_end,
+        1,
+        None,
+        plotting=False,
+        printing=True,
     )
 
     return gv.mean(E[0]), gv.sdev(E[0]), chi2 / dof
 
 
-def fit_cosh_std(C_boot, TI, TF, GLB_T):
+def fit_cosh_std(C_boot, plateau_start, plateau_end, GLB_T):
     # This function fits the correlators with a cosh function
     # the error is estimated by standard deviation with a covariance matrix
 
-    # load the ensamble info
-    # num_sample = C_boot.shape[0]
     def func(t, a, M):
         return a * a * M * (np.exp(-M * t) + np.exp(-M * (GLB_T - t))) / 2
 
-    x0, pcov = curve_fit(func, np.arange(TI, TF), C_boot[-1, TI:TF])
-    # print("p0=", x0)
+    x0, pcov = curve_fit(
+        func,
+        np.arange(plateau_start, plateau_end),
+        C_boot[-1, plateau_start:plateau_end],
+    )
 
     p0 = dict(
         {"log(a)": np.array([np.log(abs(x0[0]))]), "log(dE)": np.array([np.log(x0[1])])}
     )
 
-    print("A* ( exp[-mt] + exp[-m(T-t)] ) fitting time region ", TI, "to", TF, ": ")
+    print(
+        "A* ( exp[-mt] + exp[-m(T-t)] ) fitting time region ",
+        plateau_start,
+        "to",
+        plateau_end,
+        ": ",
+    )
 
-    # std = np.std(C_boot, axis=0)
     cov = np.cov(C_boot[0:-1].T)
 
     if np.isnan(cov.sum()):
@@ -125,18 +131,24 @@ def fit_cosh_std(C_boot, TI, TF, GLB_T):
     if np.isnan(cov.T.sum()):
         print("cov contain nan")
 
-    CORR = dict(Gab=gv.gvar(C_boot[-1], cov))
+    correlator_set = dict(Gab=gv.gvar(C_boot[-1], cov))
 
     E, a, chi2, dof = fit_correlator_without_bootstrap(
-        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=True
+        correlator_set,
+        0,
+        plateau_start,
+        plateau_end,
+        1,
+        GLB_T,
+        p0,
+        plotting=False,
+        printing=True,
     )
-
-    # print(gv.mean(E[0]), gv.sdev(E[0]), round(chi2 / dof, 2))
 
     return gv.mean(E[0]), gv.sdev(E[0]), chi2 / dof
 
 
-def fit_cosh_booerr(C, TI, TF):
+def fit_cosh_booerr(C, plateau_start, plateau_end):
     # This function fits the correlators with a cosh function
 
     C_boot = C.samples
@@ -147,35 +159,51 @@ def fit_cosh_booerr(C, TI, TF):
     def func(t, a, M):
         return a * a * M * (np.exp(-M * t) + np.exp(-M * (GLB_T - t))) / 2
 
-    x0, pcov = curve_fit(func, np.arange(TI, TF), C.mean[0, TI:TF])
-    # print("p0=", x0)
+    x0, pcov = curve_fit(
+        func,
+        np.arange(plateau_start, plateau_end),
+        C.mean[0, plateau_start:plateau_end],
+    )
 
     p0 = dict(
         {"log(a)": np.array([np.log(abs(x0[0]))]), "log(dE)": np.array([np.log(x0[1])])}
     )
 
-    # print("A* ( exp[-mt] + exp[-m(T-t)] ) fitting time region ", TI, "to", TF, ": ")
-
     E_sample = np.zeros(num_sample)
     a_sample = np.zeros(num_sample)
     chi2_dof = np.zeros(num_sample)
 
-    # std = np.std(C_boot, axis=0)
     cov = np.cov(C_boot.T)
 
     for n in range(num_sample):
-        CORR = dict(Gab=gv.gvar(C_boot[n], cov))
+        correlator_set = dict(Gab=gv.gvar(C_boot[n], cov))
 
         E, a, chi2, dof = fit_correlator_without_bootstrap(
-            CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
+            correlator_set,
+            0,
+            plateau_start,
+            plateau_end,
+            1,
+            GLB_T,
+            p0,
+            plotting=False,
+            printing=False,
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         chi2_dof[n] = chi2 / dof
 
-    CORR = dict(Gab=gv.gvar(C.mean[0], cov))
+    correlator_set = dict(Gab=gv.gvar(C.mean[0], cov))
     E_mean, a_mean, chi2, dof = fit_correlator_without_bootstrap(
-        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
+        correlator_set,
+        0,
+        plateau_start,
+        plateau_end,
+        1,
+        GLB_T,
+        p0,
+        plotting=False,
+        printing=False,
     )
 
     return (
@@ -187,16 +215,19 @@ def fit_cosh_booerr(C, TI, TF):
     )
 
 
-def fit_exp_booerr(C, TI, TF):
-    # This function fits the correlators with a cosh function
+def fit_exp_booerr(C, plateau_start, plateau_end):
+    # This function fits the correlators with a exp function
 
     C_boot = C.samples
 
     def func(t, a, M):
         return a * a * M * (np.exp(-M * t)) / 2
 
-    x0, pcov = curve_fit(func, np.arange(TI, TF), C.mean[0, TI:TF])
-    # print("p0=", x0)
+    x0, pcov = curve_fit(
+        func,
+        np.arange(plateau_start, plateau_end),
+        C.mean[0, plateau_start:plateau_end],
+    )
 
     p0 = dict(
         {"log(a)": np.array([np.log(abs(x0[0]))]), "log(dE)": np.array([np.log(x0[1])])}
@@ -205,28 +236,41 @@ def fit_exp_booerr(C, TI, TF):
     # load the ensamble info
     num_sample = C_boot.shape[0]
 
-    # print("A* ( exp[-mt]  ) fitting time region ", TI, "to", TF, ": ")
-
     E_sample = np.zeros(num_sample)
     a_sample = np.zeros(num_sample)
     chi2_dof = np.zeros(num_sample)
 
-    # std = np.std(C_boot, axis=0)
     cov = np.cov(C_boot.T)
 
     for n in range(num_sample):
-        CORR = dict(Gab=gv.gvar(C_boot[n], cov))
+        correlator_set = dict(Gab=gv.gvar(C_boot[n], cov))
 
         E, a, chi2, dof = fit_correlator_without_bootstrap(
-            CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=False
+            correlator_set,
+            0,
+            plateau_start,
+            plateau_end,
+            1,
+            None,
+            p0,
+            plotting=False,
+            printing=False,
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         chi2_dof[n] = chi2 / dof
 
-    CORR = dict(Gab=gv.gvar(C.mean[0], cov))
+    correlator_set = dict(Gab=gv.gvar(C.mean[0], cov))
     E_mean, a_mean, chi2, dof = fit_correlator_without_bootstrap(
-        CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=False
+        correlator_set,
+        0,
+        plateau_start,
+        plateau_end,
+        1,
+        None,
+        p0,
+        plotting=False,
+        printing=False,
     )
 
     return (
@@ -290,10 +334,12 @@ def fit_correlator_simultaneous(
     return E, a, b, chi2, dof
 
 
-def fit_cosh_simultaneous(Corr_ss, Corr_sp, TI, TF, GLB_T):
+def fit_cosh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, GLB_T):
     # This function fits the correlators with cosh x sinh functions
 
-    x0 = sim_coshsinh_fit(Corr_sp.mean[0], Corr_ss.mean[0], GLB_T, TI, TF)
+    x0 = sim_coshsinh_fit(
+        Corr_sp.mean[0], Corr_ss.mean[0], GLB_T, plateau_start, plateau_end
+    )
 
     p0 = dict(
         {
@@ -318,22 +364,38 @@ def fit_cosh_simultaneous(Corr_ss, Corr_sp, TI, TF, GLB_T):
     cov_sp = np.cov(Csp.T)
 
     for n in range(num_sample):
-        CORR = dict(Gab=gv.gvar(Csp[n], cov_sp), Gaa=gv.gvar(Css[n], cov_ss))
+        correlator_set = dict(Gab=gv.gvar(Csp[n], cov_sp), Gaa=gv.gvar(Css[n], cov_ss))
 
         E, a, b, chi2, dof = fit_correlator_simultaneous(
-            CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
+            correlator_set,
+            0,
+            plateau_start,
+            plateau_end,
+            1,
+            GLB_T,
+            p0,
+            plotting=False,
+            printing=False,
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         b_sample[n] = gv.mean(b[0])
         chi2_dof[n] = chi2 / dof
 
-    CORR = dict(
+    correlator_set = dict(
         Gab=gv.gvar(Corr_sp.mean[0], cov_sp), Gaa=gv.gvar(Corr_ss.mean[0], cov_ss)
     )
 
     E_mean, a_mean, b_mean, chi2, dof = fit_correlator_simultaneous(
-        CORR, 0, TI, TF, 1, GLB_T, p0, plotting=False, printing=False
+        correlator_set,
+        0,
+        plateau_start,
+        plateau_end,
+        1,
+        GLB_T,
+        p0,
+        plotting=False,
+        printing=False,
     )
 
     return gv.mean(E_mean[0]), gv.mean(b_mean[0]), chi2 / dof, E_sample, b_sample
@@ -363,19 +425,18 @@ def sim_coshsinh_fit(C1, C2, T, ti, tf):
 
         return np.append(result1, result2)
 
-    # initialParameters = np.array([1.0, 1.0, 1.0])
-
     # curve fit the combined data to the combined function
     fittedParameters, pcov = curve_fit(comboFunc, comboX, comboY)
 
     return fittedParameters
 
 
-def fit_exp_simultaneous(Css, Csp, TI, TF, GLB_T):
-    # This function fits the correlators with a cosh function
-    # the error is estimated by the bootstrap distribution width ( 68% )
+def fit_exp_simultaneous(Css, Csp, plateau_start, plateau_end, GLB_T):
+    # This function fits the correlators with a exp function
 
-    x0, y_fit_1, y_fit_2 = sim_coshsinh_fit(Csp[-1], Css[-1], GLB_T, TI, TF)
+    x0, y_fit_1, y_fit_2 = sim_coshsinh_fit(
+        Csp[-1], Css[-1], GLB_T, plateau_start, plateau_end
+    )
 
     p0 = dict(
         {
@@ -390,7 +451,9 @@ def fit_exp_simultaneous(Css, Csp, TI, TF, GLB_T):
     # load the ensamble info
     num_sample = Css.shape[0]
 
-    print("A* ( exp[-mt] ) fitting time region ", TI, "to", TF, ": ")
+    print(
+        "A* ( exp[-mt] ) fitting time region ", plateau_start, "to", plateau_end, ": "
+    )
 
     E_sample = np.zeros(num_sample)
     a_sample = np.zeros(num_sample)
@@ -401,7 +464,7 @@ def fit_exp_simultaneous(Css, Csp, TI, TF, GLB_T):
     cov_sp = np.cov(Csp.T)
 
     for n in range(num_sample):
-        CORR = dict(Gab=gv.gvar(Csp[n], cov_sp), Gaa=gv.gvar(Css[n], cov_ss))
+        correlator_set = dict(Gab=gv.gvar(Csp[n], cov_sp), Gaa=gv.gvar(Css[n], cov_ss))
 
         pp = False
 
@@ -409,15 +472,20 @@ def fit_exp_simultaneous(Css, Csp, TI, TF, GLB_T):
             pp = True
 
         E, a, b, chi2, dof = fit_correlator_simultaneous(
-            CORR, 0, TI, TF, 1, None, p0, plotting=False, printing=pp
+            correlator_set,
+            0,
+            plateau_start,
+            plateau_end,
+            1,
+            None,
+            p0,
+            plotting=False,
+            printing=pp,
         )
         E_sample[n] = gv.mean(E[0])
         a_sample[n] = gv.mean(a[0])
         b_sample[n] = gv.mean(b[0])
         chi2_dof[n] = chi2 / dof
-
-    # E_err = bootstrap_error(E_sample[0:-1], E_sample[-1])
-    # b_err = bootstrap_error(b_sample[0:-1], b_sample[-1])
 
     E_err = E_sample[0:-1].std()
     b_err = b_sample[0:-1].std()
@@ -448,7 +516,6 @@ def meson_M2(X, LAT_A, Y):
         M[a, a] = Cov(a, a)
 
     M_I = M.I
-    # print(M_I)
 
     def X2_boot_const(pars):
         def Cf_vector():
@@ -472,7 +539,6 @@ def meson_M2(X, LAT_A, Y):
         V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
-        # print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars - 1))))
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
@@ -533,7 +599,6 @@ def meson_beta(X, Y):
         V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
-        # print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
@@ -552,8 +617,6 @@ def meson_beta(X, Y):
 def meson_beta_quad(X, Y):
     num_sample = np.shape(X)[1]
     num_pars = 3
-
-    # print("meson M2 fitting... Y = A + BX^2 ")
 
     def func(m, a, b, c):
         return a + b * m + c * m**2
@@ -594,7 +657,6 @@ def meson_beta_quad(X, Y):
         V = np.asmatrix(V)
 
         chisqr = (V * M_I * V.T)[0, 0]
-        # print((r"Xsqr/d.o.f.=" + str(chisqr / (size - num_pars))))
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))

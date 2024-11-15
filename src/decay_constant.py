@@ -4,7 +4,7 @@ from argparse import ArgumentParser, FileType
 from uncertainties import ufloat
 
 from .dump import read_sample_files, dump_dict, dump_samples
-from .mass import C_R
+from .mass import renormalisation_constant
 
 
 def get_args():
@@ -43,13 +43,13 @@ def main():
 
     datum = read_sample_files(args.data_filename)[0]
 
-    Z_factor = 1 + 2 * (C_R(args.channel)) * (8 / datum["beta"]) / (
-        16 * np.pi**2 * datum["plaquette_samples"].samples
-    )
+    Z_factor = 1 + 2 * (renormalisation_constant(args.channel)) * (
+        8 / datum["beta"]
+    ) / (16 * np.pi**2 * datum["plaquette_samples"].samples)
 
-    Z_factor_mean = 1 + 2 * (C_R(args.channel)) * (8 / datum["beta"]) / (
-        16 * np.pi**2 * datum["plaquette_samples"].mean
-    )
+    Z_factor_mean = 1 + 2 * (renormalisation_constant(args.channel)) * (
+        8 / datum["beta"]
+    ) / (16 * np.pi**2 * datum["plaquette_samples"].mean)
 
     decay_constant_sample = (
         datum[f"{args.channel}_matrix_element_samples"].samples * Z_factor

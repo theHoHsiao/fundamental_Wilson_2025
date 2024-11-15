@@ -139,12 +139,12 @@ def bin_multi_source(ensemble, ch, args):
 
 
 def ch_extraction(ensemble, args):
-    CHs = channel_tags(args.channel)
+    target_channels = channel_tags(args.channel)
 
     tmp_bin = []
     mean = []
-    for j in range(len(CHs)):
-        tmp_set = bin_multi_source(ensemble, CHs[j], args)
+    for j in range(len(target_channels)):
+        tmp_set = bin_multi_source(ensemble, target_channels[j], args)
         tmp_bin.append(fold_correlators(tmp_set.samples) * args.Ns**3)
         mean.append(fold_correlators(tmp_set.mean) * args.Ns**3)
 

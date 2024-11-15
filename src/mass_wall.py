@@ -131,14 +131,14 @@ def ps_extraction(ensemble, args):
 
 
 def ch_extraction(ensemble, args):
-    CHs = channel_tags(args.channel)
+    target_channels = channel_tags(args.channel)
 
     tmp_bin = []
     tmp_bin_mean = []
-    for j in range(len(CHs)):
+    for j in range(len(target_channels)):
         tmp_set = get_correlator_samples(
             ensemble,
-            f"TRIPLET/{CHs[j]}",
+            f"TRIPLET/{target_channels[j]}",
             args.min_trajectory,
             args.max_trajectory,
             args.trajectory_step,

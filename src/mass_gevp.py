@@ -154,7 +154,7 @@ def get_meson_Cmat_mix_N(ensemble, args, ch1, ch2):
 
 
 def get_Cmat_VTmix(ensemble, args):
-    CHs = [
+    target_channels = [
         ["g1", "g0g1"],
         ["g2", "g0g2"],
         ["g3", "g0g3"],
@@ -162,8 +162,8 @@ def get_Cmat_VTmix(ensemble, args):
 
     tmp_bin = []
     mean_bin = []
-    for i in range(len(CHs)):
-        ch = CHs[i]
+    for i in range(len(target_channels)):
+        ch = target_channels[i]
 
         mean, samples = get_meson_Cmat_mix_N(ensemble, args, ch[0], ch[1])
 
@@ -199,12 +199,12 @@ def main():
 
         Cmat_mean, Cmat = get_Cmat_VTmix(ensemble, args)
 
-        LAM = extract.GEVP_fixT(
+        eigenvalues = extract.GEVP_fixT(
             Cmat_mean, Cmat, args.GEVP_t0, args.GEVP_t0 + 1, args.Nt
         )
 
         E_mean, A_mean, chi2, E_samples, A_samples = fitting.fit_exp_booerr(
-            LAM[1], args.plateau_start, args.plateau_end
+            eigenvalues[1], args.plateau_start, args.plateau_end
         )
         m_tmp = BootstrapSampleSet(E_mean, E_samples)
         a_tmp = BootstrapSampleSet(

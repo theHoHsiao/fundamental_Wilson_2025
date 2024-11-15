@@ -16,8 +16,10 @@ def fold_correlators_cross(C):
     return C_fold
 
 
-def meson_mass_sample(C_tmp, TI, TF):
-    E_mean, A_mean, X2, E_samples, A_samples = fitting.fit_cosh_booerr(C_tmp, TI, TF)
+def meson_mass_sample(C_tmp, plateau_start, plateau_end):
+    E_mean, A_mean, X2, E_samples, A_samples = fitting.fit_cosh_booerr(
+        C_tmp, plateau_start, plateau_end
+    )
 
     E_fit = BootstrapSampleSet(E_mean, E_samples)
     A_fit = BootstrapSampleSet(A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples))
@@ -25,12 +27,12 @@ def meson_mass_sample(C_tmp, TI, TF):
     return E_fit, A_fit, round(X2, 2)
 
 
-def meson_decay_sample(Css, Csp, TI, TF):
+def meson_decay_sample(Css, Csp, plateau_start, plateau_end):
     # load the ensamble info
     GLB_T = np.shape(Css.mean)[1]
 
     (E_mean, A_mean, X2, E_samples, A_samples) = fitting.fit_cosh_simultaneous(
-        Css, Csp, TI, TF, GLB_T
+        Css, Csp, plateau_start, plateau_end, GLB_T
     )
 
     E_fit = BootstrapSampleSet(E_mean, E_samples)
@@ -76,8 +78,8 @@ def GEVP_fixT(Cmat_mean, Cmat, t0, ti, tf):
 
     samples = Lambda_n[:, :, ::-1]
     mean = Lambda_n_mean[:, :, ::-1]
-    LAM = []
+    eigenvalues = []
     for n in range(Mshape[2]):
-        LAM.append(BootstrapSampleSet(mean[:, :, n], samples[:, :, n]))
+        eigenvalues.append(BootstrapSampleSet(mean[:, :, n], samples[:, :, n]))
 
-    return LAM  # , Vector_n
+    return eigenvalues  # , Vector_n

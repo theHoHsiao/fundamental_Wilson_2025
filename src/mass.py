@@ -7,7 +7,7 @@ from .bootstrap import get_rng, sample_bootstrap_1d, BootstrapSampleSet
 from . import extract
 
 
-def C_R(ch):
+def renormalisation_constant(ch):
     return {
         "v": -20.57,
         "av": -15.82,
@@ -116,15 +116,15 @@ def ps_extraction(ensemble, args):
 
 
 def ch_extraction(ensemble, args):
-    CHs = channel_tags(args.channel)
+    target_channels = channel_tags(args.channel)
 
     tmp_bin = []
     tmp_bin_mean = []
-    for j in range(len(CHs)):
+    for j in range(len(target_channels)):
         tmp_bin.append(
             get_correlator_samples(
                 ensemble,
-                CHs[j],
+                target_channels[j],
                 args.min_trajectory,
                 args.max_trajectory,
                 args.trajectory_step,
@@ -134,7 +134,7 @@ def ch_extraction(ensemble, args):
         tmp_bin_mean.append(
             get_correlator_samples(
                 ensemble,
-                CHs[j],
+                target_channels[j],
                 args.min_trajectory,
                 args.max_trajectory,
                 args.trajectory_step,
