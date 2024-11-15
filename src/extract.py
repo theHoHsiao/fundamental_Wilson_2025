@@ -29,10 +29,10 @@ def meson_mass_sample(C_tmp, plateau_start, plateau_end):
 
 def meson_decay_sample(Css, Csp, plateau_start, plateau_end):
     # load the ensamble info
-    GLB_T = np.shape(Css.mean)[1]
+    lattice_t = np.shape(Css.mean)[1]
 
     (E_mean, A_mean, X2, E_samples, A_samples) = fitting.fit_cosh_simultaneous(
-        Css, Csp, plateau_start, plateau_end, GLB_T
+        Css, Csp, plateau_start, plateau_end, lattice_t
     )
 
     E_fit = BootstrapSampleSet(E_mean, E_samples)
@@ -51,16 +51,12 @@ def GEVP_fixT(Cmat_mean, Cmat, t0, ti, tf):
     Lambda_n = np.zeros(shape=(Mshape[0], Mshape[1], Mshape[2]))
     Lambda_n_mean = np.zeros(shape=(1, Mshape[1], Mshape[2]))
 
-    # Vector_n = np.zeros(shape=Mshape, dtype=complex)
-
     T_dot = np.arange(ti, tf, 1, dtype=int)
     for t in T_dot:
         for N in range(Mshape[0]):
             value, vector = linalg.eig(
                 Cmat[N, t], Cmat[N, t0], overwrite_a=True, overwrite_b=True
             )
-
-            # Vector_n[N, t] = vector
 
             for n in range(Mshape[2]):
                 Lambda_n[N, t, n] = np.real(value[n])

@@ -48,11 +48,11 @@ def bootstrap_fit(fitter, dset, T, tmin, tmax, tp):
 
 
 def fit_correlator_without_bootstrap(
-    data_corr, T, tmin, tmax, Nmax, tp, p0, plotting=False, printing=False
+    data_corr, t_lattice, tmin, tmax, Nmax, tp, p0, plotting=False, printing=False
 ):
-    T = abs(T)
+    t_lattice = abs(t_lattice)
 
-    fitter = cf.CorrFitter(models=make_models(T, tmin, tmax, tp))
+    fitter = cf.CorrFitter(models=make_models(t_lattice, tmin, tmax, tp))
 
     for N in range(1, Nmax + 1):
         prior = make_prior(N)
@@ -71,7 +71,7 @@ def fit_correlator_without_bootstrap(
 
 
 def fit_exp_std(C_boot, plateau_start, plateau_end):
-    # This function fits the correlators with a exp function
+    # This function fits the mean correlators with a exp function
     # the error is estimated by standard deviation with a covariance matrix
 
     cov = np.cov(C_boot[0:-1].T)
@@ -98,12 +98,12 @@ def fit_exp_std(C_boot, plateau_start, plateau_end):
     return gv.mean(E[0]), gv.sdev(E[0]), chi2 / dof
 
 
-def fit_cosh_std(C_boot, plateau_start, plateau_end, GLB_T):
-    # This function fits the correlators with a cosh function
+def fit_cosh_std(C_boot, plateau_start, plateau_end, lattice_t):
+    # This function fits the mean correlators with a cosh function
     # the error is estimated by standard deviation with a covariance matrix
 
     def func(t, a, M):
-        return a * a * M * (np.exp(-M * t) + np.exp(-M * (GLB_T - t))) / 2
+        return a * a * M * (np.exp(-M * t) + np.exp(-M * (lattice_t - t))) / 2
 
     x0, pcov = curve_fit(
         func,
@@ -139,7 +139,7 @@ def fit_cosh_std(C_boot, plateau_start, plateau_end, GLB_T):
         plateau_start,
         plateau_end,
         1,
-        GLB_T,
+        lattice_t,
         p0,
         plotting=False,
         printing=True,
@@ -154,10 +154,10 @@ def fit_cosh_booerr(C, plateau_start, plateau_end):
     C_boot = C.samples
 
     num_sample = C_boot.shape[0]
-    GLB_T = C_boot.shape[1]
+    lattice_t = C_boot.shape[1]
 
     def func(t, a, M):
-        return a * a * M * (np.exp(-M * t) + np.exp(-M * (GLB_T - t))) / 2
+        return a * a * M * (np.exp(-M * t) + np.exp(-M * (lattice_t - t))) / 2
 
     x0, pcov = curve_fit(
         func,
@@ -184,7 +184,7 @@ def fit_cosh_booerr(C, plateau_start, plateau_end):
             plateau_start,
             plateau_end,
             1,
-            GLB_T,
+            lattice_t,
             p0,
             plotting=False,
             printing=False,
@@ -200,7 +200,7 @@ def fit_cosh_booerr(C, plateau_start, plateau_end):
         plateau_start,
         plateau_end,
         1,
-        GLB_T,
+        lattice_t,
         p0,
         plotting=False,
         printing=False,
@@ -334,11 +334,11 @@ def fit_correlator_simultaneous(
     return E, a, b, chi2, dof
 
 
-def fit_cosh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, GLB_T):
+def fit_cosh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, lattice_t):
     # This function fits the correlators with cosh x sinh functions
 
     x0 = sim_coshsinh_fit(
-        Corr_sp.mean[0], Corr_ss.mean[0], GLB_T, plateau_start, plateau_end
+        Corr_sp.mean[0], Corr_ss.mean[0], lattice_t, plateau_start, plateau_end
     )
 
     p0 = dict(
@@ -372,7 +372,7 @@ def fit_cosh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, GLB_T):
             plateau_start,
             plateau_end,
             1,
-            GLB_T,
+            lattice_t,
             p0,
             plotting=False,
             printing=False,
@@ -392,7 +392,7 @@ def fit_cosh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, GLB_T):
         plateau_start,
         plateau_end,
         1,
-        GLB_T,
+        lattice_t,
         p0,
         plotting=False,
         printing=False,
@@ -431,11 +431,11 @@ def sim_coshsinh_fit(C1, C2, T, ti, tf):
     return fittedParameters
 
 
-def fit_exp_simultaneous(Css, Csp, plateau_start, plateau_end, GLB_T):
+def fit_exp_simultaneous(Css, Csp, plateau_start, plateau_end, lattice_t):
     # This function fits the correlators with a exp function
 
     x0, y_fit_1, y_fit_2 = sim_coshsinh_fit(
-        Csp[-1], Css[-1], GLB_T, plateau_start, plateau_end
+        Csp[-1], Css[-1], lattice_t, plateau_start, plateau_end
     )
 
     p0 = dict(
