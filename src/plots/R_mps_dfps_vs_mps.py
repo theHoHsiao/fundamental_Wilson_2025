@@ -27,16 +27,13 @@ def plot(data, **kwargs):
             if "w0_samples" not in datum:
                 continue
 
-            w0 = datum["w0_samples"].samples
+            w0 = datum["w0_samples"]
 
-            X = (datum["ps_mass_samples"].samples * w0) ** 2
+            X = (datum["ps_mass_samples"] * w0) ** 2
 
-            Y = (
-                datum["ps_mass_samples"].samples
-                / datum["ps_decay_constant_samples"].samples
-            )
+            Y = datum["ps_mass_samples"] / datum["ps_decay_constant_samples"]
 
-            to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+            to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
         if not to_plot:
             continue

@@ -160,17 +160,15 @@ def get_Cmat_VTmix(ensemble, args):
         ["g3", "g0g3"],
     ]
 
-    tmp_bin = []
+    bin_samples = []
     mean_bin = []
-    for i in range(len(target_channels)):
-        ch = target_channels[i]
-
-        mean, samples = get_meson_Cmat_mix_N(ensemble, args, ch[0], ch[1])
+    for channels in target_channels:
+        mean, samples = get_meson_Cmat_mix_N(ensemble, args, channels[0], channels[1])
 
         mean_bin.append(mean)
-        tmp_bin.append(samples)
+        bin_samples.append(samples)
 
-    return np.array(mean_bin).mean(axis=0), np.array(tmp_bin).mean(axis=0)
+    return np.array(mean_bin).mean(axis=0), np.array(bin_samples).mean(axis=0)
 
 
 def main():

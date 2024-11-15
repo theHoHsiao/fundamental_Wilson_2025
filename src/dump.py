@@ -77,6 +77,8 @@ def drop_duplicate_columns(df):
     return df.loc[:, ~df.columns.duplicated()].copy()
 
 
+# A key on which to search; only one is needed per file type.
+# (More will create duplicates.)
 key_observables = {
     "ensemble_name": (
         ["Q0", "w0", "mPCAC", "avg_plaquette"]
@@ -99,8 +101,6 @@ key_observables = {
 
 
 def read_files(filenames, index_name="ensemble_name"):
-    # A key on which to search; only one is needed per file type.
-    # (More will create duplicates.)
     data = defaultdict(list)
     for filename in filenames:
         file_data = pd.read_csv(filename).set_index(index_name)

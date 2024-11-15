@@ -1,16 +1,17 @@
-import numpy as np
-from scipy.optimize import curve_fit
 import corrfitter as cf
 import gvar as gv
+import logging
+import numpy as np
+from scipy.optimize import curve_fit
 from scipy.optimize import minimize
 
 
-def make_models(T, tmin, tmax, tp):
+def make_models(tmin, tmax, tp):
     """Create corrfitter model for G(t)."""
     return [cf.Corr2(datatag="Gab", tp=tp, tmin=tmin, tmax=tmax, a="a", b="a", dE="dE")]
 
 
-def make_prior(N):
+def sigle_state_prior(N):
     prior = gv.BufferDict()
     # setting the sdev of the prioir to infinity amounts to turning off the prior contribution to chi2
     prior["log(a)"] = gv.log(gv.gvar(N * [0.1], N * [np.inf]))
@@ -19,32 +20,12 @@ def make_prior(N):
 
 
 def first_fit_parameters(fit):
-    p = fit.p
-    E = np.cumsum(p["dE"])
-    a = p["a"]
+    parameters = fit.p
+    Energy = np.cumsum(parameters["dE"])
+    a_matrix_element = parameters["a"]
     chi2 = fit.chi2
     dof = fit.dof
-    return E, a, chi2, dof
-
-
-def bootstrap_fit(fitter, dset, T, tmin, tmax, tp):
-    gv.ranseed(12)
-
-    pdatalist = (
-        cf.process_dataset(ds, make_models(T, tmin, tmax, tp))
-        for ds in gv.dataset.bootstrap_iter(dset, n=10)
-    )
-    bs = gv.dataset.Dataset()
-    for bsfit in fitter.bootstrapped_fit_iter(pdatalist=pdatalist):
-        bs.append(
-            E=np.cumsum(bsfit.pmean["dE"][:2]),
-            a=bsfit.pmean["a"][:2],
-        )
-    bs = gv.dataset.avg_data(bs, bstrap=True)
-    E = bs["E"]
-    a = bs["a"]
-    print("{:2}  {:15}  {:15}".format("E", E[0], E[1]))
-    print("{:2}  {:15}  {:15}".format("a", a[0], a[1]))
+    return Energy, a_matrix_element, chi2, dof
 
 
 def fit_correlator_without_bootstrap(
@@ -52,10 +33,10 @@ def fit_correlator_without_bootstrap(
 ):
     t_lattice = abs(t_lattice)
 
-    fitter = cf.CorrFitter(models=make_models(t_lattice, tmin, tmax, tp))
+    fitter = cf.CorrFitter(models=make_models(tmin, tmax, tp))
 
     for N in range(1, Nmax + 1):
-        prior = make_prior(N)
+        prior = sigle_state_prior(N)
         fit = fitter.lsqfit(data=data_corr, prior=prior, p0=p0)
         p0 = fit.pmean
 
@@ -71,16 +52,18 @@ def fit_correlator_without_bootstrap(
 
 
 def fit_exp_std(C_boot, plateau_start, plateau_end):
-    # This function fits the mean correlators with a exp function
-    # the error is estimated by standard deviation with a covariance matrix
+    """
+    This function fits the mean correlators with a exp function
+    the error is estimated by standard deviation with a covariance matrix
+    """
 
     cov = np.cov(C_boot[0:-1].T)
 
     if np.isnan(cov.sum()):
-        print("cov contain nan")
+        logging.warning("cov contain nan")
 
     if np.isnan(cov.T.sum()):
-        print("cov contain nan")
+        logging.warning("cov contain nan")
 
     correlator_set = dict(Gab=gv.gvar(C_boot[-1], cov))
 
@@ -99,8 +82,10 @@ def fit_exp_std(C_boot, plateau_start, plateau_end):
 
 
 def fit_cosh_std(C_boot, plateau_start, plateau_end, lattice_t):
-    # This function fits the mean correlators with a cosh function
-    # the error is estimated by standard deviation with a covariance matrix
+    """
+    This function fits the mean correlators with a cosh function
+    the error is estimated by standard deviation with a covariance matrix
+    """
 
     def func(t, a, M):
         return a * a * M * (np.exp(-M * t) + np.exp(-M * (lattice_t - t))) / 2
@@ -126,10 +111,10 @@ def fit_cosh_std(C_boot, plateau_start, plateau_end, lattice_t):
     cov = np.cov(C_boot[0:-1].T)
 
     if np.isnan(cov.sum()):
-        print("cov contain nan")
+        logging.warning("cov contain nan")
 
     if np.isnan(cov.T.sum()):
-        print("cov contain nan")
+        logging.warning("cov contain nan")
 
     correlator_set = dict(Gab=gv.gvar(C_boot[-1], cov))
 
@@ -149,7 +134,7 @@ def fit_cosh_std(C_boot, plateau_start, plateau_end, lattice_t):
 
 
 def fit_cosh_booerr(C, plateau_start, plateau_end):
-    # This function fits the correlators with a cosh function
+    """This function fits the correlators with a cosh function"""
 
     C_boot = C.samples
 
@@ -216,7 +201,7 @@ def fit_cosh_booerr(C, plateau_start, plateau_end):
 
 
 def fit_exp_booerr(C, plateau_start, plateau_end):
-    # This function fits the correlators with a exp function
+    """This function fits the correlators with a exp function"""
 
     C_boot = C.samples
 
@@ -282,7 +267,7 @@ def fit_exp_booerr(C, plateau_start, plateau_end):
     )
 
 
-def sim_model(T, tmin, tmax, tp):
+def simultaneous_model(T, tmin, tmax, tp):
     """Create corrfitter model for Gaa(t) and Gab(t)."""
     model = [
         cf.Corr2(datatag="Gaa", tp=tp, tmin=tmin, tmax=tmax, a="a", b="a", dE="dE"),
@@ -291,7 +276,7 @@ def sim_model(T, tmin, tmax, tp):
     return model
 
 
-def sim_prior(N):
+def simultaneous_prior(N):
     prior = gv.BufferDict()
     # setting the sdev of the prioir to infinity amounts to turning off the prior contribution to chi2
     prior["log(a)"] = gv.log(gv.gvar(N * [0.1], N * [np.inf]))
@@ -300,7 +285,7 @@ def sim_prior(N):
     return prior
 
 
-def sim_fit_parameters(fit):
+def simultaneous_fit_parameters(fit):
     p = fit.p
     E = np.cumsum(p["dE"])
     a = p["a"]
@@ -315,9 +300,9 @@ def fit_correlator_simultaneous(
 ):
     T = abs(T)
 
-    fitter = cf.CorrFitter(models=sim_model(T, tmin, tmax, tp))
+    fitter = cf.CorrFitter(models=simultaneous_model(T, tmin, tmax, tp))
     for N in range(1, Nmax + 1):
-        prior = sim_prior(N)
+        prior = simultaneous_prior(N)
         fit = fitter.lsqfit(data=data_corrs, prior=prior, p0=p0)
         p0 = fit.pmean
 
@@ -325,7 +310,7 @@ def fit_correlator_simultaneous(
             print("nterm =", N, 30 * "=")
             print(fit)
 
-    E, a, b, chi2, dof = sim_fit_parameters(fit)
+    E, a, b, chi2, dof = simultaneous_fit_parameters(fit)
 
     if plotting:
         # fit.show_plots(view='ratio')
@@ -334,8 +319,8 @@ def fit_correlator_simultaneous(
     return E, a, b, chi2, dof
 
 
-def fit_cosh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, lattice_t):
-    # This function fits the correlators with cosh x sinh functions
+def fit_coshsinh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, lattice_t):
+    """This function fits the correlators with cosh and sinh functions simultaneously"""
 
     x0 = sim_coshsinh_fit(
         Corr_sp.mean[0], Corr_ss.mean[0], lattice_t, plateau_start, plateau_end
@@ -432,7 +417,7 @@ def sim_coshsinh_fit(C1, C2, T, ti, tf):
 
 
 def fit_exp_simultaneous(Css, Csp, plateau_start, plateau_end, lattice_t):
-    # This function fits the correlators with a exp function
+    """This function fits the correlators with TWO exp functions simultaneously"""
 
     x0, y_fit_1, y_fit_2 = sim_coshsinh_fit(
         Csp[-1], Css[-1], lattice_t, plateau_start, plateau_end
@@ -493,11 +478,11 @@ def fit_exp_simultaneous(Css, Csp, plateau_start, plateau_end, lattice_t):
     return E_sample, E_err, chi2_dof.mean(), b_sample, b_err
 
 
-def meson_M2(X, LAT_A, Y):
+def meson_M2(X, lattice_a, Y):
+    """mass extrapolation with M = a**2 * ( 1 + b * m**2 ) + c * lat_a"""
+
     num_sample = np.shape(X)[1]
     num_pars = 3
-
-    print("meson M2 fitting... M = a**2 * ( 1 + b * m**2 ) + c * lat_a ")
 
     def func(V, a, b, c):
         m, lat_a = V
@@ -506,7 +491,7 @@ def meson_M2(X, LAT_A, Y):
     def Cov(i, j):
         return np.mean((Y[i, :] - np.mean(Y[i, :])) * (Y[j, :] - np.mean(Y[j, :])))
 
-    x0, pcov = curve_fit(func, (X[:, -1], LAT_A[:, -1]), Y[:, -1])
+    x0, pcov = curve_fit(func, (X[:, -1], lattice_a[:, -1]), Y[:, -1])
 
     size = np.shape(X)[0]
 
@@ -515,43 +500,39 @@ def meson_M2(X, LAT_A, Y):
     for a in range(size):
         M[a, a] = Cov(a, a)
 
-    M_I = M.I
+    M_inverse = M.I
 
-    def X2_boot_const(pars):
+    def chisquare_boot_const(pars):
         def Cf_vector():
-            V = np.zeros(size)
-            for i in range(size):
-                V[i] = Y[i, N] - func((X[i, N], LAT_A[i, -1]), a, b, c)
-
-            return V
+            return Y[:, N] - func((X[:, N], lattice_a[:, -1]), a, b, c)
 
         (a, b, c) = pars
 
         V = np.asmatrix(Cf_vector())
 
-        return V * M_I * V.T
+        return V * M_inverse * V.T
 
-    def nor_X2(a, b, c):
+    def nor_chisquare(a, b, c):
         V = np.zeros(size)
         for i in range(size):
-            V[i] = Y[i, -1] - func((X[i, -1], LAT_A[i, -1]), a, b, c)
+            V[i] = Y[i, -1] - func((X[i, -1], lattice_a[i, -1]), a, b, c)
 
         V = np.asmatrix(V)
 
-        chisqr = (V * M_I * V.T)[0, 0]
+        chisqr = (V * M_inverse * V.T)[0, 0]
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
 
     for N in range(num_sample):
-        res = minimize(X2_boot_const, x0, method="Nelder-Mead", tol=10**-16)
+        res = minimize(chisquare_boot_const, x0, method="Nelder-Mead", tol=10**-16)
 
         for n_pars in range(num_pars):
             fit_val[n_pars, N] = res.x[n_pars]
 
-    X2 = nor_X2(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
+    chisquare = nor_chisquare(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
 
-    return fit_val, X2 / (size - num_pars - 1)
+    return fit_val, chisquare / (size - num_pars - 1)
 
 
 def meson_beta(X, Y):
@@ -575,43 +556,39 @@ def meson_beta(X, Y):
     for a in range(size):
         M[a, a] = Cov(a, a)
 
-    M_I = M.I
+    M_inverse = M.I
 
-    def X2_boot_const(pars):
+    def chisquare_boot_const(pars):
         def Cf_vector():
-            V = np.zeros(size)
-            for i in range(size):
-                V[i] = Y[i, N] - func(X[i, N], a, b)
-
-            return V
+            return Y[:, N] - func(X[:, N], a, b)
 
         (a, b) = pars
 
         V = np.asmatrix(Cf_vector())
 
-        return V * M_I * V.T
+        return V * M_inverse * V.T
 
-    def nor_X2(a, b):
+    def nor_chisquare(a, b):
         V = np.zeros(size)
         for i in range(size):
             V[i] = Y[i, -1] - func(X[i, -1], a, b)
 
         V = np.asmatrix(V)
 
-        chisqr = (V * M_I * V.T)[0, 0]
+        chisqr = (V * M_inverse * V.T)[0, 0]
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
 
     for N in range(num_sample):
-        res = minimize(X2_boot_const, x0, method="Nelder-Mead", tol=10**-16)
+        res = minimize(chisquare_boot_const, x0, method="Nelder-Mead", tol=10**-16)
 
         for n_pars in range(num_pars):
             fit_val[n_pars, N] = res.x[n_pars]
 
-    X2 = nor_X2(fit_val[0].mean(), fit_val[1].mean())
+    chisquare = nor_chisquare(fit_val[0].mean(), fit_val[1].mean())
 
-    return fit_val, X2 / (size - num_pars)
+    return fit_val, chisquare / (size - num_pars)
 
 
 def meson_beta_quad(X, Y):
@@ -633,40 +610,36 @@ def meson_beta_quad(X, Y):
     for a in range(size):
         M[a, a] = Cov(a, a)
 
-    M_I = M.I
+    M_inverse = M.I
 
-    def X2_boot_const(pars):
+    def chisquare_boot_const(pars):
         def Cf_vector():
-            V = np.zeros(size)
-            for i in range(size):
-                V[i] = Y[i, N] - func(X[i, N], a, b, c)
-
-            return V
+            return Y[:, N] - func(X[:, N], a, b, c)
 
         (a, b, c) = pars
 
         V = np.asmatrix(Cf_vector())
 
-        return V * M_I * V.T
+        return V * M_inverse * V.T
 
-    def nor_X2(a, b, c):
+    def nor_chisquare(a, b, c):
         V = np.zeros(size)
         for i in range(size):
             V[i] = Y[i, -1] - func(X[i, -1], a, b, c)
 
         V = np.asmatrix(V)
 
-        chisqr = (V * M_I * V.T)[0, 0]
+        chisqr = (V * M_inverse * V.T)[0, 0]
         return chisqr
 
     fit_val = np.zeros(shape=(num_pars, num_sample))
 
     for N in range(num_sample):
-        res = minimize(X2_boot_const, x0, method="Nelder-Mead", tol=10**-16)
+        res = minimize(chisquare_boot_const, x0, method="Nelder-Mead", tol=10**-16)
 
         for n_pars in range(num_pars):
             fit_val[n_pars, N] = res.x[n_pars]
 
-    X2 = nor_X2(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
+    chisquare = nor_chisquare(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
 
-    return fit_val, X2 / (size - num_pars)
+    return fit_val, chisquare / (size - num_pars)

@@ -30,12 +30,12 @@ def plot(data, **kwargs):
             if f"{channel}_mass_samples" not in datum:
                 continue
 
-            X = datum["mPCAC_samples"].samples
-            Y = datum[f"{channel}_mass_samples"].samples
+            X = datum["mPCAC_samples"]
+            Y = datum[f"{channel}_mass_samples"]
 
             bare_mass.append(datum["mAS"])
 
-            to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+            to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)
 

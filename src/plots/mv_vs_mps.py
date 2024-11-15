@@ -7,10 +7,13 @@ from ..plots_common import standard_plot_main
 from ..fitting import meson_beta_quad
 
 
-def plot_poly_M4(ax, A, B, C, ch, offset, color, x_i, x_f):
+def plot_poly_M4(ax, A, B, C, ch, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
+    x_min, x_max = ax.get_xlim()
+    x_i = np.sqrt(x_min)
+    x_f = np.sqrt(x_max)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -69,10 +72,7 @@ def plot(data, external_data, fit_results):
         np.array(fit_results[0]["L"]),
         np.array(fit_results[0]["W"]),
         "",
-        0,
         "r",
-        0,
-        0.8366600265340756,
     )
 
     ax[1].errorbar(
@@ -101,27 +101,32 @@ def plot(data, external_data, fit_results):
         if "v_mass_samples" not in datum:
             continue
 
-        X = datum["ps_mass_samples"].samples ** 2
-        Y = datum["v_mass_samples"].samples ** 2
+        X = datum["ps_mass_samples"] ** 2
+        Y = datum["v_mass_samples"] ** 2
 
-        w0 = datum["w0_samples"].samples ** 2
+        w0 = datum["w0_samples"] ** 2
 
         X_w0 = X * w0
         Y_w0 = Y * w0
 
-        to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
-        to_plot2.append((Y_w0.mean(), Y_w0.std(), X_w0.mean(), X_w0.std()))
+        to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
+        to_plot.append((Y_w0.mean, Y_w0.samples.std(), X_w0.mean, X_w0.samples.std()))
 
-        to_fit_x.append(np.append(X, datum["ps_mass_samples"].mean ** 2))
-        to_fit_y.append(np.append(Y, datum["v_mass_samples"].mean ** 2))
+        to_fit_x.append(np.append(X.samples, X.mean))
+        to_fit_y.append(np.append(Y.samples, Y.mean))
 
     y_values, y_errors, x_values, x_errors = zip(*to_plot)
     y2_values, y2_errors, x2_values, x2_errors = zip(*to_plot2)
 
     # print(np.array(to_fit_x).shape)
-    fit_val, X2 = meson_beta_quad(np.array(to_fit_x), np.array(to_fit_y))
+    fit_val, chisquare = meson_beta_quad(np.array(to_fit_x), np.array(to_fit_y))
     plot_poly_M4(
-        ax[0], fit_val[0], fit_val[1], fit_val[2], "", 0, "b", 0, 0.8366600265340756
+        ax[0],
+        fit_val[0],
+        fit_val[1],
+        fit_val[2],
+        "",
+        "b",
     )
 
     ax[0].errorbar(

@@ -3,16 +3,30 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from ..plots_common import standard_plot_main, beta_color
+from ..bootstrap import BOOTSTRAP_SAMPLE_COUNT
 
 
 def plot(data, **kwargs):
     fig, ax = plt.subplots(1, 1, num="6", figsize=(3.5, 2.4), layout="constrained")
 
-    ratio_QCD = np.random.normal(1465, 25, 200) / np.random.normal(775.26, 0.25, 200)
+    # from https://pdg.lbl.gov/2019/listings/rpp2019-list-rho-770.pdf
+    rho_770_mass = np.random.normal(775.26, 0.25, BOOTSTRAP_SAMPLE_COUNT)
+
+    # from https://pdg.lbl.gov/2014/listings/rpp2014-list-rho-1450.pdf
+    rho_1450_mass = np.random.normal(1465, 25, BOOTSTRAP_SAMPLE_COUNT)
+
+    R_ratio_QCD = rho_1450_mass / rho_770_mass
+
     plt.fill_between(
         [0.01, 0.1],
-        [ratio_QCD.mean() - ratio_QCD.std(), ratio_QCD.mean() - ratio_QCD.std()],
-        [ratio_QCD.mean() + ratio_QCD.std(), ratio_QCD.mean() + ratio_QCD.std()],
+        [
+            R_ratio_QCD.mean() - R_ratio_QCD.std(),
+            R_ratio_QCD.mean() - R_ratio_QCD.std(),
+        ],
+        [
+            R_ratio_QCD.mean() + R_ratio_QCD.std(),
+            R_ratio_QCD.mean() + R_ratio_QCD.std(),
+        ],
         label=r"QCD $\rho(1450)/\rho(770)$",
         alpha=0.7,
         color="dodgerblue",
@@ -42,16 +56,13 @@ def plot(data, **kwargs):
             ):
                 continue
 
-            w0 = datum["w0_samples"].samples
+            w0 = datum["w0_samples"]
 
-            X = (datum["smear_ps_mass_samples"].samples * w0) ** 2
+            X = (datum["smear_ps_mass_samples"] * w0) ** 2
 
-            Y = (
-                datum["smear_rhoE1_mass_samples"].samples
-                / datum["smear_v_mass_samples"].samples
-            )
+            Y = datum["smear_rhoE1_mass_samples"] / datum["smear_v_mass_samples"]
 
-            to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+            to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
         if not to_plot:
             continue

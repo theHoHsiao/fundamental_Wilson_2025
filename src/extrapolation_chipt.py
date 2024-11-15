@@ -69,7 +69,7 @@ def main():
 
     m_ps, f_ps, bare_mass = prepare_data(data, args)
 
-    fit_val, X2 = meson_beta(m_ps, f_ps)
+    fit_val, chisquare = meson_beta(m_ps, f_ps)
 
     fit_A = ufloat(fit_val[0, -1], fit_val[0, 0:-1].std())
     fit_B = ufloat(fit_val[1, -1], fit_val[1, 0:-1].std())
@@ -78,7 +78,7 @@ def main():
         {
             "beta": f"{args.beta}",
             "bare_mass_range": f"[{bare_mass.min()}, {bare_mass.max()}]",
-            "chi_sqr_dof": X2,
+            "chi_sqr_dof": chisquare,
             "A": fit_A,
             "B": fit_B,
         },

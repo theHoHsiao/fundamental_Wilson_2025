@@ -38,15 +38,15 @@ def plot(data, external_data, fit_results):
         if "v_mass_samples" not in datum:
             continue
 
-        w0 = datum["w0_samples"].samples
+        w0 = datum["w0_samples"]
 
-        X = (datum["ps_mass_samples"].samples * w0) ** 2
+        X = (datum["ps_mass_samples"] * w0) ** 2
         Y = (
-            datum["v_mass_samples"].samples / datum["ps_decay_constant_samples"].samples
-            - fit_results[0]["W_vdfps_samples"].samples / w0
+            datum["v_mass_samples"] / datum["ps_decay_constant_samples"]
+            - fit_results[0]["W_vdfps_samples"] / w0
         )
 
-        to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+        to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
     y_values, y_errors, x_values, x_errors = zip(*to_plot)
 

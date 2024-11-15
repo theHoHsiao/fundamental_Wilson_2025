@@ -31,10 +31,10 @@ def plot(data, **kwargs):
                 if "ps_mass_samples" not in datum:
                     continue
 
-                X = m_ps_inf.samples * datum["Ns"]
-                Y = datum[f"{ch}_mass_samples"].samples
+                X = m_ps_inf * datum["Ns"]
+                Y = datum[f"{ch}_mass_samples"]
 
-                to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+                to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
             y_values, y_errors, x_values, x_errors = zip(*to_plot)
 

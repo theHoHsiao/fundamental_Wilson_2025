@@ -104,17 +104,10 @@ def plot(data, fit_pars):
                 if "w0_samples" not in datum or "smear_ps_mass_samples" not in datum:
                     continue
 
-                w0_mps = (
-                    datum["w0_samples"].samples * datum["smear_ps_mass_samples"].samples
-                ) ** 2
-                w0_meson = (
-                    datum["w0_samples"].samples
-                    * datum[f"smear_{ch}_mass_samples"].samples
-                ) ** 2
+                X = (datum["w0_samples"] * datum["smear_ps_mass_samples"]) ** 2
+                Y = (datum["w0_samples"] * datum[f"smear_{ch}_mass_samples"]) ** 2
 
-                to_plot.append(
-                    (w0_meson.mean(), w0_meson.std(), w0_mps.mean(), w0_mps.std())
-                )
+                to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
             y_values, y_errors, x_values, x_errors = zip(*to_plot)
             ax.errorbar(

@@ -71,7 +71,7 @@ def main():
 
     X, Y, bare_mass = prepare_data(data, args)
 
-    fit_val, X2 = meson_beta(X, Y)
+    fit_val, chisquare = meson_beta(X, Y)
 
     y = fit_val[1] * 2 + 1
 
@@ -83,7 +83,7 @@ def main():
         {
             "beta": f"{args.beta}",
             "bare_mass_range": f"[{bare_mass.min()}, {bare_mass.max()}]",
-            "chi_sqr_dof": X2,
+            "chi_sqr_dof": chisquare,
             "A": fit_A,
             "B": fit_B,
             "y": fit_y,

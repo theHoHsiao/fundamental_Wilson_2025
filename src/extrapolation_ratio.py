@@ -80,7 +80,7 @@ def main():
 
     m_ps_sqr, lat_a, m_ch_sqr = prepare_data(data, args)
 
-    fit_val, X2 = fitting.meson_M2(m_ps_sqr, lat_a, m_ch_sqr)
+    fit_val, chisquare = fitting.meson_M2(m_ps_sqr, lat_a, m_ch_sqr)
 
     fit_M = ufloat(fit_val[0, -1], fit_val[0, 0:-1].std())
     fit_L = ufloat(fit_val[1, -1], fit_val[1, 0:-1].std())
@@ -89,7 +89,7 @@ def main():
     dump_dict(
         {
             "channel": f"R_m{args.channel}dfps",
-            "chi_sqr_dof": X2,
+            "chi_sqr_dof": chisquare,
             f"R_{args.channel}dfps": fit_M,
             f"L_{args.channel}dfps": fit_L,
             f"W_{args.channel}dfps": fit_W,

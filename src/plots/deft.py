@@ -50,14 +50,14 @@ def plot(data, fit_results, **kwargs):
             if "ps_mass_samples" not in datum:
                 continue
 
-            Y = (datum["ps_mass_samples"].samples) ** 2 / datum["mPCAC_samples"].samples
+            Y = (datum["ps_mass_samples"]) ** 2 / datum["mPCAC_samples"]
 
-            X = (datum["ps_decay_constant_samples"].samples) ** 2
+            X = (datum["ps_decay_constant_samples"]) ** 2
 
             X = np.log(X)
             Y = np.log(Y)
 
-            to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+            to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
         if len(to_plot) < 3:
             continue

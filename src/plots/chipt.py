@@ -7,10 +7,13 @@ from ..plots_common import standard_plot_main, beta_color
 from ..bootstrap import BOOTSTRAP_SAMPLE_COUNT
 
 
-def plot_YABX(ax, A, B, ch, offset, color, x_i, x_f):
+def plot_YABX(ax, A, B, ch, offset, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
+    x_min, x_max = ax.get_xlim()
+    x_i = np.sqrt(x_min)
+    x_f = np.sqrt(x_max)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -50,11 +53,11 @@ def plot(data, fit_results, **kwargs):
             if "ps_mass_samples" not in datum:
                 continue
 
-            X = (datum["ps_mass_samples"].samples) ** 2
+            X = (datum["ps_mass_samples"]) ** 2
 
-            Y = (datum["ps_decay_constant_samples"].samples) ** 2
+            Y = (datum["ps_decay_constant_samples"]) ** 2
 
-            to_plot.append((Y.mean(), Y.std(), X.mean(), X.std()))
+            to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
         if len(to_plot) < 3:
             continue
@@ -79,8 +82,6 @@ def plot(data, fit_results, **kwargs):
             "",
             0,
             beta_color(beta),
-            0,
-            0.84,
         )
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)
