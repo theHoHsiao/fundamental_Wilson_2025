@@ -11,12 +11,17 @@ dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 
 channels = ["ps", "v", "t", "av", "at", "s"]
 
+
 rule fit_mass_wall:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=metadata_lookup(),
-        plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_plateau_start"),
-        plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_plateau_end"),
+        plateau_start=lambda wildcards: metadata_lookup(
+            cols=f"{wildcards.channel}_plateau_start"
+        ),
+        plateau_end=lambda wildcards: metadata_lookup(
+            cols=f"{wildcards.channel}_plateau_end"
+        ),
     input:
         data="data_assets/correlators_wall.h5",
         script="src/mass_wall.py",
@@ -28,12 +33,17 @@ rule fit_mass_wall:
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --channel {wildcards.channel} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
 
+
 rule fit_mass_smear:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=metadata_lookup(),
-        plateau_start=lambda wildcards: metadata_lookup(cols=f"smear_{wildcards.channel}_plateau_start"),
-        plateau_end=lambda wildcards: metadata_lookup(cols=f"smear_{wildcards.channel}_plateau_end"),
+        plateau_start=lambda wildcards: metadata_lookup(
+            cols=f"smear_{wildcards.channel}_plateau_start"
+        ),
+        plateau_end=lambda wildcards: metadata_lookup(
+            cols=f"smear_{wildcards.channel}_plateau_end"
+        ),
         N_sink=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_N_sink"),
     input:
         data="data_assets/correlators_smear.h5",
@@ -46,7 +56,8 @@ rule fit_mass_smear:
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --channel {wildcards.channel} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum} --N_sink {params.N_sink} --num_source {params.metadata.smear_num_source} --epsilon {params.metadata.smear_epsilon}"
 
-rule fit_mass_GEVP: # for rhoE1 only
+
+rule fit_mass_GEVP_rhoE1:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=metadata_lookup(),
@@ -61,11 +72,13 @@ rule fit_mass_GEVP: # for rhoE1 only
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.metadata.smear_rhoE1_plateau_start} --plateau_end {params.metadata.smear_rhoE1_plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum} --N_sink {params.metadata.rhoE1_N_sink} --num_source {params.metadata.smear_num_source} --epsilon {params.metadata.smear_epsilon} --GEVP_t0 {params.metadata.GEVP_t0}"
 
+
 def mass_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_{wildcards.channel}_samples.json",
-        f"intermediary_data/{dir_template}/plaquette_samples.json"
+        f"intermediary_data/{dir_template}/plaquette_samples.json",
     ]
+
 
 rule get_meson_decay:
     params:
@@ -85,8 +98,9 @@ rule get_meson_decay:
 def ratio_fps_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/decay_constant_ps_samples.json",
-        f"intermediary_data/{dir_template}/meson_{wildcards.channel}_samples.json"
+        f"intermediary_data/{dir_template}/meson_{wildcards.channel}_samples.json",
     ]
+
 
 rule get_fps_ratio:
     params:
@@ -102,11 +116,13 @@ rule get_fps_ratio:
     shell:
         "python -m {params.module} {input.data} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples}"
 
+
 def ratio_fps_smear_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/decay_constant_ps_samples.json",
         f"intermediary_data/{dir_template}/smear_meson_{wildcards.channel}_samples.json",
     ]
+
 
 def ratio_fps_rhoE1_samples(wildcards):
     return [
@@ -114,11 +130,13 @@ def ratio_fps_rhoE1_samples(wildcards):
         f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_samples.json",
     ]
 
+
 def ratio_mv_rhoE1_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/smear_meson_v_samples.json",
         f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_samples.json",
     ]
+
 
 rule get_fps_smear_meson_ratio:
     params:
@@ -134,6 +152,7 @@ rule get_fps_smear_meson_ratio:
     shell:
         "python -m {params.module} {input.data} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples} --smear True"
 
+
 rule get_fps_smear_rhoE1_ratio:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -148,6 +167,7 @@ rule get_fps_smear_rhoE1_ratio:
     shell:
         "python -m {params.module} {input.data} --channel rhoE1 --output_file_mean {output.mean} --output_file_samples {output.samples} --smear True"
 
+
 rule get_Rmv_smear_rhoE1_ratio:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -161,9 +181,6 @@ rule get_Rmv_smear_rhoE1_ratio:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --channel rhoE1 --output_file_mean {output.mean} --output_file_samples {output.samples} --smear True"
-
-
-
 
 
 def linear_fittable_pcac_data(wildcards):
