@@ -56,7 +56,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
-    x = np.linspace(x_i, x_f, n_fit)
+    x = np.linspace(np.sqrt(x_i), np.sqrt(x_f), n_fit)
 
     y_up = np.zeros(n_fit)
     y_dn = np.zeros(n_fit)
@@ -76,14 +76,12 @@ def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
 
 
 def plot(data, fit_pars):
-    fig, axs = plt.subplots(
-        3, 2, num="Figure_12", figsize=(12, 12), layout="constrained"
-    )
+    fig, axs = plt.subplots(3, 2, num="Figure_12", figsize=(7, 7), layout="constrained")
     subplot_row = 0
     subplot_col = 0
 
     fig2, ax2 = plt.subplots(
-        1, 1, num="Figure_14", figsize=(6, 8), layout="constrained"
+        1, 1, num="Figure_14", figsize=(3.5, 4.8), layout="constrained"
     )
     ax2.plot([0, 6], [0, 6], "--k", label="ps")
 
@@ -140,8 +138,8 @@ def plot(data, fit_pars):
                     "",
                     0,
                     "k",
-                    0.8944271909999159,
-                    1.224744871391589,
+                    0.8,
+                    1.5,
                 )
 
                 plot_axpb_y(
@@ -151,8 +149,8 @@ def plot(data, fit_pars):
                     r"$ \rm " + ch_tag(ch) + "$",
                     0,
                     channel_color(ch),
-                    0.8944,
-                    1.2247,
+                    0.8,
+                    1.5,
                 )
 
         ax.set_xlim(0.8, 1.5)

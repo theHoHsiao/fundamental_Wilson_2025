@@ -6,7 +6,9 @@ from ..plots_common import standard_plot_main
 
 
 def plot(data, external_data, fit_results):
-    fig, ax = plt.subplots(1, 1, num="Figure_15", figsize=(6, 4), layout="constrained")
+    fig, ax = plt.subplots(
+        1, 1, num="Figure_15", figsize=(3.5, 2.4), layout="constrained"
+    )
 
     ax.set_xlim(0, 1.5)
     ax.set_xlabel(r"$\hat{m}_{\rm ps(PS)}^2$")

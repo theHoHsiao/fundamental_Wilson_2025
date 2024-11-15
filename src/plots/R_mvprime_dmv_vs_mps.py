@@ -6,13 +6,13 @@ from ..plots_common import standard_plot_main, beta_color
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(1, 1, num="6", figsize=(6, 4), layout="constrained")
+    fig, ax = plt.subplots(1, 1, num="6", figsize=(3.5, 2.4), layout="constrained")
 
-    R_QCD = np.random.normal(1465, 25, 200) / np.random.normal(775.26, 0.25, 200)
+    ratio_QCD = np.random.normal(1465, 25, 200) / np.random.normal(775.26, 0.25, 200)
     plt.fill_between(
         [0.01, 0.1],
-        [R_QCD.mean() - R_QCD.std(), R_QCD.mean() - R_QCD.std()],
-        [R_QCD.mean() + R_QCD.std(), R_QCD.mean() + R_QCD.std()],
+        [ratio_QCD.mean() - ratio_QCD.std(), ratio_QCD.mean() - ratio_QCD.std()],
+        [ratio_QCD.mean() + ratio_QCD.std(), ratio_QCD.mean() + ratio_QCD.std()],
         label=r"QCD $\rho(1450)/\rho(770)$",
         alpha=0.7,
         color="dodgerblue",

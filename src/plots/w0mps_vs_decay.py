@@ -65,10 +65,10 @@ def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
 
 def plot(data, fit_pars, **kwargs):
     fig, ax1 = plt.subplots(
-        1, 2, num="Figure_13_up", figsize=(12, 4), layout="constrained"
+        1, 2, num="Figure_13_up", figsize=(7, 2.4), layout="constrained"
     )
     fig2, ax2 = plt.subplots(
-        1, 1, num="Figure_13_low", figsize=(6, 4), layout="constrained"
+        1, 1, num="Figure_13_low", figsize=(3.5, 2.4), layout="constrained"
     )
 
     axs = [ax1[0], ax1[1], ax2]

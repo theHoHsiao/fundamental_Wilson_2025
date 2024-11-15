@@ -31,7 +31,9 @@ def plot_poly_M4(ax, A, B, C, ch, offset, color, x_i, x_f):
 
 
 def plot(data, external_data, fit_results):
-    fig, ax = plt.subplots(2, 1, num="Figure_11a", figsize=(6, 8), layout="constrained")
+    fig, ax = plt.subplots(
+        2, 1, num="Figure_11a", figsize=(3.5, 4.8), layout="constrained"
+    )
 
     ax[0].set_ylim(0, 0.8)
     ax[0].set_xlim(0, 0.7)

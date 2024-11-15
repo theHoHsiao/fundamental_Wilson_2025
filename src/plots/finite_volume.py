@@ -5,7 +5,9 @@ from ..plots_common import standard_plot_main, ch_tag
 
 
 def plot(data, **kwargs):
-    fig, axs = plt.subplots(2, 1, num="Figure_2a", figsize=(6, 8), layout="constrained")
+    fig, axs = plt.subplots(
+        2, 1, num="Figure_2a", figsize=(3.5, 4.8), layout="constrained"
+    )
 
     ch_i = 0
 

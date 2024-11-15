@@ -6,7 +6,7 @@ from ..plots_common import standard_plot_main, channel_color
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(1, 2, num="Figure_9", figsize=(12, 4), layout="constrained")
+    fig, ax = plt.subplots(1, 2, num="Figure_9", figsize=(7, 2.4), layout="constrained")
 
     ax[0].set_ylim(0, 0.18)
     ax[0].set_xlim(-1.08, -1.01)

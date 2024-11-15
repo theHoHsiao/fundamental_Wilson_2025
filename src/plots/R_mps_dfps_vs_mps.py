@@ -6,7 +6,9 @@ from ..plots_common import standard_plot_main, beta_color
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(1, 1, num="Figure_17", figsize=(6, 4), layout="constrained")
+    fig, ax = plt.subplots(
+        1, 1, num="Figure_17", figsize=(3.5, 2.4), layout="constrained"
+    )
 
     ax.set_xlim(0.79, 1.61)
     ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")

@@ -6,7 +6,9 @@ from ..plots_common import standard_plot_main
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(1, 1, num="Figure_20", figsize=(6, 4), layout="constrained")
+    fig, ax = plt.subplots(
+        1, 1, num="Figure_20", figsize=(3.5, 2.4), layout="constrained"
+    )
 
     ax.set_xlim(0, 0.16)
     ax.set_xlabel(r"$am_{\rm PCAC}$")

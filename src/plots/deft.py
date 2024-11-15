@@ -30,7 +30,9 @@ def plot_axpb_y_minus(ax, A, B, ch, offset, color, x_i, x_f):
 
 
 def plot(data, fit_results, **kwargs):
-    fig, ax = plt.subplots(1, 1, num="Figure_22", figsize=(6, 4), layout="constrained")
+    fig, ax = plt.subplots(
+        1, 1, num="Figure_22", figsize=(3.5, 2.4), layout="constrained"
+    )
 
     ax.set_ylim(0.4, 1.7)
     ax.set_xlim(-7, -4)
