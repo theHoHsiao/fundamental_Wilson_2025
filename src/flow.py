@@ -3,11 +3,13 @@ from argparse import ArgumentParser, FileType
 from flow_analysis.readers import readers
 from flow_analysis.measurements.scales import bootstrap_ensemble_w0
 from flow_analysis.stats.bootstrap import bootstrap_finalize
+from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 
 import numpy as np
 from uncertainties import ufloat
 
 from .dump import dump_dict, dump_samples
+from .utils import get_index_separation
 
 
 def get_args():
@@ -64,6 +66,13 @@ def get_args():
     return parser.parse_args()
 
 
+def fit_w0_tau_exp(w0, flows, operator="sym"):
+    flow_time_index = abs(flows.times - w0**2).argmin()
+    energy_density = {"sym": flows.Ecs, "plaq": flows.Eps}[operator]
+    raw_tau_exp = exp_autocorrelation_fit(energy_density[:, flow_time_index])
+    return raw_tau_exp * get_index_separation(flows.trajectories)
+
+
 def main():
     args = get_args()
 
@@ -71,21 +80,35 @@ def main():
         w0_samples = []
         w0_mean = ufloat(np.nan, np.nan)
         trajectories = 0
+        trajectory_step = args.trajectory_step
+        tau_exp_w0 = ufloat(np.nan, np.nan)
     else:
-        flows = readers[args.filetype](args.flow_filename).thin(
+        flows = readers[args.filetype](args.flow_filename)
+        thinned_flows = flows.thin(
             min_trajectory=args.min_trajectory,
             max_trajectory=args.max_trajectory,
             trajectory_step=args.trajectory_step,
         )
-        w0_samples = bootstrap_ensemble_w0(flows, args.W0, operator=args.operator)
+        w0_samples = bootstrap_ensemble_w0(
+            thinned_flows,
+            args.W0,
+            operator=args.operator,
+        )
         w0_mean = bootstrap_finalize(w0_samples)
-        trajectories = len(flows.trajectories)
+        tau_exp_w0 = fit_w0_tau_exp(
+            w0_mean.nominal_value,
+            flows,
+            operator=args.operator,
+        )
+        trajectory_step = get_index_separation(thinned_flows.trajectories)
+        trajectories = len(thinned_flows.trajectories)
 
     dump_dict(
         {
             "ensemble_name": args.ensemble_name,
             "w0": w0_mean,
-            "trajectory_step": args.trajectory_step,
+            "tau_exp_w0": tau_exp_w0,
+            "trajectory_step": trajectory_step,
             "num_configs": trajectories,
         },
         args.output_file_mean,
