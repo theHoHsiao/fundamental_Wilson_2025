@@ -12,7 +12,7 @@ def main():
         beta=args.beta,
     )
 
-    fit_result = meson_beta(data["ps_mass"], data["ps_decay_constant"])
+    fit_result = meson_beta(data["ps_mass_squared"], data["ps_decay_constant_squared"])
     bare_mass_range = f"[{data['mAS'].min()}, {data['mAS'].max()}]"
 
     dump_fit_result(args, fit_result, ["A", "B"], bare_mass_range=bare_mass_range)

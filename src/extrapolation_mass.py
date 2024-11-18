@@ -11,7 +11,9 @@ def main():
     data = get_data(args.data_filenames, ["w0", "ps_mass", channel_obs_key])
 
     fit_result = meson_M2(
-        data["ps_mass_hat_squared"], data["lat_a"], data[channel_obs_key]
+        data["smear_ps_mass_hat_squared"],
+        data["lat_a"],
+        data[f"{channel_obs_key}_hat_squared"],
     )
 
     dump_fit_result(args, fit_result, ["M", "L", "W"])

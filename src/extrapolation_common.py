@@ -43,6 +43,30 @@ def get_args(channels=None, beta=False):
     return parser.parse_args()
 
 
+def compute_derived_spectrum(source, target, observable):
+    obs_value = target[observable]
+
+    target[f"{observable}_squared"] = obs_value**2
+    target[f"log_{observable}_squared"] = np.log(obs_value**2)
+    created_keys = [f"{observable}_squared", f"log_{observable}_squared"]
+
+    if "w0_samples" in source:
+        target[f"{observable}_hat_squared"] = (source["w0_samples"] * obs_value) ** 2
+        created_keys.append(f"{observable}_hat_squared")
+    if "ps_decay_constant_samples" in source:
+        target[f"{observable}_over_ps_decay_constant"] = (
+            obs_value / source["ps_decay_constant_samples"]
+        )
+        created_keys.append(f"{observable}_over_ps_decay_constant")
+    if "mPCAC_samples" in source:
+        target[f"{observable}_squared_over_mPCAC"] = np.log(
+            obs_value**2 / source["mPCAC_samples"]
+        )
+        created_keys.append(f"log_{observable}_squared_over_mpcac")
+
+    return created_keys
+
+
 def prepare_data(filenames, observables, beta=None):
     data = read_sample_files(filenames)
     results = []
@@ -54,6 +78,7 @@ def prepare_data(filenames, observables, beta=None):
 
         for observable in observables:
             if observable in datum:
+                # This is not a sample set, so just copy across as-is
                 datum_result[observable] = datum[observable]
                 continue
 
@@ -71,18 +96,9 @@ def prepare_data(filenames, observables, beta=None):
                 extra_observables.add("lat_a")
 
             if observable.endswith("_mass") or observable.endswith("_decay_constant"):
-                if "w0_samples" in datum:
-                    datum_result[f"{observable}_hat_squared"] = (
-                        datum["w0_samples"] * obs_value
-                    ) ** 2
-                if "ps_decay_constant_samples" in datum:
-                    datum_result[f"{observable}_over_ps_decay_constant"] = (
-                        obs_value / datum["ps_decay_constant_samples"]
-                    )
-                if "mPCAC_samples" in datum:
-                    datum_result[f"{observable}_squared_over_mpcac"] = (
-                        obs_value**2 / datum["mPCAC_samples"]
-                    )
+                extra_observables.update(
+                    compute_derived_spectrum(datum, datum_result, observable)
+                )
         else:
             # Only append if all required observables were found
             results.append(datum_result)

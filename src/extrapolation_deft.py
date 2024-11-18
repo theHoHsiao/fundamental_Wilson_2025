@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import numpy as np
 
 from .fitting import meson_beta
 from .extrapolation_common import get_args, get_data, dump_fit_result
@@ -15,8 +14,7 @@ def main():
     )
 
     fit_result = meson_beta(
-        np.log(data["ps_mass"]),
-        np.log(data["ps_decay_constant"]),
+        data["log_ps_decay_constant_squared"], data["log_ps_mass_squared_over_mPCAC"]
     )
     bare_mass_range = f"[{data['mAS'].min()}, {data['mAS'].max()}]"
 

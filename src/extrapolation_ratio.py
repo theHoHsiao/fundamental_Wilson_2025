@@ -9,7 +9,7 @@ def main():
     args = get_args(channels=["ps", "v", "av"])
     channel_obs_key = f"{args.channel}_mass"
     data = get_data(
-        args.data_filenames, ["w0", "ps_mass", "ps_matrix_element", channel_obs_key]
+        args.data_filenames, ["w0", "ps_mass", "ps_decay_constant", channel_obs_key]
     )
 
     fit_result = meson_M2(
