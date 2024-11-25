@@ -59,15 +59,15 @@ def compute_derived_spectrum(source, target, observable):
         )
         created_keys.append(f"{observable}_over_ps_decay_constant")
     if "mPCAC_samples" in source:
-        target[f"{observable}_squared_over_mPCAC"] = np.log(
+        target[f"log_{observable}_squared_over_mPCAC"] = np.log(
             obs_value**2 / source["mPCAC_samples"]
         )
-        created_keys.append(f"log_{observable}_squared_over_mpcac")
+        created_keys.append(f"log_{observable}_squared_over_mPCAC")
 
     return created_keys
 
 
-def prepare_data(filenames, observables, beta=None):
+def get_data(filenames, observables, beta=None):
     data = read_sample_files(filenames)
     results = []
     extra_observables = set()
@@ -112,8 +112,8 @@ def prepare_data(filenames, observables, beta=None):
 def check_name_value_lengths(names, values):
     if len(values) != len(names):
         message = (
-            "Wrong number of names ({len(names)}) "
-            "for fit result ({len(fit_values)} values)"
+            f"Wrong number of names ({len(names)}) "
+            f"for fit result ({len(values)} values)"
         )
         raise ValueError(message)
 
