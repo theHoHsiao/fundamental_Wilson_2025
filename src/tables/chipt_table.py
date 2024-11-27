@@ -9,7 +9,7 @@ def format_table(df):
         "\\begin{tabular*}{\\columnwidth}{@{\\extracolsep{\\fill}}|c|c|c|c|c|} \n \\hline\\hline \n"
         "$\\beta$ & fit range ($am_0$) & $\\chi^2/N_{\\rm d.o.f.}$ & $A$ & $B$ \\\\ \\hline \n"
     )
-    footer = "\\hline \n \\end{tabular}"
+    footer = "\\hline \n \\end{tabular*}"
     content = []
 
     for row in df.itertuples():
