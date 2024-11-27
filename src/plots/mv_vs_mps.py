@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ..plots_common import standard_plot_main
-from ..fitting import meson_beta_quad
 
 
 def plot_poly_M4(ax, A, B, C, ch, color):
@@ -34,48 +33,16 @@ def plot_poly_M4(ax, A, B, C, ch, color):
 
 
 def plot(data, external_data, fit_results):
-    fig, ax = plt.subplots(
-        2, 1, num="Figure_11a", figsize=(3.5, 4.8), layout="constrained"
-    )
+    fig, ax = plt.subplots(num="Figure_11", figsize=(3.5, 4.8), layout="constrained")
 
-    ax[0].set_ylim(0, 0.8)
-    ax[0].set_xlim(0, 0.7)
-    ax[0].set_xlabel(r"$(am_{\rm ps(PS)})^2$")
-    ax[0].set_ylabel(r"$(am_{\rm v(V)})^2$")
-
-    ax[1].set_ylim(0, 1.8)
-    ax[1].set_xlim(0, 1.4)
-    ax[1].set_xlabel(r"$\hat{m}_{\rm ps(PS)}^2$")
-    ax[1].set_ylabel(r"$\hat{m}_{\rm v(V)}^2$")
+    ax.set_ylim(0, 1.8)
+    ax.set_xlim(0, 1.4)
+    ax.set_xlabel(r"$\hat{m}_{\rm ps(PS)}^2$")
+    ax.set_ylabel(r"$\hat{m}_{\rm v(V)}^2$")
 
     # plot fund. rep. results
 
-    ax[0].errorbar(
-        external_data.am_ps_sq_avg.values,
-        external_data.am_v_sq_avg.values,
-        xerr=external_data.am_ps_sq_err.values,
-        yerr=external_data.am_v_sq_err.values,
-        linestyle="",
-        marker="o",
-        markerfacecolor="none",
-        elinewidth=1,
-        capthick=1,
-        capsize=1,  # zorder=5,
-        color="r",
-        alpha=0.8,
-        label=r"$N_f=2$ (f) $Sp(4)$",
-    )
-
-    plot_poly_M4(
-        ax[0],
-        np.array(fit_results[0]["m_V_vs_m_PS"]),
-        np.array(fit_results[0]["L"]),
-        np.array(fit_results[0]["W"]),
-        "",
-        "r",
-    )
-
-    ax[1].errorbar(
+    ax.errorbar(
         external_data.w0m_ps_sq_avg.values,
         external_data.w0m_v_sq_avg.values,
         xerr=external_data.w0m_ps_sq_err.values,
@@ -92,9 +59,6 @@ def plot(data, external_data, fit_results):
     )
 
     to_plot = []
-    to_plot2 = []
-    to_fit_x = []
-    to_fit_y = []
     for datum in data:
         if "ps_mass_samples" not in datum:
             continue
@@ -109,42 +73,15 @@ def plot(data, external_data, fit_results):
         X_w0 = X * w0
         Y_w0 = Y * w0
 
-        to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
         to_plot.append((Y_w0.mean, Y_w0.samples.std(), X_w0.mean, X_w0.samples.std()))
 
-        to_fit_x.append(np.append(X.samples, X.mean))
-        to_fit_y.append(np.append(Y.samples, Y.mean))
-
     y_values, y_errors, x_values, x_errors = zip(*to_plot)
-    y2_values, y2_errors, x2_values, x2_errors = zip(*to_plot2)
 
-    # print(np.array(to_fit_x).shape)
-    fit_val, chisquare = meson_beta_quad(np.array(to_fit_x), np.array(to_fit_y))
-    plot_poly_M4(
-        ax[0],
-        fit_val[0],
-        fit_val[1],
-        fit_val[2],
-        "",
-        "b",
-    )
-
-    ax[0].errorbar(
+    ax.errorbar(
         x_values,
         y_values,
         xerr=x_errors,
         yerr=y_errors,
-        ls="none",
-        alpha=0.7,
-        color="b",
-        marker="s",
-    )
-
-    ax[1].errorbar(
-        x2_values,
-        y2_values,
-        xerr=x2_errors,
-        yerr=y2_errors,
         ls="none",
         alpha=0.7,
         color="b",

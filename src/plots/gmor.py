@@ -29,8 +29,6 @@ def plot(data, **kwargs):
 
     y_values, y_errors, x_values, x_errors = zip(*to_plot)
 
-    # print(np.array(to_fit_x).shape)
-
     ax.errorbar(
         x_values,
         y_values,

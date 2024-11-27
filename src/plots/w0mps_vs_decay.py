@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 from ..dump import read_sample_files
-from ..plots_common import save_or_show, beta_color
+from ..plots_common import save_or_show, beta_color, standard_plot_main
 from argparse import ArgumentParser
 import numpy as np
 
@@ -64,14 +64,23 @@ def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
 
 
 def plot(data, fit_pars, **kwargs):
+    # TO BE TESTED...
+    """
     fig, ax1 = plt.subplots(
         1, 2, num="Figure_13_up", figsize=(7, 2.4), layout="constrained"
     )
     fig2, ax2 = plt.subplots(
         1, 1, num="Figure_13_low", figsize=(3.5, 2.4), layout="constrained"
     )
-
     axs = [ax1[0], ax1[1], ax2]
+    """
+    fig = plt.figure(layout="constrained")
+    gs = fig.add_gridspec(nrows=2, ncols=4)
+    ax0 = fig.add_subplot(gs[0, :2])
+    ax1 = fig.add_subplot(gs[0, 2:])
+    ax2 = fig.add_subplot(gs[1, 1:3])
+    axs = [ax0, ax1, ax2]
+
     subplot_ind = 0
 
     for ch in ["ps", "v", "av"]:
@@ -86,8 +95,6 @@ def plot(data, fit_pars, **kwargs):
         for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
             to_plot = []
             for datum in data:
-                # print(datum)
-
                 if datum["beta"] != beta:
                     continue
 
@@ -140,7 +147,7 @@ def plot(data, fit_pars, **kwargs):
         borderaxespad=0.2,
     )
 
-    return fig, fig2
+    return fig  # , fig2
 
 
 def main():
@@ -150,8 +157,9 @@ def main():
     fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
     fig, fig2 = plot(data, fit_pars)
     save_or_show(fig, args.plot_file)
-    save_or_show(fig2, args.plot_file2)
+    # save_or_show(fig2, args.plot_file2)
 
 
 if __name__ == "__main__":
-    main()
+    standard_plot_main(plot)
+    # main()

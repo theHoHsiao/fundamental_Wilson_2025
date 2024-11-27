@@ -96,8 +96,6 @@ def plot(data, fit_pars):
         for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
             to_plot = []
             for datum in data:
-                # print(datum)
-
                 if datum["beta"] != beta:
                     continue
 

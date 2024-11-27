@@ -19,6 +19,14 @@ def mpcac_data(wildcards):
         if row["use_in_main_plots"]
     ]
 
+def tau_ps_correlator_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/tau_ps_correlator_mean.csv".format( **row
+        )
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
+    ]
+
 
 def wall_mass_data(wildcards):
     return [
@@ -160,7 +168,8 @@ rule wall_mass_table:
     input:
         mass_data=wall_mass_data,
         mpcac_data=mpcac_data,
-        decay_data=decay_constant_data,
+        #decay_data=decay_constant_data,
+        tau_data=tau_ps_correlator_data,
         metadata_csv="metadata/ensemble_metadata.csv",
         script="src/tables/wall_mass_table.py",
     output:
@@ -168,7 +177,7 @@ rule wall_mass_table:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.decay_data} --output_file {output.table}"
+        "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.tau_data} --output_file {output.table}" #{input.decay_data}
 
 
 rule wall_mass_table2:

@@ -9,15 +9,21 @@ from .bootstrap import BootstrapSampleSet, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract
 from .mass import (
-    get_correlators,
     get_correlator_samples,
-    channel_tags,
+    get_channel_tags,
     fold_correlators,
     get_args,
 )
+from .read_hdf5 import get_ensemble
 
 
 def ps_extraction(ensemble, args):
+    """
+    This function packs two sets of correlators for the fitting:
+        corr_aa refers to <A><A> exp(-mt)
+        corr_ab refers to <A><B> exp(-mt)
+    and returns the mass and the matrix element B for calculating decay constants
+    """
     corr_aa = get_correlator_samples(
         ensemble,
         "TRIPLET/g5",
@@ -49,7 +55,7 @@ def ps_extraction(ensemble, args):
 
 
 def ch_extraction(ensemble, args):
-    target_channels = channel_tags(args.channel)
+    target_channels = get_channel_tags(args.channel)
 
     bin_samples = []
     bin_mean = []
@@ -83,18 +89,18 @@ def main():
     args = get_args()
 
     data = h5py.File(args.h5file, "r")
-    ensemble = get_correlators(
+    (ensemble,) = get_ensemble(
         data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
-    )[0]
+    )
 
     if args.channel == "ps":
-        m_tmp, a_tmp, chi2 = ps_extraction(ensemble, args)
+        mass, matrix_element, chi2 = ps_extraction(ensemble, args)
 
     else:
-        m_tmp, a_tmp, chi2 = ch_extraction(ensemble, args)
+        mass, matrix_element, chi2 = ch_extraction(ensemble, args)
 
-    fitted_m = bootstrap_finalize(m_tmp)
-    fitted_a = bootstrap_finalize(a_tmp)
+    fitted_m = bootstrap_finalize(mass)
+    fitted_a = bootstrap_finalize(matrix_element)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -116,10 +122,10 @@ def main():
         dump_samples(
             {
                 **metadata,
-                f"{args.channel}_mass_samples": m_tmp.samples,
-                f"{args.channel}_mass_value": m_tmp.mean,
-                f"{args.channel}_matrix_element_samples": a_tmp.samples,
-                f"{args.channel}_matrix_element_value": a_tmp.mean,
+                f"{args.channel}_mass_samples": mass.samples,
+                f"{args.channel}_mass_value": mass.mean,
+                f"{args.channel}_matrix_element_samples": matrix_element.samples,
+                f"{args.channel}_matrix_element_value": matrix_element.mean,
             },
             args.output_file_samples,
         )

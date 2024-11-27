@@ -9,12 +9,12 @@ from .bootstrap import BootstrapSampleSet, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract
 from .mass import (
-    get_correlators,
     get_correlator_samples,
-    channel_tags,
+    get_channel_tags,
     fold_correlators,
     get_args,
 )
+from .read_hdf5 import get_ensemble
 
 
 def bin_multi_source(ensemble, ch, args):
@@ -39,7 +39,7 @@ def bin_multi_source(ensemble, ch, args):
 
 
 def ch_extraction(ensemble, args):
-    target_channels = channel_tags(args.channel)
+    target_channels = get_channel_tags(args.channel)
 
     bin_samples = []
     bin_mean = []
@@ -63,7 +63,7 @@ def main():
     args = get_args()
 
     data = h5py.File(args.h5file, "r")
-    ensemble = get_correlators(
+    ensemble = get_ensemble(
         data,
         beta=args.beta,
         mAS=args.mAS,
@@ -73,10 +73,10 @@ def main():
         epsilon=args.epsilon,
     )
 
-    m_tmp, a_tmp, chi2 = ch_extraction(ensemble, args)
+    mass, matrix_element, chi2 = ch_extraction(ensemble, args)
 
-    fitted_m = bootstrap_finalize(m_tmp)
-    fitted_a = bootstrap_finalize(a_tmp)
+    fitted_m = bootstrap_finalize(mass)
+    fitted_a = bootstrap_finalize(matrix_element)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -98,10 +98,10 @@ def main():
         dump_samples(
             {
                 **metadata,
-                f"smear_{args.channel}_mass_samples": m_tmp.samples,
-                f"smear_{args.channel}_mass_value": m_tmp.mean,
-                f"smear_{args.channel}_matrix_element_samples": a_tmp.samples,
-                f"smear_{args.channel}_matrix_element_value": a_tmp.mean,
+                f"smear_{args.channel}_mass_samples": mass.samples,
+                f"smear_{args.channel}_mass_value": mass.mean,
+                f"smear_{args.channel}_matrix_element_samples": matrix_element.samples,
+                f"smear_{args.channel}_matrix_element_value": matrix_element.mean,
             },
             args.output_file_samples,
         )

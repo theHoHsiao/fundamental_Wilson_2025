@@ -148,7 +148,9 @@ def avg_plaquette(ensemble, start_cfg, end_cfg, cfg_step, name="..."):
 def main():
     args = get_args()
     data = h5py.File(args.h5file, "r")
-    ensemble = get_ensemble(data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns)
+    (ensemble,) = get_ensemble(
+        data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
+    )
     result = avg_plaquette(
         ensemble,
         args.min_trajectory,

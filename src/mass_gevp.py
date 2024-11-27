@@ -3,12 +3,14 @@
 from argparse import ArgumentParser, FileType
 import h5py
 import numpy as np
+from itertools import product
 
 
 from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract, fitting
-from .mass_smear import bin_multi_source, get_correlators
+from .mass_smear import bin_multi_source
+from .read_hdf5 import get_ensemble
 
 
 def get_args():
@@ -77,13 +79,13 @@ def get_args():
         "--output_file_mean",
         type=FileType("w"),
         default="-",
-        help="Where to output the mean and uncertainty of mPCAC. (Defaults to stdout.)",
+        help="Where to output the mean and uncertainty of m_rhoE1. (Defaults to stdout.)",
     )
     parser.add_argument(
         "--output_file_samples",
         type=FileType("w"),
         default=None,
-        help="Where to output the bootstrap samples for mPCAC",
+        help="Where to output the bootstrap samples for m_rhoE1",
     )
     parser.add_argument(
         "--epsilon",
@@ -130,25 +132,26 @@ def get_meson_Cmat_mix_N(ensemble, args, ch1, ch2):
     mat = np.zeros(shape=(BOOTSTRAP_SAMPLE_COUNT, args.Nt, 2, 2))
     mat_mean = np.zeros(shape=(1, args.Nt, 2, 2))
 
-    for a in range(2):
-        for b in range(2):
-            for i in range(1):
-                for j in range(1):
-                    if a == b:
-                        ch = mixing_channel[a]
-                        corr_set = bin_multi_source(ensemble, ch, args)
-                        mat[:, :, a + i, b + j] = fold_correlators(corr_set.samples)
-                        mat_mean[:, :, a + i, b + j] = fold_correlators(corr_set.mean)
+    matrix_size_channel = range(2)
+    matrix_size_smearing = range(1)
 
-                    else:
-                        ch = mixing_channel[a] + "_" + mixing_channel[b] + "_re"
-                        corr_set = bin_multi_source(ensemble, ch, args)
-                        mat[:, :, a + i, b + j] = -fold_correlators_cross(
-                            corr_set.samples
-                        )
-                        mat_mean[:, :, a + i, b + j] = -fold_correlators_cross(
-                            corr_set.mean
-                        )
+    for a, b, i, j in product(
+        matrix_size_channel,
+        matrix_size_channel,
+        matrix_size_smearing,
+        matrix_size_smearing,
+    ):
+        if a == b:
+            ch = mixing_channel[a]
+            corr_set = bin_multi_source(ensemble, ch, args)
+            mat[:, :, a + i, b + j] = fold_correlators(corr_set.samples)
+            mat_mean[:, :, a + i, b + j] = fold_correlators(corr_set.mean)
+
+        else:
+            ch = mixing_channel[a] + "_" + mixing_channel[b] + "_re"
+            corr_set = bin_multi_source(ensemble, ch, args)
+            mat[:, :, a + i, b + j] = -fold_correlators_cross(corr_set.samples)
+            mat_mean[:, :, a + i, b + j] = -fold_correlators_cross(corr_set.mean)
 
     return mat_mean, mat
 
@@ -176,8 +179,7 @@ def main():
     # plt.style.use(args.plot_styles)
 
     if args.plateau_start == 0 and args.plateau_end == 0:
-        print("no plateau to fit...")
-        m_tmp, a_tmp, chi2 = (
+        mass, matrix_element, chi2 = (
             BootstrapSampleSet(np.nan, np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan),
             BootstrapSampleSet(np.nan, np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan),
             0,
@@ -185,7 +187,7 @@ def main():
 
     else:
         data = h5py.File(args.h5file, "r")
-        ensemble = get_correlators(
+        ensemble = get_ensemble(
             data,
             beta=args.beta,
             mAS=args.mAS,
@@ -201,16 +203,12 @@ def main():
             Cmat_mean, Cmat, args.GEVP_t0, args.GEVP_t0 + 1, args.Nt
         )
 
-        E_mean, A_mean, chi2, E_samples, A_samples = fitting.fit_exp_booerr(
+        mass, matrix_element, chi2 = fitting.fit_exp_bootstrap(
             eigenvalues[1], args.plateau_start, args.plateau_end
         )
-        m_tmp = BootstrapSampleSet(E_mean, E_samples)
-        a_tmp = BootstrapSampleSet(
-            A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples)
-        )
 
-    fitted_m = bootstrap_finalize(m_tmp)
-    fitted_a = bootstrap_finalize(a_tmp)
+    fitted_m = bootstrap_finalize(mass)
+    fitted_a = bootstrap_finalize(matrix_element)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -232,10 +230,10 @@ def main():
         dump_samples(
             {
                 **metadata,
-                "smear_rhoE1_mass_samples": m_tmp.samples,
-                "smear_rhoE1_mass_value": m_tmp.mean,
-                "smear_rhoE1_matrix_element_samples": a_tmp.samples,
-                "smear_rhoE1_matrix_element_value": a_tmp.mean,
+                "smear_rhoE1_mass_samples": mass.samples,
+                "smear_rhoE1_mass_value": mass.mean,
+                "smear_rhoE1_matrix_element_samples": matrix_element.samples,
+                "smear_rhoE1_matrix_element_value": matrix_element.mean,
             },
             args.output_file_samples,
         )

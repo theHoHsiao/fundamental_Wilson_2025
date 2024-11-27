@@ -30,10 +30,10 @@ plots = expand(
     f"assets/plots/{{plot}}.{plot_filetype}",
     plot=[
         "mpcac_vs_m0",
-        # "plaquette_phasediagram",
+        #"plaquette_phasediagram",
         "w0_vs_mpcac",
-        # "w0_flow_Sp4b6.8nAS3mAS-1.043T54L32",
-        # *topology_history_plots,
+        "w0_flow_Sp4b6.8nAS3mAS-1.043T54L32",
+        #*topology_history_plots,
         "mps_mv_vs_mpsL",
         "mpsmv_vs_mpcac_b6p7",
         "mpsfps_vs_mpcac_b6p7",
@@ -57,8 +57,8 @@ plots = expand(
 tables = expand(
     f"assets/tables/{{table}}.tex",
     table=[
-        # "plaquette_table",
-        # "gflow_table",
+        "plaquette_table",
+        "gflow_table",
         "table_V_decay",
         "table_V_mass",
         "table_VI",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# from uncertainties import ufloat, UFloat
+from uncertainties import ufloat
 
 # from .bootstrap import BootstrapSampleSet
 
@@ -9,10 +9,10 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
         r"Ensemble & $am_{\mathrm{PCAC}}$ & $am_{\mathrm{ps}}$ & $af_{\mathrm{ps}}$ & "
-        r"$am_{\mathrm{s}}$ & $m_{\mathrm{ps}}L$ & $f_{\mathrm{ps}}L$ \\"
+        r"$am_{\mathrm{s}}$ & $m_{\mathrm{ps}}L$ & $f_{\mathrm{ps}}L$ & $\tau^{\mathrm{ps}}_{\exp}$\\"
         "\n\\hline"
     )
     footer = "\\hline\\hline\n\\end{tabular}"
@@ -26,15 +26,16 @@ def format_table(df):
         content.append(
             (
                 "{} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
-                "${:.02uSL}$ & ${:.02uSL}$ \\\\\n"
+                "${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ \\\\\n"
             ).format(
                 row.ensemble_name,
                 row.mPCAC,
                 row.ps_mass,
-                row.ps_decay_constant,
+                ufloat(0, 0),  # row.ps_decay_constant,
                 row.s_mass,
                 row.ps_mass * row.Ns,
-                row.ps_decay_constant * row.Ns,
+                ufloat(0, 0),  # row.ps_decay_constant * row.Ns,
+                row.tau_ps_correlator,
             )
         )
 

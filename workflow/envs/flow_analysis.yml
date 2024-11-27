@@ -42,5 +42,5 @@ dependencies:
       - six==1.16.0
       - tzdata==2024.1
       - uncertainties==3.2.2
-      - corrfitter
+      - corrfitter==8.2
       - -e ../../libs/flow_analysis

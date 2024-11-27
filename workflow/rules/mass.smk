@@ -12,6 +12,27 @@ dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 channels = ["ps", "v", "t", "av", "at", "s"]
 
 
+rule ps_correlator_autocorrelation:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=metadata_lookup(),
+        plateau_start=lambda wildcards: metadata_lookup(
+            cols="ps_plateau_start"
+        ),
+        plateau_end=lambda wildcards: metadata_lookup(
+            cols=f"ps_plateau_end"
+        ),
+    input:
+        data="data_assets/correlators_wall.h5",
+        script="src/ps_correlators_autocorrelation.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/tau_ps_correlator_mean.csv",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
+
+
 rule fit_mass_wall:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],

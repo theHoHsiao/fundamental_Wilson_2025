@@ -3,13 +3,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ..bootstrap import BOOTSTRAP_SAMPLE_COUNT
 from ..plots_common import standard_plot_main, beta_color
 
 
-def plot_axpb_y_minus(ax, A, B, ch, offset, color, x_i, x_f):
+def plot_axpb_y_minus(ax, A, B, ch, offset, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
+    x_min, x_max = ax.get_xlim()
+    x_i = np.sqrt(x_min)
+    x_f = np.sqrt(x_max)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -66,18 +70,22 @@ def plot(data, fit_results, **kwargs):
             if tmp_result["beta"] == str(beta):
                 fit_result = tmp_result
 
-        # print(fit_results)
+        arbitrary_line_width = 0.0005
         plot_axpb_y_minus(
             ax,
-            np.random.normal(fit_result[f"A_b{beta}_samples"].mean, 0.0005, 200),
             np.random.normal(
-                fit_result[f"B_b{beta}_samples"].mean, 0.0005, 200
+                fit_result[f"A_b{beta}_samples"].mean,
+                arbitrary_line_width,
+                BOOTSTRAP_SAMPLE_COUNT,
+            ),
+            np.random.normal(
+                fit_result[f"B_b{beta}_samples"].mean,
+                arbitrary_line_width,
+                BOOTSTRAP_SAMPLE_COUNT,
             ),  # line with a small band
             "",
             0,
             beta_color(beta),
-            2.645,
-            2,
         )
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)

@@ -5,12 +5,9 @@ from .bootstrap import BootstrapSampleSet
 
 
 def extract_meson_mass(C_tmp, plateau_start, plateau_end):
-    E_mean, A_mean, chisquare, E_samples, A_samples = fitting.fit_cosh_booerr(
+    E_fit, A_fit, chisquare = fitting.fit_cosh_bootstrap(
         C_tmp, plateau_start, plateau_end
     )
-
-    E_fit = BootstrapSampleSet(E_mean, E_samples)
-    A_fit = BootstrapSampleSet(A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples))
 
     return E_fit, A_fit, round(chisquare, 2)
 
@@ -19,20 +16,11 @@ def meson_decay_constant(Css, Csp, plateau_start, plateau_end):
     # load the ensamble info
     lattice_t = np.shape(Css.mean)[1]
 
-    (E_mean, A_mean, chisquare, E_samples, A_samples) = (
-        fitting.fit_coshsinh_simultaneous(
-            Css, Csp, plateau_start, plateau_end, lattice_t
-        )
+    E_fit, A_fit, chisquare = fitting.fit_coshsinh_simultaneous(
+        Css, Csp, plateau_start, plateau_end, lattice_t
     )
 
-    E_fit = BootstrapSampleSet(E_mean, E_samples)
-    A_fit = BootstrapSampleSet(A_mean / np.sqrt(E_mean), A_samples / np.sqrt(E_samples))
-
-    return (
-        E_fit,
-        A_fit,
-        round(chisquare, 2),
-    )
+    return E_fit, A_fit, round(chisquare, 2)
 
 
 def GEVP_fixT(Cmat_mean, Cmat, t0, ti, tf):

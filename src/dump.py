@@ -84,7 +84,7 @@ def drop_duplicate_columns(df):
 # (More will create duplicates.)
 key_observables = {
     "ensemble_name": (
-        ["Q0", "w0", "mPCAC", "avg_plaquette"]
+        ["Q0", "w0", "mPCAC", "avg_plaquette", "tau_ps_correlator"]
         + [f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]]
         + [f"{state}_decay_constant" for state in ["ps", "v", "av"]]
         + [
