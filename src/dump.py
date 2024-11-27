@@ -13,6 +13,9 @@ from .bootstrap import BootstrapSampleSet
 def dump_dict(data, filename):
     to_write = {}
     for k, v in data.items():
+        if isinstance(v, BootstrapSampleSet):
+            v = v.to_ufloat()
+
         if isinstance(v, UFloat):
             if f"{k}_value" in data or "{k}_uncertainty" in data:
                 raise ValueError("Clashing keys detected.")

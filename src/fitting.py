@@ -1,9 +1,12 @@
+from functools import partial
+
 import corrfitter as cf
 import gvar as gv
 import logging
 import numpy as np
-from scipy.optimize import curve_fit
-from scipy.optimize import minimize
+from scipy.optimize import curve_fit, minimize
+
+from .bootstrap import BootstrapSampleSet
 
 
 def make_models(tmin, tmax, tp):
@@ -478,168 +481,69 @@ def fit_exp_simultaneous(Css, Csp, plateau_start, plateau_end, lattice_t):
     return E_sample, E_err, chi2_dof.mean(), b_sample, b_err
 
 
-def meson_M2(X, lattice_a, Y):
-    """mass extrapolation with M = a**2 * ( 1 + b * m**2 ) + c * lat_a"""
-
-    num_sample = np.shape(X)[1]
-    num_pars = 3
-
-    def func(V, a, b, c):
-        m, lat_a = V
-        return a * (1 + b * m) + c * lat_a
-
-    def Cov(i, j):
-        return np.mean((Y[i, :] - np.mean(Y[i, :])) * (Y[j, :] - np.mean(Y[j, :])))
-
-    x0, pcov = curve_fit(func, (X[:, -1], lattice_a[:, -1]), Y[:, -1])
-
-    size = np.shape(X)[0]
-
-    M = np.asmatrix(np.zeros(shape=(size, size)))
-
-    for a in range(size):
-        M[a, a] = Cov(a, a)
-
-    M_inverse = M.I
-
-    def chisquare_boot_const(pars):
-        def Cf_vector():
-            return Y[:, N] - func((X[:, N], lattice_a[:, -1]), a, b, c)
-
-        (a, b, c) = pars
-
-        V = np.asmatrix(Cf_vector())
-
-        return V * M_inverse * V.T
-
-    def nor_chisquare(a, b, c):
-        V = np.zeros(size)
-        for i in range(size):
-            V[i] = Y[i, -1] - func((X[i, -1], lattice_a[i, -1]), a, b, c)
-
-        V = np.asmatrix(V)
-
-        chisqr = (V * M_inverse * V.T)[0, 0]
-        return chisqr
-
-    fit_val = np.zeros(shape=(num_pars, num_sample))
-
-    for N in range(num_sample):
-        res = minimize(chisquare_boot_const, x0, method="Nelder-Mead", tol=10**-16)
-
-        for n_pars in range(num_pars):
-            fit_val[n_pars, N] = res.x[n_pars]
-
-    chisquare = nor_chisquare(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
-
-    return fit_val, chisquare / (size - num_pars - 1)
+def linear_fit_form(x, a, b):
+    return a + b * x
 
 
-def meson_beta(X, Y):
-    num_sample = np.shape(X)[1]
-    num_pars = 2
-
-    print("meson M2 fitting... Y = A + BX^2 ")
-
-    def func(m, a, b):
-        return a + b * m
-
-    def Cov(i, j):
-        return np.mean((Y[i, :] - np.mean(Y[i, :])) * (Y[j, :] - np.mean(Y[j, :])))
-
-    x0, pcov = curve_fit(func, X[:, -1], Y[:, -1])
-
-    size = np.shape(X)[0]
-
-    M = np.asmatrix(np.zeros(shape=(size, size)))
-
-    for a in range(size):
-        M[a, a] = Cov(a, a)
-
-    M_inverse = M.I
-
-    def chisquare_boot_const(pars):
-        def Cf_vector():
-            return Y[:, N] - func(X[:, N], a, b)
-
-        (a, b) = pars
-
-        V = np.asmatrix(Cf_vector())
-
-        return V * M_inverse * V.T
-
-    def nor_chisquare(a, b):
-        V = np.zeros(size)
-        for i in range(size):
-            V[i] = Y[i, -1] - func(X[i, -1], a, b)
-
-        V = np.asmatrix(V)
-
-        chisqr = (V * M_inverse * V.T)[0, 0]
-        return chisqr
-
-    fit_val = np.zeros(shape=(num_pars, num_sample))
-
-    for N in range(num_sample):
-        res = minimize(chisquare_boot_const, x0, method="Nelder-Mead", tol=10**-16)
-
-        for n_pars in range(num_pars):
-            fit_val[n_pars, N] = res.x[n_pars]
-
-    chisquare = nor_chisquare(fit_val[0].mean(), fit_val[1].mean())
-
-    return fit_val, chisquare / (size - num_pars)
+def quadratic_fit_form(x, a, b, c):
+    return a + b * x + c * x**2
 
 
-def meson_beta_quad(X, Y):
-    num_sample = np.shape(X)[1]
-    num_pars = 3
+def mass_square_fit_form(mass, a, b, c, lat_a):
+    return a * (1 + b * mass) + c * lat_a
 
-    def func(m, a, b, c):
-        return a + b * m + c * m**2
 
-    def Cov(i, j):
-        return np.mean((Y[i, :] - np.mean(Y[i, :])) * (Y[j, :] - np.mean(Y[j, :])))
+def diagonal_covariance(data):
+    result = np.zeros(shape=(len(data), len(data)))
+    np.fill_diagonal(result, np.var(data, axis=1))
+    return result
 
-    x0, pcov = curve_fit(func, X[:, -1], Y[:, -1])
 
-    size = np.shape(X)[0]
+def split_means_samples(sample_sets):
+    means = []
+    samples = []
+    for datum in sample_sets:
+        means.append(datum.mean)
+        samples.append(datum.samples)
 
-    M = np.asmatrix(np.zeros(shape=(size, size)))
+    return np.asarray(means), np.asarray(samples)
+    return np.asarray([datum.samples for datum in sample_sets])
 
-    for a in range(size):
-        M[a, a] = Cov(a, a)
 
-    M_inverse = M.I
+def global_meson_fit(fit_form, x_data, y_data):
+    x_means, x_samples = split_means_samples(x_data)
+    y_means, y_samples = split_means_samples(y_data)
 
-    def chisquare_boot_const(pars):
-        def Cf_vector():
-            return Y[:, N] - func(X[:, N], a, b, c)
+    x0, _ = curve_fit(fit_form, x_means, y_means)
+    inverse_covariance = np.linalg.inv(diagonal_covariance(y_samples))
 
-        (a, b, c) = pars
+    def chisquare(pars, y_sample, x_sample, inverse_covariance):
+        V = y_sample - fit_form(x_sample, *pars)
+        return V @ inverse_covariance @ V.T
 
-        V = np.asmatrix(Cf_vector())
+    result_samples = np.asarray(
+        [
+            minimize(
+                partial(
+                    chisquare,
+                    y_sample=y_sample,
+                    x_sample=x_sample,
+                    inverse_covariance=inverse_covariance,
+                ),
+                x0,
+                method="Nelder-Mead",
+                tol=10**-16,
+            ).x
+            for x_sample, y_sample in zip(x_samples.T, y_samples.T)
+        ]
+    )
 
-        return V * M_inverse * V.T
+    results = [
+        BootstrapSampleSet(parameter_samples.mean(), parameter_samples)
+        for parameter_samples in result_samples.T
+    ]
 
-    def nor_chisquare(a, b, c):
-        V = np.zeros(size)
-        for i in range(size):
-            V[i] = Y[i, -1] - func(X[i, -1], a, b, c)
+    central_results = [result.mean for result in results]
+    chisquare_value = chisquare(central_results, y_means, x_means, inverse_covariance)
 
-        V = np.asmatrix(V)
-
-        chisqr = (V * M_inverse * V.T)[0, 0]
-        return chisqr
-
-    fit_val = np.zeros(shape=(num_pars, num_sample))
-
-    for N in range(num_sample):
-        res = minimize(chisquare_boot_const, x0, method="Nelder-Mead", tol=10**-16)
-
-        for n_pars in range(num_pars):
-            fit_val[n_pars, N] = res.x[n_pars]
-
-    chisquare = nor_chisquare(fit_val[0].mean(), fit_val[1].mean(), fit_val[2].mean())
-
-    return fit_val, chisquare / (size - num_pars)
+    return results, chisquare_value / (len(x_data) - len(results) - 1)

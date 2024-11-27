@@ -76,6 +76,11 @@ class BootstrapSampleSet:
     def __rtruediv__(self, other):
         return BootstrapSampleSet(other / self.mean, other / self.samples)
 
+    def __pow__(self, exponent, mod=None):
+        if mod is not None:
+            raise NotImplementedError("Ternary pow() is not implemented.")
+        return BootstrapSampleSet(self.mean**exponent, self.samples**exponent)
+
     def __repr__(self):
         return f"BootstrapSampleSet[mean={self.mean}, std={self.std()}]"
 
@@ -84,6 +89,9 @@ class BootstrapSampleSet:
 
     def __getitem__(self, key):
         return BootstrapSampleSet(self.mean[key], self.samples[:, key])
+
+    def log(self):
+        return BootstrapSampleSet(np.log(self.mean), np.log(self.samples))
 
     def arccosh(self):
         return BootstrapSampleSet(np.arccosh(self.mean), np.arccosh(self.samples))
