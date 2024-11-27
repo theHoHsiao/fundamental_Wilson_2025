@@ -34,7 +34,7 @@ def get_args():
 
 def plot(data):
     betas = sorted(set(data.beta))
-    colours = {"unit": "blue", "random": "red"}
+    colours = {"unit": "C0", "random": "C3"}
     markers = {"unit": "x", "random": "o"}
     fig, axes = plt.subplots(
         nrows=len(betas),
