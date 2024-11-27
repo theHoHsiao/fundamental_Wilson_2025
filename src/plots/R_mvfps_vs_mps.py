@@ -11,8 +11,8 @@ def plot(data, external_data, fit_results):
     )
 
     ax.set_xlim(0, 1.5)
-    ax.set_xlabel(r"$\hat{m}_{\rm ps(PS)}^2$")
-    ax.set_ylabel(r"$m_{\rm v(V)} / f_{\rm ps(PS)}$")
+    ax.set_xlabel(r"$\hat{m}^2_{\rm ps},\, \hat{m}^2_{\rm PS}$")
+    ax.set_ylabel(r"$m_{\rm v} / f_{\rm ps},\, m_{\rm V} / f_{\rm PS} $")
 
     ax.errorbar(
         external_data.get("R_value").values,
