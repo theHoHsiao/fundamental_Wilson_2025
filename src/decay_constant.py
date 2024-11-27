@@ -67,7 +67,7 @@ def main():
         dump_samples(
             {
                 **metadata,
-                f"{args.channel}_decay_constant_samples": decay_constant,
+                f"{args.channel}_decay_constant": decay_constant,
             },
             args.output_file_samples,
         )
