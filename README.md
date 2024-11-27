@@ -60,14 +60,15 @@ the steps below involving running `snakemake` should work correctly.
        or
     2. Download the `correlators_smear.h5`,
        `correlators_wall.h5`,
-       and `flows.h5`
+       `flows.h5`,
+       and `hmc.h5`
        files from [the data release][datarelease],
        and place them into the `data_assets` directory.
        Instruct Snakemake that these files are up to date
        by running
 
        ```shellsession
-       snakemake --touch data_assets/{correlators_smear,correlators_wall,flows}.h5
+       snakemake --touch data_assets/{correlators_smear,correlators_wall,flows,hmc}.h5
        ```
 
 4. Download the `ensemble_metadata.csv` file from [the data release][datarelease],
