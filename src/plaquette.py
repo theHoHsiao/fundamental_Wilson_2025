@@ -136,12 +136,9 @@ def avg_plaquette(ensemble, start_cfg, end_cfg, cfg_step, name="..."):
     )
     result["delta_traj_plaq"] = get_index_separation(plaquette_trajectory_indices)
     raw_plaquettes = ensemble["plaquette"][plaquette_array_indices]
-    result["plaquette_samples"] = sample_bootstrap_0d(
-        raw_plaquettes, get_rng(ensemble.name)
-    )
+    result["plaquette"] = sample_bootstrap_0d(raw_plaquettes, get_rng(ensemble.name))
 
-    result["avg_plaquette"] = bootstrap_finalize(result["plaquette_samples"])
-    result["plaquette_value"] = raw_plaquettes.mean()
+    result["avg_plaquette"] = bootstrap_finalize(result["plaquette"])
     result["plaq_autocorr"] = (
         exp_autocorrelation_fit(raw_plaquettes) * result["delta_traj_plaq"]
     )
@@ -174,10 +171,7 @@ def main():
     )
     if args.output_file_samples:
         dump_samples(
-            {
-                k: result[k]
-                for k in [*metadata_fields, "plaquette_value", "plaquette_samples"]
-            },
+            {k: result[k] for k in [*metadata_fields, "plaquette"]},
             args.output_file_samples,
         )
 
