@@ -15,14 +15,15 @@ def main():
     fit_result = global_meson_fit(
         partial(mass_square_fit_form, lat_a=lat_a_means),
         data["ps_mass_hat_squared"],
-        data[channel_obs_key],
+        data[f"{channel_obs_key}_hat_squared"],
     )
 
-    dump_fit_result(
-        args,
-        fit_result,
-        [f"{var}_{args.channel}" for var in ["F", "L", "W"]],
-    )
+    # dump_fit_result(
+    #    args,
+    #    fit_result,
+    #    [f"{var}_{args.channel}" for var in ["F", "L", "W"]],
+    # )
+    dump_fit_result(args, fit_result, ["F", "L", "W"])
 
 
 if __name__ == "__main__":
