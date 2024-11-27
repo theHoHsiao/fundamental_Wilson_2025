@@ -8,6 +8,8 @@ rule avg_plaquette:
     input:
         data="data_assets/correlators_wall.h5",
         script="src/plaquette.py",
+    wildcard_constraints:
+        Ns=r"\d+",
     output:
         mean=f"intermediary_data/{dir_template}/plaquette_mean.csv",
         samples=f"intermediary_data/{dir_template}/plaquette_samples.json",
@@ -15,6 +17,23 @@ rule avg_plaquette:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
+
+
+rule avg_plaquette_hmc:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=lookup(within=metadata, query=metadata_query + " & start_type == '{start}'"),
+    input:
+        data="data_assets/hmc.h5",
+        script="src/plaquette_hmc.py",
+    output:
+        mean=f"intermediary_data/{dir_template}_{{start}}start/plaquette_mean.csv",
+    wildcard_constraints:
+        Ns=r"\d+",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --start {wildcards.start} --output_file {output.mean}"
 
 
 def main_plaquette_data(wildcards):
@@ -37,17 +56,3 @@ rule tabulate_largevolume_plaquettes:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file {output.table}"
-
-
-rule plot_smallvolume_plaquettes:
-    params:
-        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-    input:
-        data=glob("raw_data/hmc/out_hmc_8x8x8x8_*"),
-        script="src/plaquette_hmc.py",
-    output:
-        plot="assets/plots/plaquette_phasediagram.{plot_filetype}",
-    conda:
-        "../envs/flow_analysis.yml"
-    shell:
-        "python -m {params.module} {input.data} --plot_filename {output.plot} --plot_styles {plot_styles}"

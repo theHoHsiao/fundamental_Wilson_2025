@@ -25,3 +25,25 @@ rule plot_w0_vs_mpcac:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+
+
+def plaquette_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}_{{start_type}}start/plaquette_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_plaquette_phase_diagram"]
+    ]
+
+
+rule plaquette_phase_diagram:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=plaquette_data,
+        script="src/plots/plaquette_phasediagram.py",
+    output:
+        plot="assets/plots/plaquette_phasediagram.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"

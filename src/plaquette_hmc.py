@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, FileType
 
 from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import h5py
 import numpy as np
 import uncertainties
 
 from .bootstrap import basic_bootstrap, get_rng
-from .plots_common import save_or_show
+from .dump import dump_dict
 from .utils import get_index_separation
 
 
@@ -49,90 +48,73 @@ def get_skip(plaquettes):
 
 def get_args():
     parser = ArgumentParser(
-        description=(
-            "Get ensemble plaquettes from HMC logs, "
-            "compute mean and autocorrelation time, and plot"
-        )
+        description="Compute mean plaquette and autocorrelation time from HMC history"
     )
 
+    parser.add_argument("h5file", help="The file to read")
     parser.add_argument(
-        "hmc_filenames",
-        nargs="+",
-        metavar="hmc_filename",
-        help="Filename of HMC log file",
-    )
-    parser.add_argument(
-        "--plot_filename",
+        "--ensemble_name",
         default=None,
-        help="Where to place the generated plot. Default is to display on screen.",
+        help="Name of the ensemble to analyse. Only used for tagging output.",
     )
     parser.add_argument(
-        "--plot_styles",
-        default="styles/paperdraft.mplstyle",
-        help="Stylesheet to use for plots",
+        "--beta",
+        type=float,
+        default=None,
+        help="The beta value of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--mAS",
+        type=float,
+        default=None,
+        help="The antisymmetric fermion mass of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--Nt",
+        type=int,
+        default=None,
+        help="The temporal extent of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--Ns",
+        type=int,
+        default=None,
+        help="The spatial extent of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--start",
+        choices=["unit", "random"],
+        default=None,
+        help="The starting state of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--output_file",
+        type=FileType("w"),
+        default="-",
+        help=(
+            "Where to output the mean and uncertainty of the average plaquette."
+            "(Defaults to stdout.)"
+        ),
     )
     return parser.parse_args()
 
 
-def get_plaquette(filename):
-    result = {"nAS": 0, "nF": 0, "nADJ": 0, "nS": 0}
-    plaquettes = []
-    monomials_read = set()
-    with open(filename, "r") as f:
-        for line in f:
-            if line.startswith("[SYSTEM][0]MACROS=") or line.startswith(
-                "[MAIN][0]Compiled with macros"
-            ):
-                if "-DREPR_ANTISYMMETRIC" in line:
-                    rep = "AS"
-                if "-DREPR_SYMMETRIC" in line:
-                    rep = "S"
-                if "-DREPR_FUNDAMENTAL" in line:
-                    rep = "F"
-                if "-DREPR_ADJOINT" in line:
-                    rep = "ADJ"
-                result["rep"] = rep
-
-            if line.startswith("[FLOW][0]Starting a new run from a"):
-                if "start" in result:
-                    raise ValueError(f"Multiple starts in file {filename}")
-                result["start"] = line.split()[6]
-            if line.startswith("[GEOMETRY_INIT][0]Global size is"):
-                Nt, Nx, Ny, Nz = map(int, line.split()[-1].split("x"))
-                result["Nx"] = Nx
-                result["Ny"] = Ny
-                result["Nz"] = Nz
-                result["Nt"] = Nt
-            if line.startswith("[ACTION][10]Monomial"):
-                monomial_id = line.split()[1].strip(":")
-                if monomial_id in monomials_read:
-                    continue
-
-                monomials_read.add(monomial_id)
-                if "type = gauge," in line:
-                    result["beta"] = float(line.split()[-1])
-                elif "type = rhmc" in line or "type = hmc" in line:
-                    if "type = hmc," in line:
-                        result[f"n{rep}"] += 2
-                    if "type = rhmc," in line:
-                        result[f"n{rep}"] += 1
-
-                    mass = float(line.split()[10].strip(","))
-                    if result.get(f"m{rep}", mass) != mass:
-                        raise NotImplementedError(
-                            "Non-degenerate masses not currently supported"
-                        )
-                    result[f"m{rep}"] = mass
-                else:
-                    raise NotImplementedError(
-                        f"Monomial not recognised in file {filename}"
-                    )
-            if line.startswith("[MAIN][0]Trajectory"):
-                trajectory = int(line.split()[1].strip("#.:"))
-            if line.startswith("[MAIN][0]Initial plaquette") and not plaquettes:
-                plaquettes.append((0, float(line.split()[-1])))
-            if line.startswith("[MAIN][0]Plaquette:"):
-                plaquettes.append((trajectory, float(line.split()[-1])))
+def get_plaquette(filename, Nt, Ns, beta, mass, start):
+    data = h5py.File(filename, "r")
+    ensemble_name = f"hmc_{Nt}x{Ns}x{Ns}x{Ns}b{beta}m{mass}_{start}"
+    ens = data[ensemble_name]
+    plaquettes = [
+        (trajectory, plaquette)
+        for trajectory, plaquette in zip(ens["trajectory"], ens["plaquette"])
+        if not np.isnan(plaquette)
+    ]
+    result = {
+        "Nt": Nt,
+        "Ns": Ns,
+        "beta": beta,
+        "mAS": mass,
+        "start": start,
+    }
 
     separation = get_index_separation([index for index, plaquette in plaquettes])
     skip = get_skip(plaquettes)
@@ -157,67 +139,11 @@ def get_plaquette(filename):
     return result
 
 
-def plot(data):
-    betas = sorted(set([datum["beta"] for datum in data]))
-    colours = {"unit": "blue", "random": "red"}
-    markers = {"unit": "x", "random": "o"}
-    fig, axes = plt.subplots(
-        nrows=len(betas),
-        layout="constrained",
-        figsize=(3.5, 1 + 1.5 * len(betas)),
-    )
-
-    for beta, ax in zip(betas, axes):
-        subset = [datum for datum in data if datum["beta"] == beta]
-        reps = set([datum["rep"] for datum in subset])
-        rep = reps.pop()
-        if len(reps) != 0:
-            raise NotImplementedError("Only one rep per beta currently allowed.")
-
-        ax.text(
-            0.95, 0.95, f"$\\beta={beta}$", ha="right", va="top", transform=ax.transAxes
-        )
-        ax.set_ylabel(r"$\langle \mathcal {P} \rangle$")
-        ax.set_xlabel("$am_0$")
-        for datum in subset:
-            ax.errorbar(
-                [datum[f"m{rep}"]],
-                [datum["avg_plaquette"].nominal_value],
-                yerr=[datum["avg_plaquette"].std_dev],
-                color=colours[datum["start"]],
-                marker=markers[datum["start"]],
-                ls="none",
-            )
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(0.01))
-
-    no_plot = [np.nan]
-    ax.errorbar(
-        no_plot,
-        no_plot,
-        yerr=no_plot,
-        ls="none",
-        color=colours["unit"],
-        marker=markers["unit"],
-        label="Cold start",
-    )
-    ax.errorbar(
-        no_plot,
-        no_plot,
-        yerr=no_plot,
-        ls="none",
-        color=colours["random"],
-        marker=markers["random"],
-        label="Hot start",
-    )
-    fig.legend(loc="outside upper center", ncols=2)
-    return fig
-
-
 def main():
     args = get_args()
-    plt.style.use(args.plot_styles)
-    data = [get_plaquette(filename) for filename in args.hmc_filenames]
-    save_or_show(plot(data), args.plot_filename)
+    data = get_plaquette(args.h5file, args.Nt, args.Ns, args.beta, args.mAS, args.start)
+    data["ensemble_name"] = args.ensemble_name
+    dump_dict(data, args.output_file)
 
 
 if __name__ == "__main__":
