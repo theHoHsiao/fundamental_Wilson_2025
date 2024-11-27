@@ -2,9 +2,6 @@ import pandas as pd
 
 
 metadata = pd.read_csv("metadata/ensemble_metadata.csv")
-metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
-
-dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 
 
 rule fit_pcac:

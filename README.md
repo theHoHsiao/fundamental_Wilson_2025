@@ -58,10 +58,19 @@ the steps below involving running `snakemake` should work correctly.
     1. Download the `raw_data.zip` file from [the data release][datarelease],
        and extract it into the root of the repository,
        or
-    2. Download the `data.h5` file from [the data release][datarelease],
-       and place it into the `data_assets` directory.
+    2. Download the `correlators_smear.h5`,
+       `correlators_wall.h5`,
+       and `flows.h5`
+       files from [the data release][datarelease],
+       and place them into the `data_assets` directory.
+       Instruct Snakemake that these files are up to date
+       by running
 
-4. Download the `metadata.csv` file from [the data release][datarelease],
+       ```shellsession
+       snakemake --touch data_assets/{correlators_smear,correlators_wall,flows}.h5
+       ```
+
+4. Download the `ensemble_metadata.csv` file from [the data release][datarelease],
    and place it into the `metadata` directory.
 
 ## Running the workflow

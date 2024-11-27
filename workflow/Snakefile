@@ -1,3 +1,6 @@
+metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
+dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
+
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
 include: "rules/mpcac.smk"
