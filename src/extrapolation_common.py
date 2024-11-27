@@ -129,7 +129,7 @@ def dump_fit_result(args, fit_result, names, **extra_columns):
     results = {**keys, **{name: value for name, value in zip(names, fit_values)}}
 
     dump_dict(
-        {"chisquare": chisquare, **results, **extra_columns},
+        {**results, "chisquare": chisquare, **extra_columns},
         args.output_file_mean,
     )
     if args.output_file_samples:
