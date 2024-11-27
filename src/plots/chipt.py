@@ -63,19 +63,19 @@ def plot(data, fit_results, **kwargs):
             continue
 
         for tmp_result in fit_results:
-            if tmp_result["beta"] == str(beta):
+            if tmp_result["beta"] == beta:
                 fit_result = tmp_result
 
         arbitrary_line_width = 0.00005
         plot_YABX(
             ax,
             np.random.normal(
-                fit_result[f"A_{beta}_samples"].mean,
+                fit_result["A_samples"].mean,
                 arbitrary_line_width,
                 BOOTSTRAP_SAMPLE_COUNT,
             ),
             np.random.normal(
-                fit_result[f"B_{beta}_samples"].mean,
+                fit_result["B_samples"].mean,
                 arbitrary_line_width,
                 BOOTSTRAP_SAMPLE_COUNT,
             ),  # Construct a distribution that will give a narrow band that looks like a line
@@ -92,7 +92,7 @@ def plot(data, fit_results, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
+            alpha=1,
             color=beta_color(beta),
             marker=marker,
             label=f"{beta}",
