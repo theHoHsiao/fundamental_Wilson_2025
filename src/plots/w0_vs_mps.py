@@ -46,7 +46,7 @@ def plot(data, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
+            alpha=1,
             color=beta_color(beta),
             marker=marker,
             label=f"{beta}",
@@ -58,7 +58,7 @@ def plot(data, **kwargs):
         by_label.values(),
         by_label.keys(),
         loc="outside upper center",
-        ncol=3,
+        ncol=6,
         borderaxespad=0.2,
     )
 

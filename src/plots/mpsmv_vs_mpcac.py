@@ -38,8 +38,8 @@ def plot(data, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
-            color="b",
+            alpha=1,
+            color="C0",
             marker="s",
         )
 

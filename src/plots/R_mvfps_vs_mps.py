@@ -25,8 +25,8 @@ def plot(data, external_data, fit_results):
         elinewidth=1,
         capthick=1,
         capsize=1,  # zorder=5,
-        color="r",
-        alpha=0.7,
+        color="C3",
+        alpha=1,
         label=r"$N_{\rm f}=2$ $Sp(4)$",
     )
 
@@ -56,8 +56,8 @@ def plot(data, external_data, fit_results):
         xerr=x_errors,
         yerr=y_errors,
         ls="none",
-        alpha=0.7,
-        color="b",
+        alpha=1,
+        color="C0",
         marker="s",
         label=r"$N_{\rm as}=3$ $Sp(4)$",
     )

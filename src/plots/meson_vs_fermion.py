@@ -44,7 +44,7 @@ def plot(data, **kwargs):
             y_values,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
+            alpha=1,
             color=channel_color(channel),
             marker=marker,
         )
@@ -55,7 +55,7 @@ def plot(data, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
+            alpha=1,
             color=channel_color(channel),
             label=channel,
             marker=marker,

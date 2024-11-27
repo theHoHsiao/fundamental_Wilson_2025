@@ -28,7 +28,7 @@ def plot(data, **kwargs):
             R_ratio_QCD.mean() + R_ratio_QCD.std(),
         ],
         label=r"QCD $\rho(1450)/\rho(770)$",
-        alpha=0.7,
+        alpha=1,
         color="dodgerblue",
     )
 
@@ -75,7 +75,7 @@ def plot(data, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
+            alpha=1,
             color=beta_color(beta),
             marker=marker,
             label=f"{beta}",

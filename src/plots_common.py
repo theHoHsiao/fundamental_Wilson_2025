@@ -104,24 +104,24 @@ def standard_plot_main(plot_function, **args_options):
 
 def beta_color(b):
     return {
-        6.6: "k",
-        6.65: "r",
-        6.7: "b",
-        6.75: "m",
-        6.8: "g",
-        6.9: "tab:brown",
+        6.6: "C0",
+        6.65: "C1",
+        6.7: "C2",
+        6.75: "C3",
+        6.8: "C4",
+        6.9: "C5",
     }.get(b, b)
 
 
 def channel_color(ch):
     return {
-        "ps": "b",
-        "v": "r",
-        "t": "y",
-        "s": "m",
-        "av": "g",
-        "at": "k",
-        "rhoE1": "cyan",
+        "ps": "C0",
+        "v": "C1",
+        "t": "C2",
+        "s": "C3",
+        "av": "C4",
+        "at": "C5",
+        "rhoE1": "C6",
     }.get(ch, ch)
 
 
