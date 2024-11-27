@@ -4,8 +4,12 @@ dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
 include: "rules/mpcac.smk"
+include: "rules/mass.smk"
 include: "rules/plaquette.smk"
 include: "rules/combined_plots.smk"
+include: "rules/spectrum_plots.smk"
+include: "rules/spectrum_tables.smk"
+include: "rules/extrapolation.smk"
 
 
 plot_styles = "styles/paperdraft.mplstyle"
@@ -33,11 +37,40 @@ plots = expand(
         "w0_vs_mpcac",
         "w0_flow_Sp4b6.8nAS3mAS-1.043T54L32",
         *topology_history_plots,
+        "mps_mv_vs_mpsL",
+        "mpsmv_vs_mpcac_b6p7",
+        "mpsfps_vs_mpcac_b6p7",
+        "meson_masses_b6p7_m0",
+        "meson_decay_b6p7_m0",
+        "mmfps_vs_mpcac_b6p7",
+        "m2v_vs_m2ps_GF_b6p7",
+        "m2_all_con_sp4as",
+        "meson_spectrum_con",
+        "f2_con_sp4as",
+        "mvfps_vs_m2ps_GF_F_vs_AS",
+        "excited_vector_ratio",
+        "w0vsmps2",
+        "mfpsvsmps2",
+        "gmor_b6p7",
+        "chipt2",
+        "deft1",
     ],
 )
 tables = expand(
     f"assets/tables/{{table}}.tex",
-    table=["plaquette_table", "gflow_table"],
+    table=[
+        "plaquette_table",
+        "gflow_table",
+        "table_V_decay",
+        "table_V_mass",
+        "wall_results1",
+        "wall_results2",
+        "wall_results_ratio",
+        "smear_mass",
+        "smear_decay",
+        "chipt_table",
+        "deft_table",
+    ],
 )
 
 

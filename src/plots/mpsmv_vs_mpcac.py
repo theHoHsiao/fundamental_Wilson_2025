@@ -1,46 +1,48 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-
 from ..plots_common import standard_plot_main
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(layout="constrained", figsize=(3.5, 3.0))
+    fig, ax = plt.subplots(
+        1, 1, num="Figure_6", figsize=(3.5, 2.4), layout="constrained"
+    )
 
-    ax.set_xlabel(r"$\hat{m}_{\mathrm{PCAC}}$")
-    ax.set_ylabel(r"$w_0 / a$")
+    ax.set_ylim(0.78, 0.94)
+    ax.set_xlim(0, 0.18)
+    ax.set_xlabel(r"$am_{\rm PCAC}$")
+    ax.set_ylabel(r"$m_{\rm ps} / m_{\rm v}$")
 
     betas = sorted(set([datum["beta"] for datum in data]))
-    markers = "o^vsx+"
+    markers = "s"
     for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
         to_plot = []
         for datum in data:
             if datum["beta"] != beta:
                 continue
-            if "w0_samples" not in datum or "mPCAC_samples" not in datum:
+
+            if "ps_mass_samples" not in datum:
                 continue
 
-            w0_value = datum["w0_samples"].mean
-            w0_error = datum["w0_samples"].std()
-            w0_mPCAC = datum["w0_samples"] * datum["mPCAC_samples"]
-            to_plot.append((w0_value, w0_error, w0_mPCAC.mean, w0_mPCAC.std()))
+            X = datum["mPCAC_samples"]
+            Y = datum["ps_mass_samples"] / datum["v_mass_samples"]
+
+            to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)
+
         ax.errorbar(
             x_values,
             y_values,
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            color=f"C{beta_idx}",
-            marker=marker,
-            label=f"{beta}",
+            alpha=1,
+            color="C0",
+            marker="s",
         )
 
-    ax.set_xlim(0, None)
-    ax.set_ylim(0, None)
-    ax.legend(loc="best", title=r"$\beta$")
     return fig
 
 

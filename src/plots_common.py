@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, SUPPRESS
 
 import matplotlib.pyplot as plt
+import pandas as pd
 from uncertainties import UFloat
 
 from .dump import read_sample_files
@@ -12,7 +13,7 @@ def save_or_show(fig, filename=None):
     if filename == "/dev/null":
         plt.close(fig)
     elif filename is not None:
-        fig.savefig(filename)
+        fig.savefig(filename, transparent=True)
         plt.close(fig)
     else:
         plt.show()
@@ -50,7 +51,7 @@ def errorbar_ufloat(ax, x, y, *args, **kwargs):
     )
 
 
-def get_standard_plot_args():
+def get_standard_plot_args(fit_results=False, external_data=False):
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -58,6 +59,18 @@ def get_standard_plot_args():
         nargs="+",
         metavar="sample_filename",
         help="Filenames of sample files containing data to plot",
+    )
+    parser.add_argument(
+        "--fit_results",
+        nargs="+",
+        metavar="fit_result",
+        default=[],
+        help=("Filenames of fit result files to plot" if fit_results else SUPPRESS),
+    )
+    parser.add_argument(
+        "--external_data",
+        default=None,
+        help=("Filename of any external data to plot" if external_data else SUPPRESS),
     )
     parser.add_argument(
         "--plot_file",
@@ -72,8 +85,47 @@ def get_standard_plot_args():
     return parser.parse_args()
 
 
-def standard_plot_main(plot_function):
-    args = get_standard_plot_args()
+def standard_plot_main(plot_function, **args_options):
+    args = get_standard_plot_args(**args_options)
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
-    save_or_show(plot_function(data), args.plot_file)
+
+    external_data = (
+        pd.read_csv(args.external_data) if args.external_data is not None else None
+    )
+
+    fit_results = read_sample_files(args.fit_results, group_key="beta")
+
+    save_or_show(
+        plot_function(data, external_data=external_data, fit_results=fit_results),
+        args.plot_file,
+    )
+
+
+def beta_color(b):
+    return {
+        6.6: "C0",
+        6.65: "C1",
+        6.7: "C2",
+        6.75: "C3",
+        6.8: "C4",
+        6.9: "C5",
+    }.get(b, b)
+
+
+def channel_color(ch):
+    return {
+        "ps": "C0",
+        "v": "C1",
+        "t": "C2",
+        "s": "C3",
+        "av": "C4",
+        "at": "C5",
+        "rhoE1": "C6",
+    }.get(ch, ch)
+
+
+def ch_tag(ch):
+    return {
+        "rhoE1": r"v^\prime",
+    }.get(ch, ch)

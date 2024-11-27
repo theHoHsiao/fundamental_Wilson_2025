@@ -13,6 +13,9 @@ from .bootstrap import BootstrapSampleSet
 def dump_dict(data, filename):
     to_write = {}
     for k, v in data.items():
+        if isinstance(v, BootstrapSampleSet):
+            v = v.to_ufloat()
+
         if isinstance(v, UFloat):
             if f"{k}_value" in data or "{k}_uncertainty" in data:
                 raise ValueError("Clashing keys detected.")
@@ -77,21 +80,35 @@ def drop_duplicate_columns(df):
     return df.loc[:, ~df.columns.duplicated()].copy()
 
 
-def read_files(filenames):
-    # A key on which to search; only one is needed per file type.
-    # (More will create duplicates.)
-    search_keys = [
-        "Q0_value",
-        "w0_value",
-        "mPCAC_value",
-        "avg_plaquette_value",
-        "ps_mass_value",
-    ]
+# A key on which to search; only one is needed per file type.
+# (More will create duplicates.)
+key_observables = {
+    "ensemble_name": (
+        ["Q0", "w0", "mPCAC", "avg_plaquette", "tau_ps_correlator"]
+        + [f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]]
+        + [f"{state}_decay_constant" for state in ["ps", "v", "av"]]
+        + [
+            f"smear_{state}_mass"
+            for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
+        ]
+        + [
+            f"smear_{state}_Rfps"
+            for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
+        ]
+        + [f"{state}_Rfps" for state in ["ps", "v", "t", "av", "at", "s"]]
+        + ["smear_rhoE1_Rmv"]
+    ),
+    "beta": ["A"],
+    "channel": ["M", "F"],
+}
 
+
+def read_files(filenames, index_name="ensemble_name"):
     data = defaultdict(list)
     for filename in filenames:
-        file_data = pd.read_csv(filename).set_index("ensemble_name")
-        for key in search_keys:
+        file_data = pd.read_csv(filename).set_index(index_name)
+        for observable in key_observables[index_name]:
+            key = f"{observable}_value"
             if key in file_data.columns:
                 data[key].append(file_data)
                 break
@@ -121,14 +138,14 @@ def read_sample_file(filename):
     return {**data, **raw_data}
 
 
-def read_sample_files(filenames):
+def read_sample_files(filenames, group_key="ensemble_name"):
     results = {}
     for filename in filenames:
         file_data = read_sample_file(filename)
-        if file_data["ensemble_name"] not in results:
-            results[file_data["ensemble_name"]] = file_data
+        if file_data.get(group_key) not in results:
+            results[file_data.get(group_key)] = file_data
         else:
-            target = results[file_data["ensemble_name"]]
+            target = results[file_data.get(group_key)]
             for k, v in file_data.items():
                 if "samples" not in k and k in target:
                     if target[k] != v:

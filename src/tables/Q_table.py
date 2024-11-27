@@ -1,20 +1,8 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser, FileType
-
 import numpy as np
 
-from ..dump import read_files
-
-
-def get_args():
-    parser = ArgumentParser()
-
-    parser.add_argument(
-        "data_filenames", nargs="+", help="Filenames of w0 or Q result files"
-    )
-    parser.add_argument("--output_file", type=FileType("w"), default="-")
-    return parser.parse_args()
+from ..tables_common import ensemble_table_main
 
 
 def format_table(df):
@@ -64,21 +52,5 @@ def format_table(df):
     return header + "".join(content) + footer
 
 
-def main():
-    args = get_args()
-    data = read_files(args.data_filenames)
-    print(
-        format_table(
-            data.sort_values(
-                by="ensemble_name",
-                key=lambda col: col.apply(
-                    lambda e: ((elems := e.split("M"))[0], int(elems[1]))
-                ),
-            )
-        ),
-        file=args.output_file,
-    )
-
-
 if __name__ == "__main__":
-    main()
+    ensemble_table_main(format_table)
