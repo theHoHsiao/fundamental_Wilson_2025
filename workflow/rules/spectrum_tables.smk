@@ -168,16 +168,15 @@ rule wall_mass_table:
     input:
         mass_data=wall_mass_data,
         mpcac_data=mpcac_data,
-        #decay_data=decay_constant_data,
-        tau_data=tau_ps_correlator_data,
+        decay_data=decay_constant_data,
         metadata_csv="metadata/ensemble_metadata.csv",
         script="src/tables/wall_mass_table.py",
     output:
-        table="assets/tables/table_VI.tex",
+        table="assets/tables/wall_results1.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.tau_data} --output_file {output.table}" #{input.decay_data}
+        "python -m {params.module} {input.mass_data} {input.mpcac_data} {input.decay_data} --output_file {output.table}" #{input.decay_data}
 
 
 rule wall_mass_table2:
@@ -190,7 +189,7 @@ rule wall_mass_table2:
         metadata_csv="metadata/ensemble_metadata.csv",
         script="src/tables/wall_mass_table2.py",
     output:
-        table="assets/tables/table_VII.tex",
+        table="assets/tables/wall_results2.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -204,7 +203,7 @@ rule wall_mass_fps_table:
         data=wall_Rfps_data,
         script="src/tables/wall_mass_fps_table.py",
     output:
-        table="assets/tables/table_VIII.tex",
+        table="assets/tables/wall_results_ratio.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -218,7 +217,7 @@ rule smear_mass_table:
         data=smear_mass_data,
         script="src/tables/smear_mass_table.py",
     output:
-        table="assets/tables/table_IX.tex",
+        table="assets/tables/smear_mass.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -233,7 +232,7 @@ rule smear_mass_fps_table:
         data_Rmv=smear_Rmv_data,
         script="src/tables/smear_mass_fps_table.py",
     output:
-        table="assets/tables/table_X.tex",
+        table="assets/tables/smear_decay.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -247,7 +246,7 @@ rule chipt_table:
         data=chipt_extrapolation_results,
         script="src/tables/chipt_table.py",
     output:
-        table="assets/tables/table_XI.tex",
+        table="assets/tables/chipt_table.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -261,7 +260,7 @@ rule deft_table:
         data=deft_extrapolation_results,
         script="src/tables/deft_table.py",
     output:
-        table="assets/tables/table_XII.tex",
+        table="assets/tables/deft_table.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
