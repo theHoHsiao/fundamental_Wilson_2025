@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
-import re
 
 import h5py
 import matplotlib.pyplot as plt
@@ -9,7 +8,7 @@ import numpy as np
 
 from .bootstrap import get_rng, sample_bootstrap_1d, bootstrap_finalize
 from .dump import dump_dict, dump_samples
-from .read_hdf5 import get_ensemble
+from .read_hdf5 import get_ensemble, filter_configurations
 
 
 def get_args():
@@ -110,16 +109,8 @@ def get_g5_eff_mass(sampled_correlator):
 def get_eff_mass_samples(
     ensemble, min_trajectory=None, max_trajectory=None, trajectory_step=1
 ):
-    indices = np.asarray(
-        [
-            int(re.match(".*n([0-9]+)$", filename.decode()).groups()[0])
-            for filename in ensemble["configurations"]
-        ]
-    )
-    filtered_indices = (
-        ((indices >= min_trajectory) if min_trajectory is not None else True)
-        & ((indices <= max_trajectory) if max_trajectory is not None else True)
-        & ((indices - (min_trajectory or 0)) % trajectory_step == 0)
+    filtered_indices = filter_configurations(
+        ensemble, min_trajectory, max_trajectory, trajectory_step
     )
 
     g5 = ensemble["TRIPLET"]["g5"][:, filtered_indices]
@@ -185,7 +176,9 @@ def main():
     plt.style.use(args.plot_styles)
 
     data = h5py.File(args.h5file, "r")
-    ensemble = get_ensemble(data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns)
+    (ensemble,) = get_ensemble(
+        data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
+    )
     eff_mass_samples = get_eff_mass_samples(
         ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step
     )
