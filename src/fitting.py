@@ -5,8 +5,11 @@ import gvar as gv
 import logging
 import numpy as np
 from scipy.optimize import curve_fit, minimize
+import warnings
 
 from .bootstrap import BootstrapSampleSet
+
+warnings.filterwarnings("ignore")
 
 
 def make_models(tmin, tmax, tp):
@@ -136,7 +139,7 @@ def fit_cosh_std(C_boot, plateau_start, plateau_end, lattice_t):
     return gv.mean(E[0]), gv.sdev(E[0]), chi2 / dof
 
 
-def fit_cosh_booerr(C, plateau_start, plateau_end):
+def fit_cosh_bootstrap(C, plateau_start, plateau_end):
     """This function fits the correlators with a cosh function"""
 
     C_boot = C.samples
@@ -194,16 +197,15 @@ def fit_cosh_booerr(C, plateau_start, plateau_end):
         printing=False,
     )
 
-    return (
-        gv.mean(E_mean[0]),
-        gv.mean(a_mean[0]),
-        chi2 / dof,
-        E_sample,
-        a_sample,
+    E_fit = BootstrapSampleSet(gv.mean(E_mean[0]), E_sample)
+    A_fit = BootstrapSampleSet(
+        gv.mean(a_mean[0]) / np.sqrt(gv.mean(E_mean[0])), a_sample / np.sqrt(E_sample)
     )
 
+    return E_fit, A_fit, chi2 / dof
 
-def fit_exp_booerr(C, plateau_start, plateau_end):
+
+def fit_exp_bootstrap(C, plateau_start, plateau_end):
     """This function fits the correlators with a exp function"""
 
     C_boot = C.samples
@@ -261,13 +263,12 @@ def fit_exp_booerr(C, plateau_start, plateau_end):
         printing=False,
     )
 
-    return (
-        gv.mean(E_mean[0]),
-        gv.mean(a_mean[0]),
-        chi2 / dof,
-        E_sample,
-        a_sample,
+    E_fit = BootstrapSampleSet(gv.mean(E_mean[0]), E_sample)
+    A_fit = BootstrapSampleSet(
+        gv.mean(a_mean[0]) / np.sqrt(gv.mean(E_mean[0])), a_sample / np.sqrt(E_sample)
     )
+
+    return E_fit, A_fit, chi2 / dof
 
 
 def simultaneous_model(T, tmin, tmax, tp):
@@ -386,7 +387,12 @@ def fit_coshsinh_simultaneous(Corr_ss, Corr_sp, plateau_start, plateau_end, latt
         printing=False,
     )
 
-    return gv.mean(E_mean[0]), gv.mean(b_mean[0]), chi2 / dof, E_sample, b_sample
+    E_fit = BootstrapSampleSet(gv.mean(E_mean[0]), E_sample)
+    A_fit = BootstrapSampleSet(
+        gv.mean(b_mean[0]) / np.sqrt(gv.mean(E_mean[0])), b_sample / np.sqrt(E_sample)
+    )
+
+    return E_fit, A_fit, chi2 / dof
 
 
 def sim_coshsinh_fit(C1, C2, T, ti, tf):
