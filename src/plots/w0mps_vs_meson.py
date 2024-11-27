@@ -40,7 +40,7 @@ def get_args():
     return parser.parse_args()
 
 
-def plot_axpb_y(ax, A, L, ch, offset, color):
+def plot_axpb_y(ax, A, L, ch, alpha, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
@@ -62,7 +62,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
 
     # ax.plot(x**2, Yfit[-1], "--", linewidth=0.75, alpha=0.6)
     ax.fill_between(
-        x**2, y_up, y_dn, alpha=0.4, label=ch, facecolor=color, edgecolor=None
+        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
     )
 
 
@@ -74,7 +74,7 @@ def plot(data, fit_pars):
     fig2, ax2 = plt.subplots(
         1, 1, num="Figure_14", figsize=(3.5, 4.8), layout="constrained"
     )
-    ax2.plot([0, 6], [0, 6], "--k", label="ps")
+    ax2.plot([0, 6], [0, 6], "--", color="C0", label="ps")
     ax2.set_xlim(0.8, 1.5)
 
     for ch in ["v", "t", "s", "av", "at", "rhoE1"]:
@@ -120,7 +120,7 @@ def plot(data, fit_pars):
                     parameter["M_samples"].samples,
                     parameter["L_samples"].samples,
                     "",
-                    0,
+                    0.4,
                     "k",
                 )
 
@@ -129,7 +129,7 @@ def plot(data, fit_pars):
                     parameter["M_samples"].samples,
                     parameter["L_samples"].samples,
                     r"$ \rm " + ch_tag(ch) + "$",
-                    0,
+                    0.8,
                     channel_color(ch),
                 )
 
