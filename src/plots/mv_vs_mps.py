@@ -33,12 +33,12 @@ def plot_poly_M4(ax, A, B, C, ch, color):
 
 
 def plot(data, external_data, fit_results):
-    fig, ax = plt.subplots(num="Figure_11", figsize=(3.5, 4.8), layout="constrained")
+    fig, ax = plt.subplots(num="Figure_11", figsize=(3.5, 2.4), layout="constrained")
 
     ax.set_ylim(0, 1.8)
     ax.set_xlim(0, 1.4)
-    ax.set_xlabel(r"$\hat{m}_{\rm ps(PS)}^2$")
-    ax.set_ylabel(r"$\hat{m}_{\rm v(V)}^2$")
+    ax.set_xlabel(r"$\hat{m}^2_{\rm ps},\, \hat{m}^2_{\rm PS}$")
+    ax.set_ylabel(r"$\hat{m}^2_{\rm v},\, \hat{m}^2_{\rm V} $")
 
     # plot fund. rep. results
 
@@ -53,8 +53,8 @@ def plot(data, external_data, fit_results):
         elinewidth=1,
         capthick=1,
         capsize=1,  # zorder=5,
-        color="r",
-        alpha=0.8,
+        color="C3",
+        alpha=1,
         label=r"$N_{\rm f}=2$ $Sp(4)$",
     )
 
@@ -83,8 +83,8 @@ def plot(data, external_data, fit_results):
         xerr=x_errors,
         yerr=y_errors,
         ls="none",
-        alpha=0.7,
-        color="b",
+        alpha=1,
+        color="C0",
         marker="s",
         label=r"$N_{\rm as}=3$ $Sp(4)$",
     )
