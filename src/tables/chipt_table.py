@@ -17,7 +17,7 @@ def format_table(df):
             ("{} & ${}$ & ${:.02f}$ & ${:.02uSL}$ & ${:.02uSL}$ \\\\\n").format(
                 row.beta,
                 row.bare_mass_range,
-                row.chi_sqr_dof,
+                row.chisquare,
                 row.A,
                 row.B,
             )

@@ -19,11 +19,11 @@ def format_table(df):
             (
                 "${}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02f}$ \\\\\n"
             ).format(
-                "\\rm " + ch_tag(row.channel.split("_")[1]),
+                "\\rm " + ch_tag(row.channel),
                 row.M,
                 row.L,
                 row.W,
-                row.chi_sqr_dof,
+                row.chisquare,
             )
         )
 

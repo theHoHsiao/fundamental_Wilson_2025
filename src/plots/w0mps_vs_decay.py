@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 from ..dump import read_sample_files
-from ..plots_common import save_or_show, beta_color, standard_plot_main
+from ..plots_common import save_or_show, beta_color
 from argparse import ArgumentParser
 import numpy as np
 
@@ -17,7 +17,7 @@ def get_args():
         help="Filenames of sample files containing data to plot",
     )
     parser.add_argument(
-        "--fit_parameters",
+        "--fit_results",
         nargs="+",
         metavar="sample_filename",
         help="Filenames of sample files containing data to plot",
@@ -40,10 +40,13 @@ def get_args():
     return parser.parse_args()
 
 
-def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
+def plot_axpb_y(ax, A, L, ch, offset, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
+    x_min, x_max = ax.get_xlim()
+    x_i = np.sqrt(x_min)
+    x_f = np.sqrt(x_max)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -64,16 +67,6 @@ def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
 
 
 def plot(data, fit_pars, **kwargs):
-    # TO BE TESTED...
-    """
-    fig, ax1 = plt.subplots(
-        1, 2, num="Figure_13_up", figsize=(7, 2.4), layout="constrained"
-    )
-    fig2, ax2 = plt.subplots(
-        1, 1, num="Figure_13_low", figsize=(3.5, 2.4), layout="constrained"
-    )
-    axs = [ax1[0], ax1[1], ax2]
-    """
     fig = plt.figure(layout="constrained")
     gs = fig.add_gridspec(nrows=2, ncols=4)
     ax0 = fig.add_subplot(gs[0, :2])
@@ -113,23 +106,21 @@ def plot(data, fit_pars, **kwargs):
                 xerr=x_errors,
                 yerr=y_errors,
                 ls="none",
-                alpha=0.7,
+                alpha=1,
                 color=beta_color(beta),
                 marker=marker,
                 label=f"{beta}",
             )
 
         for parameter in fit_pars:
-            if f"F_{ch}_samples" in parameter:
+            if parameter["channel"] == ch:
                 plot_axpb_y(
                     ax,
-                    parameter[f"F_{ch}_samples"].samples,
-                    parameter[f"L_{ch}_samples"].samples,
+                    parameter["F_samples"].samples,
+                    parameter["L_samples"].samples,
                     "",
                     0,
                     "k",
-                    0.894,
-                    1.225,
                 )
 
         ax.set_xlim(0.8, 1.5)
@@ -147,19 +138,17 @@ def plot(data, fit_pars, **kwargs):
         borderaxespad=0.2,
     )
 
-    return fig  # , fig2
+    return fig
 
 
 def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
-    fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
-    fig, fig2 = plot(data, fit_pars)
+    fit_pars = read_sample_files(args.fit_results, group_key="channel")
+    fig = plot(data, fit_pars)
     save_or_show(fig, args.plot_file)
-    # save_or_show(fig2, args.plot_file2)
 
 
 if __name__ == "__main__":
-    standard_plot_main(plot)
-    # main()
+    main()
