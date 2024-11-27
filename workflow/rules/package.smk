@@ -33,3 +33,17 @@ rule package_gflow:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.files} --h5_filename {output.h5}"
+
+
+rule package_hmc:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        files=glob("raw_data/hmc/out_hmc_*"),
+        script="src/package_hmc.py",
+    output:
+        h5=protected("data_assets/hmc.h5")
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.files} --h5_filename {output.h5}"
