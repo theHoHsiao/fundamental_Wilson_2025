@@ -19,7 +19,7 @@ def format_table(df):
             ).format(
                 row.beta,
                 row.bare_mass_range,
-                row.chi_sqr_dof,
+                row.chisquare,
                 row.A,
                 row.B,
                 row.y,
