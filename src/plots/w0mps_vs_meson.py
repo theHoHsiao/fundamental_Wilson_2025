@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 from ..dump import read_sample_files
-from ..plots_common import save_or_show, beta_color, ch_tag
+from ..plots_common import save_or_show, beta_color, ch_tag, channel_color
 from argparse import ArgumentParser
 import numpy as np
 
@@ -40,23 +40,14 @@ def get_args():
     return parser.parse_args()
 
 
-def channel_color(ch):
-    return {
-        "ps": "b",
-        "v": "r",
-        "t": "y",
-        "s": "m",
-        "av": "g",
-        "at": "k",
-        "rhoE1": "cyan",
-    }.get(ch, ch)
-
-
-def plot_axpb_y(ax, A, L, ch, offset, color, x_i, x_f):
+def plot_axpb_y(ax, A, L, ch, offset, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
-    x = np.linspace(np.sqrt(x_i), np.sqrt(x_f), n_fit)
+    x_min, x_max = ax.get_xlim()
+    x_i = np.sqrt(x_min)
+    x_f = np.sqrt(x_max)
+    x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
     y_dn = np.zeros(n_fit)
@@ -84,9 +75,11 @@ def plot(data, fit_pars):
         1, 1, num="Figure_14", figsize=(3.5, 4.8), layout="constrained"
     )
     ax2.plot([0, 6], [0, 6], "--k", label="ps")
+    ax2.set_xlim(0.8, 1.5)
 
     for ch in ["v", "t", "s", "av", "at", "rhoE1"]:
         ax = axs[subplot_row, subplot_col]
+        ax.set_xlim(0.8, 1.5)
 
         ax.set_xlabel(r"$m_{\rm ps}^{\rm inf} L$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
@@ -114,14 +107,14 @@ def plot(data, fit_pars):
                 xerr=x_errors,
                 yerr=y_errors,
                 ls="none",
-                alpha=0.7,
+                alpha=1,
                 color=beta_color(beta),
                 marker=marker,
                 label=f"{beta}",
             )
 
         for parameter in fit_pars:
-            if parameter["channel"] == f"m_{ch}":
+            if parameter["channel"] == ch:
                 plot_axpb_y(
                     ax,
                     parameter["M_samples"].samples,
@@ -129,8 +122,6 @@ def plot(data, fit_pars):
                     "",
                     0,
                     "k",
-                    0.8,
-                    1.5,
                 )
 
                 plot_axpb_y(
@@ -140,12 +131,7 @@ def plot(data, fit_pars):
                     r"$ \rm " + ch_tag(ch) + "$",
                     0,
                     channel_color(ch),
-                    0.8,
-                    1.5,
                 )
-
-        ax.set_xlim(0.8, 1.5)
-        ax.set_ylim(None, None)
 
         subplot_row += 1 - subplot_col * 3
         subplot_col += int(subplot_row / 3)
