@@ -12,8 +12,8 @@ def plot_axpb_y_minus(ax, A, B, ch, offset, color):
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
     x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(x_min)
-    x_f = np.sqrt(x_max)
+    x_i = -np.sqrt(abs(x_min))
+    x_f = -np.sqrt(abs(x_max))
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -67,19 +67,19 @@ def plot(data, fit_results, **kwargs):
             continue
 
         for tmp_result in fit_results:
-            if tmp_result["beta"] == str(beta):
+            if tmp_result["beta"] == beta:
                 fit_result = tmp_result
 
         arbitrary_line_width = 0.0005
         plot_axpb_y_minus(
             ax,
             np.random.normal(
-                fit_result[f"A_b{beta}_samples"].mean,
+                fit_result["A_samples"].mean,
                 arbitrary_line_width,
                 BOOTSTRAP_SAMPLE_COUNT,
             ),
             np.random.normal(
-                fit_result[f"B_b{beta}_samples"].mean,
+                fit_result["B_samples"].mean,
                 arbitrary_line_width,
                 BOOTSTRAP_SAMPLE_COUNT,
             ),  # line with a small band
@@ -96,7 +96,7 @@ def plot(data, fit_results, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            alpha=0.7,
+            alpha=1,
             color=beta_color(beta),
             marker=marker,
             label=f"{beta}",
