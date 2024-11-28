@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser, FileType
 from .dump import read_files
+from .provenance import text_metadata, get_basic_metadata
 
 
 def by_ensemble_name(column):
@@ -32,4 +33,5 @@ def common_table_main(tabulate_function, index_name="ensemble_name"):
     data = read_files(args.data_filenames, index_name=index_name)
     if index_name == "ensemble_name":
         data = data.sort_values(by="ensemble_name", key=by_ensemble_name)
+    print(text_metadata(get_basic_metadata(), comment_char="%"), file=args.output_file)
     print(tabulate_function(data), file=args.output_file)

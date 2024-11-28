@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
+import pathlib
 import psutil
 import socket
 import subprocess
@@ -19,7 +21,12 @@ def get_commit_id():
     )
 
 
-def get_basic_metadata():
+def sha256_file(filename):
+    with open(filename, "rb") as f:
+        return hashlib.file_digest(f, "sha256").hexdigest()
+
+
+def get_basic_metadata(*metadata_filenames):
     metadata = {}
     metadata["_comment"] = (
         "This file and all the files in this directory were generated automatically. "
@@ -34,6 +41,17 @@ def get_basic_metadata():
     metadata["workflow_step"] = {
         "command_line": " ".join(psutil.Process(os.getpid()).cmdline()),
     }
+    if metadata_filenames:
+        metadata["input_metadata"] = {
+            filename: {
+                "filename": filename,
+                "last_updated": datetime.fromtimestamp(
+                    pathlib.Path(filename).stat().st_mtime, timezone.utc
+                ).isoformat(),
+                "sha256": sha256_file(filename),
+            }
+            for filename in metadata_filenames
+        }
 
     return metadata
 
