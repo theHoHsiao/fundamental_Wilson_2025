@@ -49,7 +49,7 @@ def main():
         "Ns": args.Ns,
     }
     dump_dict(
-        {**metadata, "tau_ps_correlator": auto},
+        {**metadata, "tau_exp_ps_correlator": auto},
         args.output_file_mean,
     )
 

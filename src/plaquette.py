@@ -139,7 +139,7 @@ def avg_plaquette(ensemble, start_cfg, end_cfg, cfg_step, name="..."):
     result["plaquette"] = sample_bootstrap_0d(raw_plaquettes, get_rng(ensemble.name))
 
     result["avg_plaquette"] = bootstrap_finalize(result["plaquette"])
-    result["plaq_autocorr"] = (
+    result["tau_exp_plaq"] = (
         exp_autocorrelation_fit(raw_plaquettes) * result["delta_traj_plaq"]
     )
     return result
@@ -168,7 +168,7 @@ def main():
         "ensemble_name",
     ]
     dump_dict(
-        {k: result[k] for k in [*metadata_fields, "avg_plaquette", "plaq_autocorr"]},
+        {k: result[k] for k in [*metadata_fields, "avg_plaquette", "tau_exp_plaq"]},
         args.output_file_mean,
     )
     if args.output_file_samples:

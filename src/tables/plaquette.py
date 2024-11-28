@@ -14,9 +14,7 @@ def format_table(results, skip_missing_names=True):
                 r"$\beta$",
                 "$am_0$",
                 r"$N_{\mathrm{cfg}}$",
-                r"$\delta_{\mathrm{traj}}$",
                 r"$\langle \mathcal{P} \rangle$",
-                r"$\tau_{\mathrm{exp}}^{\mathcal{P}}$",
                 "Comment",
             ]
         )
@@ -42,9 +40,7 @@ def format_table(results, skip_missing_names=True):
                     f"{result['beta']}",
                     f"{result['mAS']}",
                     f"{result['Ncfg_spectrum']}",
-                    f"{result['delta_traj_spectrum']}",
                     f"{result['avg_plaquette']:.02uSL}",
-                    f"{result['plaq_autocorr']:.02uSL}",
                     "tbc",
                 ]
             )

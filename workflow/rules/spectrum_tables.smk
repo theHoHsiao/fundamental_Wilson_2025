@@ -21,8 +21,7 @@ def mpcac_data(wildcards):
 
 def tau_ps_correlator_data(wildcards):
     return [
-        f"intermediary_data/{dir_template}/tau_ps_correlator_mean.csv".format( **row
-        )
+        f"intermediary_data/{dir_template}/tau_ps_correlator_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
     ]
@@ -131,6 +130,20 @@ def deft_extrapolation_results(wildcards):
     return [
         f"intermediary_data/deft_extrapolation_results/deft_b{beta}_extp_mean.csv".format()
         for beta in [6.6, 6.65, 6.7, 6.75, 6.8]
+    ]
+
+
+def autocorr_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
+        for basename in [
+            "tau_ps_correlator_mean",
+            "plaquette_mean",
+            "w0_mean",
+            "top_charge",
+        ]
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
     ]
 
 
@@ -261,6 +274,20 @@ rule deft_table:
         script="src/tables/deft_table.py",
     output:
         table="assets/tables/deft_table.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule autocorr_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=autocorr_data,
+        script="src/tables/autocorr.py",
+    output:
+        table="assets/tables/autocorr_table.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:

@@ -108,7 +108,7 @@ def main():
             "ensemble_name": args.ensemble_name,
             "w0": w0_mean,
             "tau_exp_w0": tau_exp_w0,
-            "trajectory_step": trajectory_step,
+            "delta_traj_w0": trajectory_step,
             "num_configs": trajectories,
         },
         args.output_file_mean,

@@ -70,6 +70,7 @@ tables = expand(
         "smear_decay",
         "chipt_table",
         "deft_table",
+        "autocorr_table",
     ],
 )
 external_data = expand(
