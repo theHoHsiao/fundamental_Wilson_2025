@@ -14,7 +14,12 @@ def format_table(df):
     )
     footer = "\\hline \n \\end{tabular}"
     content = []
+    previous_prefix = None
     for row in df.itertuples():
+        if (next_prefix := row.ensemble_name[:4]) != previous_prefix:
+            previous_prefix = next_prefix
+            content.append("\\hline\n")
+
         if np.isnan(row.tau_exp_w0.nominal_value):
             formatted_tau_exp_w0 = r"$\cdots$"
             formatted_delta_traj_w0 = r"$\cdots$"
