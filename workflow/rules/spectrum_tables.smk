@@ -141,7 +141,7 @@ rule continuum_massless_decay:
         data=continuum_massless_extrapolation_decay,
         script="src/tables/continuum_massless_decay.py",
     output:
-        table="assets/tables/table_V_decay.tex",
+        table="assets/tables/nlo_coefficients_decay.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -155,7 +155,7 @@ rule continuum_massless_mass:
         data=continuum_massless_extrapolation_mass,
         script="src/tables/continuum_massless_mass.py",
     output:
-        table="assets/tables/table_V_mass.tex",
+        table="assets/tables/nlo_coefficients_mass.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:

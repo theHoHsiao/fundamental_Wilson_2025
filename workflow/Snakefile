@@ -61,8 +61,8 @@ tables = expand(
     table=[
         "plaquette_table",
         "gflow_table",
-        "table_V_decay",
-        "table_V_mass",
+        "nlo_coefficients_decay",
+        "nlo_coefficients_mass",
         "wall_results1",
         "wall_results2",
         "wall_results_ratio",
