@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from argparse import ArgumentParser, FileType
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -26,23 +27,25 @@ def sha256_file(filename):
         return hashlib.file_digest(f, "sha256").hexdigest()
 
 
-def get_basic_metadata(*metadata_filenames):
+def get_basic_metadata(*data_filenames):
+    now = datetime.now(timezone.utc).isoformat()
     metadata = {}
     metadata["_comment"] = (
         "This file and all the files in this directory were generated automatically. "
         "Do not modify them; re-run the analysis workflow!"
     )
     metadata["workflow_run"] = {
-        "completed": datetime.now(timezone.utc).isoformat(),
+        "completed": now,
         "user_name": os.getlogin(),
         "machine_name": socket.gethostname(),
     }
     metadata["analysis_code"] = {"version": get_commit_id()}
     metadata["workflow_step"] = {
         "command_line": " ".join(psutil.Process(os.getpid()).cmdline()),
+        "completed": now,
     }
-    if metadata_filenames:
-        metadata["input_metadata"] = {
+    if data_filenames:
+        metadata["input_data"] = {
             filename: {
                 "filename": filename,
                 "last_updated": datetime.fromtimestamp(
@@ -50,7 +53,7 @@ def get_basic_metadata(*metadata_filenames):
                 ).isoformat(),
                 "sha256": sha256_file(filename),
             }
-            for filename in metadata_filenames
+            for filename in data_filenames
         }
 
     return metadata
@@ -117,7 +120,30 @@ def number_to_latex(number, tolerate_non_numbers=False):
     return result
 
 
-def stamp_provenance(ensembles_filename):
-    metadata = get_basic_metadata(ensembles_filename)
-    with open("assets/info.json", "w") as info_file:
-        info_file.write(json.dumps(metadata, sort_keys=True, indent=4))
+def get_args():
+    parser = ArgumentParser(
+        description="Summarise inputs to a workflow in a JSON file."
+    )
+    parser.add_argument(
+        "input_files",
+        nargs="+",
+        metavar="input_file",
+        help="Input file whose details to include in the stamp.",
+    )
+    parser.add_argument(
+        "--output_file",
+        type=FileType("w"),
+        default="-",
+        help="Where to output the stamp.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = get_args()
+    metadata = get_basic_metadata(*args.input_files)
+    print(json.dumps(metadata, sort_keys=True, indent=4), file=args.output_file)
+
+
+if __name__ == "__main__":
+    main()

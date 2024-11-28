@@ -72,10 +72,25 @@ tables = expand(
         "deft_table",
     ],
 )
+external_data = expand(
+    "external_data/{filename}",
+    filename=["mv_fps_fund.csv", "meson_meta_fund.csv", "m2v_fit_pms.json"]
+)
 
 
-rule all:
+rule provenance_stamp:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
+        script="src/provenance.py",
         h5_data=h5_data,
         plots=plots,
         tables=tables,
+        ensemble_metadata="metadata/ensemble_metadata.csv",
+        external_data=external_data,
+    output:
+        stamp="assets/info.json",
+    conda:
+        "envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.h5_data} {input.plots} {input.tables} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
