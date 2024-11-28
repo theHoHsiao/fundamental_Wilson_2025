@@ -60,7 +60,6 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
         y_up[i] = Yfit[:, i].mean() + y_err
         y_dn[i] = Yfit[:, i].mean() - y_err
 
-    # ax.plot(x**2, Yfit[-1], "--", linewidth=0.75, alpha=0.6)
     ax.fill_between(
         x**2, y_up, y_dn, alpha=0.4, label=ch, facecolor=color, edgecolor=None
     )

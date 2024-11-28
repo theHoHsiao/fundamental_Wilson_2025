@@ -317,7 +317,6 @@ def fit_correlator_simultaneous(
     E, a, b, chi2, dof = simultaneous_fit_parameters(fit)
 
     if plotting:
-        # fit.show_plots(view='ratio')
         fit.show_plots(view="log")
 
     return E, a, b, chi2, dof

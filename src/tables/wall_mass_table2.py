@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# from uncertainties import ufloat, UFloat
-
-# from .bootstrap import BootstrapSampleSet
-
 from ..tables_common import common_table_main
 
 

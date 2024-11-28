@@ -47,9 +47,7 @@ def plot(data, **kwargs):
             marker="s",
         )
 
-        # ax.set_xlim(2, 11)
         ch_i += 1
-
     return fig
 
 

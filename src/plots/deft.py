@@ -27,10 +27,9 @@ def plot_axpb_y_minus(ax, A, B, ch, offset, color):
         y_up[i] = Yfit[-1, i] + y_err
         y_dn[i] = Yfit[-1, i] - y_err
 
-    # ax.plot(x**2, Yfit[-1], "--", linewidth=0.75, alpha=0.6)
     ax.fill_between(
         -(x**2), y_up, y_dn, alpha=0.4, label=ch, facecolor=color, edgecolor=None
-    )  # color=plt.gca().lines[-1].get_color()
+    )
 
 
 def plot(data, fit_results, **kwargs):

@@ -18,11 +18,6 @@ def main():
         data[f"{channel_obs_key}_hat_squared"],
     )
 
-    # dump_fit_result(
-    #    args,
-    #    fit_result,
-    #    [f"{var}_{args.channel}" for var in ["F", "L", "W"]],
-    # )
     dump_fit_result(args, fit_result, ["F", "L", "W"])
 
 

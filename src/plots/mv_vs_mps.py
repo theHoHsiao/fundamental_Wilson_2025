@@ -26,10 +26,9 @@ def plot_poly_M4(ax, A, B, C, ch, color):
         y_up[i] = Yfit[-1, i] + y_err
         y_dn[i] = Yfit[-1, i] - y_err
 
-    # ax.plot(x**2, Yfit[-1], "--", linewidth=0.75, alpha=0.6)
     ax.fill_between(
         x**2, y_up, y_dn, alpha=0.4, label=ch, facecolor=color, edgecolor=None
-    )  # color=plt.gca().lines[-1].get_color()
+    )
 
 
 def plot(data, external_data, fit_results):
@@ -52,7 +51,7 @@ def plot(data, external_data, fit_results):
         markerfacecolor="none",
         elinewidth=1,
         capthick=1,
-        capsize=1,  # zorder=5,
+        capsize=1,
         color="C3",
         alpha=1,
         label=r"$N_{\rm f}=2$ $Sp(4)$",

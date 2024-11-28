@@ -24,7 +24,7 @@ def plot(data, external_data, fit_results):
         markerfacecolor="none",
         elinewidth=1,
         capthick=1,
-        capsize=1,  # zorder=5,
+        capsize=1,
         color="C3",
         alpha=1,
         label=r"$N_{\rm f}=2$ $Sp(4)$",

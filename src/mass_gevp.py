@@ -176,8 +176,6 @@ def get_Cmat_VTmix(ensemble, args):
 
 def main():
     args = get_args()
-    # plt.style.use(args.plot_styles)
-
     if args.plateau_start == 0 and args.plateau_end == 0:
         mass, matrix_element, chi2 = (
             BootstrapSampleSet(np.nan, np.zeros(BOOTSTRAP_SAMPLE_COUNT) * np.nan),
