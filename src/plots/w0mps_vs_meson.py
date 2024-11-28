@@ -23,14 +23,20 @@ def get_args():
         help="Filenames of sample files containing data to plot",
     )
     parser.add_argument(
-        "--plot_file",
+        "--plot_file_data",
         default=None,
-        help="Where to place the resulting plot. Default is to output to screen.",
+        help=(
+            "Where to place the resulting plot showing data. "
+            "Default is to output to screen."
+        ),
     )
     parser.add_argument(
-        "--plot_file2",
+        "--plot_file_summary",
         default=None,
-        help="Where to place the resulting plot. Default is to output to screen.",
+        help=(
+            "Where to place the resulting summary plot (fit results only). "
+            "Default is to output to screen."
+        ),
     )
     parser.add_argument(
         "--plot_styles",
@@ -60,25 +66,22 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
         y_up[i] = Yfit[:, i].mean() + y_err
         y_dn[i] = Yfit[:, i].mean() - y_err
 
-    # ax.plot(x**2, Yfit[-1], "--", linewidth=0.75, alpha=0.6)
     ax.fill_between(
         x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
     )
 
 
 def plot(data, fit_pars):
-    fig, axs = plt.subplots(3, 2, num="Figure_12", figsize=(7, 7), layout="constrained")
-    subplot_row = 0
-    subplot_col = 0
-
-    fig2, ax2 = plt.subplots(
+    data_fig, data_axes = plt.subplots(
+        3, 2, num="Figure_12", figsize=(7, 7), layout="constrained"
+    )
+    summary_fig, summary_ax = plt.subplots(
         1, 1, num="Figure_14", figsize=(3.5, 4.8), layout="constrained"
     )
-    ax2.plot([0, 6], [0, 6], "--", color="C0", label="ps")
-    ax2.set_xlim(0.8, 1.5)
+    summary_ax.plot([0, 6], [0, 6], "--", color="C0", label="ps")
+    summary_ax.set_xlim(0.8, 1.5)
 
-    for ch in ["v", "t", "s", "av", "at", "rhoE1"]:
-        ax = axs[subplot_row, subplot_col]
+    for ax, ch in zip(data_axes.ravel(), ["v", "t", "s", "av", "at", "rhoE1"]):
         ax.set_xlim(0.8, 1.5)
 
         ax.set_xlabel(r"$m_{\rm ps}^{\rm inf} L$")
@@ -125,7 +128,7 @@ def plot(data, fit_pars):
                 )
 
                 plot_axpb_y(
-                    ax2,
+                    summary_ax,
                     parameter["M_samples"].samples,
                     parameter["L_samples"].samples,
                     r"$ \rm " + ch_tag(ch) + "$",
@@ -133,13 +136,9 @@ def plot(data, fit_pars):
                     channel_color(ch),
                 )
 
-        subplot_row += 1 - subplot_col * 3
-        subplot_col += int(subplot_row / 3)
-        subplot_row = subplot_row % 3
-
-    handles, labels = fig.gca().get_legend_handles_labels()
+    handles, labels = data_fig.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    fig.legend(
+    data_fig.legend(
         by_label.values(),
         by_label.keys(),
         loc="outside upper center",
@@ -147,14 +146,14 @@ def plot(data, fit_pars):
         borderaxespad=0.2,
     )
 
-    ax2.set_ylim(0, 6)
-    ax2.set_xlim(0.8, 1.5)
-    ax2.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
-    ax2.set_ylabel(r"$\hat{m}_{\rm M}^2$")
+    summary_ax.set_ylim(0, 6)
+    summary_ax.set_xlim(0.8, 1.5)
+    summary_ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
+    summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
 
-    handles, labels = ax2.get_legend_handles_labels()
+    handles, labels = summary_ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    fig2.legend(
+    summary_fig.legend(
         by_label.values(),
         by_label.keys(),
         loc="outside upper center",
@@ -162,7 +161,7 @@ def plot(data, fit_pars):
         borderaxespad=0.2,
     )
 
-    return fig, fig2
+    return data_fig, summary_fig
 
 
 def main():
@@ -170,9 +169,9 @@ def main():
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
     fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
-    fig, fig2 = plot(data, fit_pars)
-    save_or_show(fig, args.plot_file)
-    save_or_show(fig2, args.plot_file2)
+    data_fig, summary_fig = plot(data, fit_pars)
+    save_or_show(data_fig, args.plot_file_data)
+    save_or_show(summary_fig, args.plot_file_summary)
 
 
 if __name__ == "__main__":

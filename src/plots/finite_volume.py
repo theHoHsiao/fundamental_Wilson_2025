@@ -17,10 +17,7 @@ def plot(data, **kwargs):
         raise ValueError("Multiple ensembles have the same largest volume.")
     m_ps_inf = Ns_max_datum[0]["ps_mass_samples"]
 
-    ch_i = 0
-    for ch in ["ps", "v"]:
-        ax = axs[ch_i]
-
+    for ax, ch in zip(axs, ["ps", "v"]):
         ax.set_xlabel(r"$m_{\rm ps}^{\rm inf} L$")
         ax.set_ylabel(r"$am_{\mathrm{" + ch_tag(ch) + "}}$")
 
@@ -47,7 +44,6 @@ def plot(data, **kwargs):
             marker="s",
         )
 
-        ch_i += 1
     return fig
 
 

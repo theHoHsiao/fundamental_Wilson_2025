@@ -229,12 +229,12 @@ rule plot_extrapolations_meson_mass:
         ),
         script="src/plots/w0mps_vs_meson.py",
     output:
-        plot="assets/plots/m2_all_con_sp4as.{plot_filetype}",
-        plot2="assets/plots/meson_spectrum_con.{plot_filetype}",
+        plot_data="assets/plots/m2_all_con_sp4as.{plot_filetype}",
+        plot_summary="assets/plots/meson_spectrum_con.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --plot_file2 {output.plot2} --fit_parameters {input.fit_results}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --plot_file_summary {output.plot_summary} --fit_parameters {input.fit_results}"
 
 
 rule plot_extrapolations_meson_decay:
