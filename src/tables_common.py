@@ -27,22 +27,9 @@ def get_standard_table_args():
     return parser.parse_args()
 
 
-def ensemble_table_main(tabulate_function):
+def common_table_main(tabulate_function, index_name="ensemble_name"):
     args = get_standard_table_args()
-    data = read_files(args.data_filenames)
-    print(
-        tabulate_function(data.sort_values(by="ensemble_name", key=by_ensemble_name)),
-        file=args.output_file,
-    )
-
-
-def beta_table_main(tabulate_function):
-    args = get_standard_table_args()
-    data = read_files(args.data_filenames, index_name="beta")
-    print(tabulate_function(data), file=args.output_file)
-
-
-def channel_table_main(tabulate_function):
-    args = get_standard_table_args()
-    data = read_files(args.data_filenames, index_name="channel")
+    data = read_files(args.data_filenames, index_name=index_name)
+    if index_name == "ensemble_name":
+        data = data.sort_values(by="ensemble_name", key=by_ensemble_name)
     print(tabulate_function(data), file=args.output_file)

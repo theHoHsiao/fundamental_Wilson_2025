@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-from ..tables_common import channel_table_main
+from ..tables_common import common_table_main
 from ..plots_common import ch_tag
 
 
@@ -31,4 +31,4 @@ def format_table(df):
 
 
 if __name__ == "__main__":
-    channel_table_main(format_table)
+    common_table_main(format_table, index_name="channel")

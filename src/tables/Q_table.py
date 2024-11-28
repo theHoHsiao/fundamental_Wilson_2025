@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ..tables_common import ensemble_table_main
+from ..tables_common import common_table_main
 
 
 def format_table(df):
@@ -53,4 +53,4 @@ def format_table(df):
 
 
 if __name__ == "__main__":
-    ensemble_table_main(format_table)
+    common_table_main(format_table)

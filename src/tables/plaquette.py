@@ -1,22 +1,10 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser, FileType
 
-from ..dump import read_files
-
-
-def get_args():
-    parser = ArgumentParser(
-        description="Take summary ensemble data and output a LaTeX table"
-    )
-    parser.add_argument(
-        "data_filenames", nargs="+", help="Filenames of plaquette result files"
-    )
-    parser.add_argument("--output_file", type=FileType("w"), default="-")
-    return parser.parse_args()
+from ..tables_common import common_table_main
 
 
-def tabulate(results, skip_missing_names=True):
+def format_table(results, skip_missing_names=True):
     header = (
         "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|}\n\\hline\\hline\n"
         + " & ".join(
@@ -65,11 +53,5 @@ def tabulate(results, skip_missing_names=True):
     return header + "\n".join(content) + footer
 
 
-def main():
-    args = get_args()
-    data = read_files(args.data_filenames)
-    print(tabulate(data), file=args.output_file)
-
-
 if __name__ == "__main__":
-    main()
+    common_table_main(format_table)
