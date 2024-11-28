@@ -188,8 +188,8 @@ rule plot_mv_vs_mps:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(ASB2s_samples, observables=["meson_ps", "meson_v", "w0"]),
-        external_data="data_assets/meson_meta_fund.csv",
-        fit_results="data_assets/m2v_fit_pms.json",
+        external_data="external_data/meson_meta_fund.csv",
+        fit_results="external_data/m2v_fit_pms.json",
         script="src/plots/mv_vs_mps.py",
     output:
         plot="assets/plots/m2v_vs_m2ps_GF_b6p7.{plot_filetype}",
@@ -273,7 +273,7 @@ rule plot_R_mvfps_vs_mps:
             extp_samples,
             observables=["meson_ps", "meson_v", "w0", "decay_constant_ps"],
         ),
-        external_data="data_assets/mv_fps_fund.csv",
+        external_data="external_data/mv_fps_fund.csv",
         fit_results="intermediary_data/extrapolation_results/R_mvdfps_extp_samples.json",
         script="src/plots/R_mvfps_vs_mps.py",
     output:
