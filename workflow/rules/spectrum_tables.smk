@@ -147,6 +147,20 @@ def autocorr_data(wildcards):
     ]
 
 
+def finite_volume_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
+        for basename in [
+            "plaquette_mean",
+            "meson_ps_mean",
+            "meson_v_mean",
+            "mpcac_mean",
+        ]
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_finite_volume"]
+    ]
+
+
 rule continuum_massless_decay:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -292,3 +306,18 @@ rule autocorr_table:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule finite_volume_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=finite_volume_data,
+        script="src/tables/finite_volume.py",
+    output:
+        table="assets/tables/finite_volume_table.tex",
+        definitions="assets/definitions/finite_volume_definitions.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table} --definitions_file {output.definitions}"
