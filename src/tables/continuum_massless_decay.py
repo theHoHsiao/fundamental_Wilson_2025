@@ -11,7 +11,7 @@ def format_table(df):
         "M & ~~~~$\\hat{f}_{M,\\,\\chi}^2$~~~~ & ~~~~~~$L_{\\rm M}^f$~~~~~~ & ~~~~~$W_M^f$~~~~~ & "
         "~$\\chi^2/{\\rm N_{d.o.f}}$~  \\\\ \\hline \n"
     )
-    footer = "\\hline \n \\end{tabular}"
+    footer = "\\hline\\hline \n \\end{tabular}"
     content = []
 
     for row in df.itertuples():

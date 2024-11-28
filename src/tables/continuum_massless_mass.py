@@ -9,7 +9,7 @@ def format_table(df):
     header = (
         "\\begin{tabular}{|c|c|c|c|c|} \n \\hline\\hline \n"
         "M & $\\hat{m}_{M,\\,\\chi}^2$ & $L_{\\rm M}^m$ & $W_M^m$ & $\\chi^2/{\\rm N_{d.o.f}}$  \\\\ \n"
-        "\\hline \n"
+        "\\hline\\hline \n"
     )
     footer = "\\hline \n \\end{tabular}"
     content = []
