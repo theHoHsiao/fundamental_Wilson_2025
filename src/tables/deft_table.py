@@ -7,7 +7,7 @@ from ..tables_common import common_table_main
 def format_table(df):
     header = (
         "\\begin{tabular}{|c|c|c|c|c|c|} \n \\hline \\hline \n"
-        "~~~$\\beta$~~ & fit range ($am_0$) & $\\chi^2/N_{\\rm d.o.f.}$ & ~~~$\\tilde{C}$~~~ & ~~~$Y$~~~ & ~~~$y$~~~\\\\ \\hline \n"
+        "~~~$\\beta$~~ & fit range ($am_0$) & $\\chi^2/N_{\\rm d.o.f.}$ & ~~~$\\tilde{C}$~~~ & ~~~$Y$~~~ & ~~~$y$~~~\\\\ \\hline\\hline \n"
     )
     footer = "\\hline\\hline \n \\end{tabular}"
     content = []

@@ -6,8 +6,10 @@ from ..tables_common import common_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular*}{\\columnwidth}{@{\\extracolsep{\\fill}}|c|c|c|c|c|} \n \\hline\\hline \n"
-        "$\\beta$ & fit range ($am_0$) & $\\chi^2/N_{\\rm d.o.f.}$ & $A$ & $B$ \\\\ \\hline \n"
+        "\\begin{tabular*}{\\columnwidth}{@{\\extracolsep{\\fill}}|c|c|c|c|c|} \n "
+        "\\hline\\hline \n"
+        r"$\beta$ & fit range ($am_0$) & $\chi^2/N_{\rm d.o.f.}$ & $A$ & $B$ \\ "
+        "\n \\hline\\hline \n"
     )
     footer = "\\hline\\hline \n \\end{tabular*}"
     content = []
