@@ -57,7 +57,7 @@ plots = expand(
     ],
 )
 tables = expand(
-    f"assets/tables/{{table}}.tex",
+    "assets/tables/{table}.tex",
     table=[
         "plaquette_table",
         "gflow_table",
