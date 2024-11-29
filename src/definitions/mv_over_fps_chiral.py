@@ -14,6 +14,9 @@ def get_definition(data):
                     datum[f"{json_prefix}_{channel}dfps_samples"].to_ufloat()
                 )
             )
+        result[f"M{channel.upper()}FPSExtrapolationROverRootTwo"] = "{:.02uSL}".format(
+            (datum[f"R_{channel}dfps_samples"] / 2**0.5).to_ufloat()
+        )
 
     return result
 
