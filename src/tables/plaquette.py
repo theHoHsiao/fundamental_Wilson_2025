@@ -14,7 +14,8 @@ def format_table(results, skip_missing_names=True):
             r"$N_{\mathrm{cfg}}$",
             r"$\langle \mathcal{P} \rangle$",
             "Comment",
-        ]
+        ],
+        hlines=1,
     )
     footer = get_footer()
     content = []
@@ -28,6 +29,7 @@ def format_table(results, skip_missing_names=True):
         if result["beta"] != previous_beta:
             previous_beta = result["beta"]
             content.append(r"\hline")
+        comment = "heavy" if result["ps_mass"].nominal_value > 0.45 else ""
         content.append(
             " & ".join(
                 [
@@ -37,7 +39,7 @@ def format_table(results, skip_missing_names=True):
                     f"{result['mAS']}",
                     f"{result['Ncfg_spectrum']}",
                     f"{result['avg_plaquette']:.02uSL}",
-                    "tbc",
+                    comment,
                 ]
             )
             + r" \\"

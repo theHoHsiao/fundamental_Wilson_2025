@@ -38,7 +38,8 @@ rule avg_plaquette_hmc:
 
 def main_plaquette_data(wildcards):
     return [
-        f"intermediary_data/{dir_template}/plaquette_mean.csv".format(**row)
+        f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
+        for basename in ["plaquette_mean", "meson_ps_mean"]
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
     ]
