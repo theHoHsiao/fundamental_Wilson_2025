@@ -289,10 +289,11 @@ rule deft_table:
         script="src/tables/deft_table.py",
     output:
         table="assets/tables/deft_table.tex",
+        definitions="assets/definitions/deft_common_y.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.table}"
+        "python -m {params.module} {input.data} --output_file {output.table} --definitions_file {output.definitions}"
 
 
 rule autocorr_table:

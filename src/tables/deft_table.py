@@ -3,7 +3,18 @@
 
 import numpy as np
 
+from ..definitions_common import format_definitions
 from ..tables_common import common_table_main, get_header, get_footer
+
+
+def get_similar_value(data, similarity_threshold_sigma=2):
+    means = data.map(lambda x: x.nominal_value)
+    std_devs = data.map(lambda x: x.std_dev)
+    weighted_mean = (means / std_devs**2).sum() / (1 / std_devs**2).sum()
+    normalised_differences = abs(means - weighted_mean) / std_devs.mean()
+    if (normalised_differences > similarity_threshold_sigma).any():
+        raise ValueError("These data aren't actually that close.")
+    return weighted_mean
 
 
 def format_table(df):
@@ -41,8 +52,10 @@ def format_table(df):
             )
         )
 
-    return header + "".join(content) + footer
+    mean_y = get_similar_value(df.y)
+    definitions = format_definitions({"DEFTCommonYValue": f"{mean_y:.1f}"})
+    return header + "".join(content) + footer, definitions
 
 
 if __name__ == "__main__":
-    common_table_main(format_table, index_name="beta")
+    common_table_main(format_table, index_name="beta", definitions=True)
