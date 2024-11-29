@@ -22,7 +22,7 @@ def format_table(df):
 
     for row in df.itertuples():
         if np.isinf(row.chisquare):
-            formatted_chisquare = r"$\infty$    "
+            formatted_chisquare = r"$\infty$"
         else:
             formatted_chisquare = f"{row.chisquare:.02f}"
         content.append(
