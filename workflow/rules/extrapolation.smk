@@ -143,3 +143,17 @@ rule Chipt_ratio_direct:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file {output.definitions}"
+
+
+rule Chipt_beta_values:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=partial(extp_samples, observables=["meson_ps"]),
+        script="src/definitions/extrapolation_betas.py",
+    output:
+        definitions="assets/definitions/chipt_beta_values.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.definitions}"

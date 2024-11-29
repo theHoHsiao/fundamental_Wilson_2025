@@ -80,6 +80,7 @@ definitions = expand(
         "spectrum_plots_target_beta",
         "chipt_ratio_indirect",
         "chipt_ratio_direct",
+        "chipt_beta_values",
     ]
 )
 external_data = expand(
