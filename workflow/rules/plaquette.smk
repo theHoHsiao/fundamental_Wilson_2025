@@ -55,7 +55,8 @@ rule tabulate_largevolume_plaquettes:
         script="src/tables/plaquette.py",
     output:
         table="assets/tables/plaquette_table.tex",
+        definitions="assets/definitions/heavy_ps_limit.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.table}"
+        "python -m {params.module} {input.data} --output_file {output.table} --definitions_file={output.definitions}"

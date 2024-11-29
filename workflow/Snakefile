@@ -84,6 +84,7 @@ definitions = expand(
         "chipt_ratio_direct",
         "chipt_beta_values",
         "finite_volume_definitions",
+        "heavy_ps_limit",
     ],
 )
 external_data = expand(

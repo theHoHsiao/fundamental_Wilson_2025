@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 
+from ..definitions_common import format_definitions
 from ..tables_common import common_table_main, get_header, get_footer
 
 
@@ -20,6 +21,7 @@ def format_table(results, skip_missing_names=True):
     footer = get_footer()
     content = []
     previous_beta = None
+    heavy_ps_limit = 0.45
 
     for result in results.sort_values(
         by=["beta", "mAS"], ascending=[True, False]
@@ -29,7 +31,7 @@ def format_table(results, skip_missing_names=True):
         if result["beta"] != previous_beta:
             previous_beta = result["beta"]
             content.append(r"\hline")
-        comment = "heavy" if result["ps_mass"].nominal_value > 0.45 else ""
+        comment = "heavy" if result["ps_mass"].nominal_value > heavy_ps_limit else ""
         content.append(
             " & ".join(
                 [
@@ -44,8 +46,9 @@ def format_table(results, skip_missing_names=True):
             )
             + r" \\"
         )
-    return header + "\n".join(content) + footer
+    definitions = format_definitions({"HeavyPSMassLimit": heavy_ps_limit})
+    return header + "\n".join(content) + footer, definitions
 
 
 if __name__ == "__main__":
-    common_table_main(format_table)
+    common_table_main(format_table, definitions=True)
