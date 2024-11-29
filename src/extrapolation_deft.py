@@ -23,7 +23,7 @@ def main():
         args,
         fit_result,
         ["A", "B"],
-        y=fit_result[0][1] * 2 + 1,
+        y=fit_result[0][1] * 2 + 2,
         mAS_min=data["mAS"].min(),
         mAS_max=data["mAS"].max(),
     )
