@@ -71,6 +71,7 @@ tables = expand(
         "chipt_table",
         "deft_table",
         "autocorr_table",
+        "finite_volume_table",
     ],
 )
 definitions = expand(
@@ -82,6 +83,7 @@ definitions = expand(
         "chipt_ratio_indirect",
         "chipt_ratio_direct",
         "chipt_beta_values",
+        "finite_volume_definitions",
     ],
 )
 external_data = expand(
