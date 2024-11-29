@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 
-from ..definitions import format_definitions
+from ..definitions_common import format_definitions
 from ..dump import read_files
 from ..plots_common import save_or_show
 

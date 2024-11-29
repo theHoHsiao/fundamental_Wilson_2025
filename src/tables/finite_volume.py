@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-from ..definitions import format_definitions
+from ..definitions_common import format_definitions
 from ..tables_common import common_table_main, get_header, get_footer
 
 

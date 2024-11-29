@@ -72,7 +72,7 @@ rule define_target_beta:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         target_beta=spectrum_plot_target_beta,
     input:
-        script="src/definitions.py",
+        script="src/definitions/basic_definition.py",
     output:
         definitions="assets/definitions/spectrum_plots_target_beta.tex",
     conda:

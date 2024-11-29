@@ -114,3 +114,18 @@ rule DEFT_extrapolation:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --beta {wildcards.beta}"
+
+
+rule Chipt_ratio:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        ps_decay="intermediary_data/extrapolation_results/ps_extp_decay_samples.json",
+        v_mass="intermediary_data/extrapolation_results/v_extp_mass_samples.json",
+        script="src/definitions/mvhat_over_fpshat_chiral.py",
+    output:
+        definitions="assets/definitions/chipt_ratio.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.ps_decay} {input.v_mass} --output_file {output.definitions}"
