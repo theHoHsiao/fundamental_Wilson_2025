@@ -116,7 +116,7 @@ rule DEFT_extrapolation:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --beta {wildcards.beta}"
 
 
-rule Chipt_ratio:
+rule Chipt_ratio_indirect:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
@@ -124,8 +124,22 @@ rule Chipt_ratio:
         v_mass="intermediary_data/extrapolation_results/v_extp_mass_samples.json",
         script="src/definitions/mvhat_over_fpshat_chiral.py",
     output:
-        definitions="assets/definitions/chipt_ratio.tex",
+        definitions="assets/definitions/chipt_ratio_indirect.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.ps_decay} {input.v_mass} --output_file {output.definitions}"
+
+
+rule Chipt_ratio_direct:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data="intermediary_data/extrapolation_results/R_mvdfps_extp_samples.json",
+        script="src/definitions/mv_over_fps_chiral.py",
+    output:
+        definitions="assets/definitions/chipt_ratio_direct.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.definitions}"

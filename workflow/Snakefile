@@ -78,6 +78,8 @@ definitions = expand(
         "gflow_incomplete_ensembles",
         "plaquette_phasediagram_betas",
         "spectrum_plots_target_beta",
+        "chipt_ratio_indirect",
+        "chipt_ratio_direct",
     ]
 )
 external_data = expand(
