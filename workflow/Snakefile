@@ -72,6 +72,14 @@ tables = expand(
         "autocorr_table",
     ],
 )
+definitions = expand(
+    "assets/definitions/{definition}.tex",
+    definition=[
+        "gflow_incomplete_ensembles",
+        "plaquette_phasediagram_betas",
+        "spectrum_plots_target_beta",
+    ]
+)
 external_data = expand(
     "external_data/{filename}",
     filename=["mv_fps_fund.csv", "meson_meta_fund.csv", "m2v_fit_pms.json"]

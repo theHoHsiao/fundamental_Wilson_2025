@@ -2,6 +2,8 @@ from functools import partial
 
 metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 
+spectrum_plot_target_beta = 6.7
+
 
 def all_samples(wildcards, observables):
     return [
@@ -56,13 +58,27 @@ def volume_samples(wildcards, observables):
     ]
 
 
-def ASB2s_samples(wildcards, observables):
+def target_beta_samples(wildcards, observables):
     return [
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
         for observable in observables
         for row in metadata.to_dict(orient="records")
-        if row["ensembles_B6p7"]
+        if row["beta"] == spectrum_plot_target_beta
     ]
+
+
+rule define_target_beta:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        target_beta=spectrum_plot_target_beta,
+    input:
+        script="src/definitions.py",
+    output:
+        definitions="assets/definitions/spectrum_plots_target_beta.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} SpectrumPlotTargetBeta {params.target_beta} --definitions_file {output.definitions}"
 
 
 rule plot_finite_volume:
@@ -83,7 +99,7 @@ rule plot_mpsmv_vs_mpcac:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps", "meson_v", "mpcac"]),
+        data=partial(target_beta_samples, observables=["meson_ps", "meson_v", "mpcac"]),
         script="src/plots/mpsmv_vs_mpcac.py",
     output:
         plot="assets/plots/mpsmv_vs_mpcac_b6p7.{plot_filetype}",
@@ -98,7 +114,7 @@ rule plot_mpsfps_vs_mpcac:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(
-            ASB2s_samples, observables=["meson_ps", "decay_constant_ps", "mpcac"]
+            target_beta_samples, observables=["meson_ps", "decay_constant_ps", "mpcac"]
         ),
         script="src/plots/mpsfps_vs_mpcac.py",
     output:
@@ -114,7 +130,7 @@ rule plot_meson_mass_vs_fermion_mass:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(
-            ASB2s_samples,
+            target_beta_samples,
             observables=[
                 "meson_ps",
                 "meson_v",
@@ -138,7 +154,7 @@ rule plot_decay_constant_vs_fermion_mass:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(
-            ASB2s_samples,
+            target_beta_samples,
             observables=[
                 "meson_ps",
                 "meson_v",
@@ -163,7 +179,7 @@ rule plot_meson_mass_fps_vs_mpcac:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(
-            ASB2s_samples,
+            target_beta_samples,
             observables=[
                 "meson_ps",
                 "meson_v",
@@ -187,7 +203,7 @@ rule plot_mv_vs_mps:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=partial(ASB2s_samples, observables=["meson_ps", "meson_v", "w0"]),
+        data=partial(target_beta_samples, observables=["meson_ps", "meson_v", "w0"]),
         external_data="external_data/meson_meta_fund.csv",
         fit_results="external_data/m2v_fit_pms.json",
         script="src/plots/mv_vs_mps.py",
@@ -339,7 +355,7 @@ rule plot_gmor:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(
-            ASB2s_samples, observables=["meson_ps", "w0", "decay_constant_ps", "mpcac"]
+            target_beta_samples, observables=["meson_ps", "w0", "decay_constant_ps", "mpcac"]
         ),
         script="src/plots/gmor.py",
     output:
