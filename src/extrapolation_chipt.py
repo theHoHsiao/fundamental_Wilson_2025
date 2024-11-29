@@ -17,9 +17,14 @@ def main():
         data["ps_mass_squared"],
         data["ps_decay_constant_squared"],
     )
-    bare_mass_range = f"[{data['mAS'].min()}, {data['mAS'].max()}]"
 
-    dump_fit_result(args, fit_result, ["A", "B"], bare_mass_range=bare_mass_range)
+    dump_fit_result(
+        args,
+        fit_result,
+        ["A", "B"],
+        mAS_min=data["mAS"].min(),
+        mAS_max=data["mAS"].max(),
+    )
 
 
 if __name__ == "__main__":

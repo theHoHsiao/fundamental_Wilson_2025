@@ -18,14 +18,14 @@ def main():
         data["log_ps_decay_constant_squared"],
         data["log_ps_mass_squared_over_mPCAC"],
     )
-    bare_mass_range = f"[{data['mAS'].min()}, {data['mAS'].max()}]"
 
     dump_fit_result(
         args,
         fit_result,
         ["A", "B"],
         y=fit_result[0][1] * 2 + 1,
-        bare_mass_range=bare_mass_range,
+        mAS_min=data["mAS"].min(),
+        mAS_max=data["mAS"].max(),
     )
 
 

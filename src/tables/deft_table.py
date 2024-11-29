@@ -27,9 +27,13 @@ def format_table(df):
         else:
             formatted_chisquare = f"{row.chisquare:.02f}"
         content.append(
-            ("{} & ${}$ & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ \\\\\n").format(
+            (
+                r"{} & $[{}, {}]$ & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ \\"
+                "\n"
+            ).format(
                 row.beta,
-                row.bare_mass_range,
+                row.mAS_min,
+                row.mAS_max,
                 formatted_chisquare,
                 row.A,
                 row.B,
