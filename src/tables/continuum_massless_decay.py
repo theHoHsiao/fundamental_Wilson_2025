@@ -14,7 +14,6 @@ def format_table(df):
             r"$W_M^f$",
             r"$\chi^2/{\rm N_{d.o.f}}$",
         ],
-        column_separation="2em",
     )
     footer = get_footer()
     content = []
