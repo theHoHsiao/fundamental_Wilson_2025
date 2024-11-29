@@ -3,6 +3,7 @@ dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
 plot_styles = "styles/paperdraft.mplstyle"
 plot_filetype = "pdf"
 
+
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
 include: "rules/mpcac.smk"
@@ -81,11 +82,11 @@ definitions = expand(
         "chipt_ratio_indirect",
         "chipt_ratio_direct",
         "chipt_beta_values",
-    ]
+    ],
 )
 external_data = expand(
     "external_data/{filename}",
-    filename=["mv_fps_fund.csv", "meson_meta_fund.csv", "m2v_fit_pms.json"]
+    filename=["mv_fps_fund.csv", "meson_meta_fund.csv", "m2v_fit_pms.json"],
 )
 
 

@@ -274,7 +274,7 @@ rule plot_extrapolations_meson_decay:
         ),
         script="src/plots/w0mps_vs_decay.py",
     output:
-        plot="assets/plots/f2_con_sp4as.{plot_filetype}"
+        plot="assets/plots/f2_con_sp4as.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -355,7 +355,8 @@ rule plot_gmor:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         data=partial(
-            target_beta_samples, observables=["meson_ps", "w0", "decay_constant_ps", "mpcac"]
+            target_beta_samples,
+            observables=["meson_ps", "w0", "decay_constant_ps", "mpcac"],
         ),
         script="src/plots/gmor.py",
     output:

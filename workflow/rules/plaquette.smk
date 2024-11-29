@@ -22,7 +22,9 @@ rule avg_plaquette:
 rule avg_plaquette_hmc:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-        metadata=lookup(within=metadata, query=metadata_query + " & start_type == '{start}'"),
+        metadata=lookup(
+            within=metadata, query=metadata_query + " & start_type == '{start}'"
+        ),
     input:
         data="data_assets/hmc.h5",
         script="src/plaquette_hmc.py",

@@ -42,7 +42,7 @@ rule package_hmc:
         files=glob("raw_data/hmc/out_hmc_*"),
         script="src/package_hmc.py",
     output:
-        h5=protected("data_assets/hmc.h5")
+        h5=protected("data_assets/hmc.h5"),
     conda:
         "../envs/flow_analysis.yml"
     shell:

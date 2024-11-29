@@ -16,12 +16,8 @@ rule ps_correlator_autocorrelation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=metadata_lookup(),
-        plateau_start=lambda wildcards: metadata_lookup(
-            cols="ps_plateau_start"
-        ),
-        plateau_end=lambda wildcards: metadata_lookup(
-            cols=f"ps_plateau_end"
-        ),
+        plateau_start=lambda wildcards: metadata_lookup(cols="ps_plateau_start"),
+        plateau_end=lambda wildcards: metadata_lookup(cols=f"ps_plateau_end"),
     input:
         data="data_assets/correlators_wall.h5",
         script="src/ps_correlators_autocorrelation.py",

@@ -29,7 +29,9 @@ rule plot_w0_vs_mpcac:
 
 def plaquette_data(wildcards):
     return [
-        f"intermediary_data/{dir_template}_{{start_type}}start/plaquette_mean.csv".format(**row)
+        f"intermediary_data/{dir_template}_{{start_type}}start/plaquette_mean.csv".format(
+            **row
+        )
         for row in metadata.to_dict(orient="records")
         if row["use_in_plaquette_phase_diagram"]
     ]
