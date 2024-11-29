@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
+import itertools
 
 from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 
 import h5py
 import numpy as np
+from scipy.optimize import curve_fit
 import uncertainties
 
 from .bootstrap import basic_bootstrap, get_rng
@@ -44,6 +46,64 @@ def get_skip(plaquettes):
             return len(plaquettes) - 2 * data_len
     else:
         return None
+
+
+def double_gaussian(x, A1, mu1, sigma1, A2, mu2, sigma2):
+    return A1 * np.exp(-((x - mu1) ** 2) / (2 * sigma1**2)) + A2 * np.exp(
+        -((x - mu2) ** 2) / (2 * sigma2**2)
+    )
+
+
+def fit_histogram(plaquettes):
+    """
+    Fit the histogram of a series with a pair of gaussians.
+    Returns [A1, mu1, sigma1], [A2, mu2, sigma2]
+    """
+    num_bins = 40
+    counts, bin_edges = np.histogram(plaquettes, num_bins)
+    bin_centres = (bin_edges[1:] + bin_edges[:-1]) / 2
+
+    plaquette_mean = plaquettes.mean()
+    plaquette_std = plaquettes.std()
+    initial_guess = [len(plaquettes) / num_bins, plaquette_mean, plaquette_std] * 2
+    initial_guess[1] += plaquette_std
+    initial_guess[4] -= plaquette_std
+
+    fit_result, fit_covariance = curve_fit(
+        double_gaussian,
+        bin_centres,
+        counts,
+        p0=initial_guess,
+        sigma=(counts + 1) ** 0.5,
+        absolute_sigma=True,
+    )
+    return fit_result[:3], fit_result[3:]
+
+
+def mean_dwell_time(plaquettes, mu1, mu2):
+    """
+    Return the maximum number of consecutive elements in plaquettes
+    for which the choice of which of mu1 or mu2 is closer remains constant.
+    """
+    offset = plaquettes - (mu1 + mu2) / 2
+    mode = np.astype(offset / np.abs(offset), int)
+    dwell_times = np.asarray(
+        [sum(1 for i in group) for _, group in itertools.groupby(mode)]
+    )
+    return uncertainties.ufloat(dwell_times.max(), dwell_times.std())
+
+
+def bimodal_autocorrelation_time(plaquettes_list):
+    """
+    Estimate the autocorrelation time of a series that may have
+    a slow, sharp oscillation between two modes.
+    """
+    plaquettes = np.asarray([plaquette for index, plaquette in plaquettes_list])
+    (_, mu1, sigma1), (_, mu2, sigma2) = fit_histogram(plaquettes)
+    if abs(mu2 - mu1) < max(sigma1, sigma2):
+        return exp_autocorrelation_fit(plaquettes)
+    else:
+        return mean_dwell_time(plaquettes, mu1, mu2)
 
 
 def get_args():
@@ -125,10 +185,11 @@ def get_plaquette(filename, Nt, Ns, beta, mass, start):
         return result
 
     result["plaq_tau_exp"] = (
-        exp_autocorrelation_fit([plaquette for index, plaquette in plaquettes[skip:]])
-        * separation
+        bimodal_autocorrelation_time(plaquettes[skip:]) * separation
     )
-    result["plaq_therm"] = int(10 * result["plaq_tau_exp"].nominal_value)
+    result["plaq_therm"] = min(
+        int(10 * result["plaq_tau_exp"].nominal_value), len(plaquettes) // 2
+    )
     plaquettes_subset = [
         plaquette
         for index, plaquette in plaquettes
