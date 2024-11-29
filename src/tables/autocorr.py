@@ -1,18 +1,22 @@
 import numpy as np
 
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 
 
 def format_table(df):
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|} \n \\hline \\hline \n"
-        r"Ensemble & $\delta_{\mathrm{traj}}$ & "
-        r"$\tau_{\mathrm{exp}}^{\mathcal{P}}$ & $\tau_{\mathrm{exp}}^{\mathrm{ps}}$ "
-        r"& $\delta_{\mathrm{traj}}^{\mathrm{GF}}$ "
-        r"& $\tau_{\mathrm{exp}}^{w_0}$ & $\tau_{\mathrm{exp}}^{\mathcal{Q}}$"
-        "\\\\ \\hline \n"
+    header = get_header(
+        [
+            r"Ensemble",
+            r"$\delta_{\mathrm{traj}}$",
+            r"$\tau_{\mathrm{exp}}^{\mathcal{P}}$",
+            r"$\tau_{\mathrm{exp}}^{\mathrm{ps}}$ ",
+            r"$\delta_{\mathrm{traj}}^{\mathrm{GF}}$ ",
+            r"$\tau_{\mathrm{exp}}^{w_0}$",
+            r"$\tau_{\mathrm{exp}}^{\mathcal{Q}}$",
+        ],
+        hlines=1,
     )
-    footer = "\\hline \n \\end{tabular}"
+    footer = get_footer()
     content = []
     previous_prefix = None
     for row in df.itertuples():

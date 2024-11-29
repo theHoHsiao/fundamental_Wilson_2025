@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 
 
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 
 
 def format_table(df):
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|}\n"
-        "\\hline\\hline\n"
-        r"Ensemble & $am_{\mathrm{PCAC}}$ & $am_{\mathrm{ps}}$ & $af_{\mathrm{ps}}$ & "
-        r"$am_{\mathrm{s}}$ & $m_{\mathrm{ps}}L$ & $f_{\mathrm{ps}}L$ \\"
-        "\n\\hline"
+    header = get_header(
+        [
+            r"Ensemble",
+            r"$am_{\mathrm{PCAC}}$",
+            r"$am_{\mathrm{ps}}$",
+            r"$af_{\mathrm{ps}}$",
+            r"$am_{\mathrm{s}}$",
+            r"$m_{\mathrm{ps}}L$",
+            r"$f_{\mathrm{ps}}L$",
+        ],
+        hlines=1,
     )
-    footer = "\\hline\\hline\n\\end{tabular}"
+    footer = get_footer()
     content = []
     previous_prefix = None
     for row in df.itertuples():

@@ -2,7 +2,7 @@
 
 
 from ..definitions import format_definitions
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 
 
 def format_table(df):
@@ -22,15 +22,20 @@ def format_table(df):
     )
 
     m_ps_inf = df[df.Ns == max(df.Ns)].ps_mass.values[0]
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|} \n \\hline \\hline \n"
-        r"$N_t \times N_s^3$ & $N_{\mathrm{cfg}}$ "
-        r"& $\langle\mathcal{P}\rangle$ & $am_{\mathrm{PCAC}}$ "
-        r"& $am_{\mathrm{ps}}$ & $am_{\mathrm{v}}$ "
-        r"& $m_{\mathrm{ps}}^{\mathrm{inf}} L$"
-        "\\\\ \\hline \n"
+
+    header = get_header(
+        [
+            r"$N_t \times N_s^3$",
+            r"$N_{\mathrm{cfg}}$ ",
+            r"$\langle\mathcal{P}\rangle$",
+            r"$am_{\mathrm{PCAC}}$ ",
+            r"$am_{\mathrm{ps}}$",
+            r"$am_{\mathrm{v}}$ ",
+            r"$m_{\mathrm{ps}}^{\mathrm{inf}} L$",
+        ],
+        hlines=1,
     )
-    footer = "\n\\hline\\hline \n \\end{tabular}"
+    footer = get_footer()
     content = []
     for row in df.sort_values(by="Ns").itertuples():
         content.append(

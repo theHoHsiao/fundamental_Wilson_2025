@@ -1,26 +1,22 @@
 #!/usr/bin/env python3
 
 
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 
 
 def format_table(results, skip_missing_names=True):
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|}\n\\hline\\hline\n"
-        + " & ".join(
-            [
-                "Ensemble",
-                "$N_t \\times N_s^3$",
-                r"$\beta$",
-                "$am_0$",
-                r"$N_{\mathrm{cfg}}$",
-                r"$\langle \mathcal{P} \rangle$",
-                "Comment",
-            ]
-        )
-        + " \\\\\n"
+    header = get_header(
+        [
+            "Ensemble",
+            r"$N_t \times N_s^3$",
+            r"$\beta$",
+            "$am_0$",
+            r"$N_{\mathrm{cfg}}$",
+            r"$\langle \mathcal{P} \rangle$",
+            "Comment",
+        ]
     )
-    footer = "\n\\hline\\hline\n\\end{tabular}"
+    footer = get_footer()
     content = []
     previous_beta = None
 

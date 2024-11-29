@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 import numpy as np
 
 
 def format_table(df):
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|}\n"
-        "\\hline\\hline\n"
-        r"Ensemble & ~~~$m_{\mathrm{ps}} / f_{\mathrm{ps}}$~~~ & ~~~$m_{\mathrm{s}}/ f_{\mathrm{ps}}$~~~ & "
-        r"~~~$m_{\mathrm{v}}/ f_{\mathrm{ps}}$~~~ & ~~~$m_{\mathrm{t}}/ f_{\mathrm{ps}}$~~~ & ~~~$m_{\mathrm{av}}/ f_{\mathrm{ps}}$~~~ &"
-        r" ~~~$m_{\mathrm{at}}/ f_{\mathrm{ps}}$~~~ & ~~~$m_{\mathrm{v}^\prime} / f_{\mathrm{ps}} $~~~ & ~~~$m_{\rm v^\prime} / m_{\rm v}$~~~ \\"
-        "\n\\hline"
+    header = get_header(
+        [
+            r"Ensemble ",
+            r"$m_{\mathrm{ps}} / f_{\mathrm{ps}}$",
+            r"$m_{\mathrm{s}}/ f_{\mathrm{ps}}$",
+            r"$m_{\mathrm{v}}/ f_{\mathrm{ps}}$",
+            r"$m_{\mathrm{t}}/ f_{\mathrm{ps}}$",
+            r"$m_{\mathrm{av}}/ f_{\mathrm{ps}}$",
+            r"$m_{\mathrm{at}}/ f_{\mathrm{ps}}$",
+            r"$m_{\mathrm{v}^\prime} / f_{\mathrm{ps}} $",
+            r"$m_{\rm v^\prime} / m_{\rm v}$",
+        ],
+        column_separation="0.5em",
+        hlines=1,
     )
-    footer = "\\hline\\hline\n\\end{tabular}"
+    footer = get_footer()
     content = []
     previous_prefix = None
     for row in df.itertuples():

@@ -2,19 +2,21 @@
 
 import numpy as np
 
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 
 
 def format_table(df):
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n"
-        "\\hline\\hline\n"
-        r"Ensemble "
-        r"& $N_{\mathrm{traj}}^{\mathrm{GF}}$ & $w_0 / a$ "
-        r"& $Q_0$ & $\sigma_Q$ "
-        "\\\\\n\\hline"
+    header = get_header(
+        [
+            r"Ensemble",
+            r"$N_{\mathrm{traj}}^{\mathrm{GF}}$",
+            r"$w_0 / a$",
+            r"$Q_0$",
+            r"$\sigma_Q$ ",
+        ],
+        hlines=1,
     )
-    footer = "\\hline\\hline\n\\end{tabular}"
+    footer = get_footer()
     content = []
     previous_prefix = None
     for row in df.itertuples():

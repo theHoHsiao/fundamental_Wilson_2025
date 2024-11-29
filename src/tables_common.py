@@ -61,3 +61,30 @@ def common_table_main(tabulate_function, index_name="ensemble_name", definitions
         print(definitions, file=args.definitions_file)
 
     print(result, file=args.output_file)
+
+
+def get_header(column_headings, column_separation=None, hlines=2):
+    if column_separation is None:
+        separation_spec = ""
+    else:
+        separation_spec = f",colsep={column_separation}"
+    begin_cmd = (
+        r"\begin{{tblr}}{{width=\textwidth,colspec={column_spec}{separation_spec}}}"
+        "\n\hline\hline"
+    ).format(
+        column_spec="|c" * len(column_headings) + "|",
+        separation_spec=separation_spec,
+    )
+
+    return (
+        begin_cmd
+        + "\n"
+        + " & ".join(column_headings)
+        + " \\\\\n"
+        + r"\hline" * hlines
+        + "\n"
+    )
+
+
+def get_footer():
+    return "\hline\hline\n\end{tblr}"

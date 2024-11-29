@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 
 
-from ..tables_common import common_table_main
+from ..tables_common import common_table_main, get_header, get_footer
 from ..plots_common import ch_tag
 
 
 def format_table(df):
-    header = (
-        "\\begin{tabular}{|c|c|c|c|c|} \n \\hline\\hline \n"
-        "M & ~~~~$\\hat{f}_{M,\\,\\chi}^2$~~~~ & ~~~~~~$L_{\\rm M}^f$~~~~~~ & ~~~~~$W_M^f$~~~~~ & "
-        "~$\\chi^2/{\\rm N_{d.o.f}}$~  \\\\ \n \\hline \\hline \n"
+    header = get_header(
+        [
+            "M",
+            r"$\hat{f}_{M,\,\chi}^2$",
+            r"$L_{\rm M}^f$",
+            r"$W_M^f$",
+            r"$\chi^2/{\rm N_{d.o.f}}$",
+        ],
+        column_separation="2em",
     )
-    footer = "\\hline\\hline \n \\end{tabular}"
+    footer = get_footer()
     content = []
 
     for row in df.itertuples():
