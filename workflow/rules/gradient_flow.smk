@@ -83,7 +83,8 @@ rule gflow_table:
         script="src/tables/Q_table.py",
     output:
         table="assets/tables/gflow_table.tex",
+        definitions="assets/definitions/gflow_incomplete_ensembles.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.table}"
+        "python -m {params.module} {input.data} --output_file {output.table} --definitions_file {output.definitions}"

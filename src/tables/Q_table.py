@@ -2,7 +2,17 @@
 
 import numpy as np
 
+from ..definitions import format_definitions
 from ..tables_common import common_table_main, get_header, get_footer
+
+
+def format_list(ensembles):
+    if len(ensembles) == 0:
+        return ""
+    elif len(ensembles) == 1:
+        return ensembles[0]
+    else:
+        return ", ".join(ensembles[:-1]) + ", and " + ensembles[-1]
 
 
 def format_table(df):
@@ -18,6 +28,7 @@ def format_table(df):
     )
     footer = get_footer()
     content = []
+    incomplete_ensembles = []
     previous_prefix = None
     for row in df.itertuples():
         if (next_prefix := row.ensemble_name[:4]) != previous_prefix:
@@ -27,6 +38,7 @@ def format_table(df):
         if np.isnan(row.w0.nominal_value) or np.isnan(row.w0.std_dev):
             w0 = r"\cdots"
             num_configs = r"$\cdots$"
+            incomplete_ensembles.append(row.ensemble_name)
         else:
             w0 = f"{row.w0:.02uSL}"
             num_configs = row.num_configs
@@ -41,8 +53,10 @@ def format_table(df):
             )
         )
 
-    return header + "".join(content) + footer
+    formatted_ensembles = format_list(incomplete_ensembles)
+    definitions = format_definitions({"WZeroIncompleteEnsembles": formatted_ensembles})
+    return header + "".join(content) + footer, definitions
 
 
 if __name__ == "__main__":
-    common_table_main(format_table)
+    common_table_main(format_table, definitions=True)
