@@ -1,5 +1,7 @@
 metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
 dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
+plot_styles = "styles/paperdraft.mplstyle"
+plot_filetype = "pdf"
 
 include: "rules/gradient_flow.smk"
 include: "rules/package.smk"
@@ -11,9 +13,6 @@ include: "rules/spectrum_plots.smk"
 include: "rules/spectrum_tables.smk"
 include: "rules/extrapolation.smk"
 
-
-plot_styles = "styles/paperdraft.mplstyle"
-plot_filetype = "pdf"
 
 h5_data = expand(
     "data_assets/{datafile}.h5",

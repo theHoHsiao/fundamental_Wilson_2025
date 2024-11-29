@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, FileType
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 
+from ..definitions import format_definitions
 from ..dump import read_files
 from ..plots_common import save_or_show
 
@@ -28,6 +29,12 @@ def get_args():
         "--plot_styles",
         default="styles/paperdraft.mplstyle",
         help="Stylesheet to use for plots",
+    )
+    parser.add_argument(
+        "--definitions_file",
+        type=FileType("w"),
+        default="-",
+        help="Where to place the generated definitions",
     )
     return parser.parse_args()
 
@@ -81,14 +88,19 @@ def plot(data):
         label="Hot start",
     )
     fig.legend(loc="outside upper center", ncols=2)
-    return fig
+
+    formatted_betas = r"$\beta = " + "$, $".join([f"{beta}" for beta in betas]) + "$"
+    definitions = format_definitions({"PlaquettePhaseDiagramBetas": formatted_betas})
+    return fig, definitions
 
 
 def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     data = read_files(args.data_filenames)
-    save_or_show(plot(data), args.plot_file)
+    fig, definitions = plot(data)
+    print(definitions, file=args.definitions_file)
+    save_or_show(fig, args.plot_file)
 
 
 if __name__ == "__main__":

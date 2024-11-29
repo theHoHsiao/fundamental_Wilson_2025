@@ -42,8 +42,9 @@ rule plaquette_phase_diagram:
         data=plaquette_data,
         script="src/plots/plaquette_phasediagram.py",
     output:
-        plot="assets/plots/plaquette_phasediagram.{plot_filetype}",
+        plot=f"assets/plots/plaquette_phasediagram.{plot_filetype}",
+        definitions="assets/definitions/plaquette_phasediagram_betas.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot}"
+        "python -m {params.module} {input.data} --plot_styles {plot_styles} --plot_file {output.plot} --definitions_file {output.definitions}"
