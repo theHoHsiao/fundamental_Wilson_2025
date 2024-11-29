@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser, SUPPRESS
+from argparse import ArgumentParser, FileType, SUPPRESS
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -51,7 +51,7 @@ def errorbar_ufloat(ax, x, y, *args, **kwargs):
     )
 
 
-def get_standard_plot_args(fit_results=False, external_data=False):
+def get_standard_plot_args(fit_results=False, external_data=False, definitions=False):
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -82,11 +82,18 @@ def get_standard_plot_args(fit_results=False, external_data=False):
         default="styles/paperdraft.mplstyle",
         help="Stylesheet to use for plots",
     )
+    if definitions:
+        parser.add_argument(
+            "--definitions_file",
+            type=FileType("w"),
+            default="-",
+            help="Where to place the generated definitions",
+        )
     return parser.parse_args()
 
 
-def standard_plot_main(plot_function, **args_options):
-    args = get_standard_plot_args(**args_options)
+def standard_plot_main(plot_function, definitions=False, **args_options):
+    args = get_standard_plot_args(definitions=definitions, **args_options)
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
 
@@ -96,10 +103,12 @@ def standard_plot_main(plot_function, **args_options):
 
     fit_results = read_sample_files(args.fit_results, group_key="beta")
 
-    save_or_show(
-        plot_function(data, external_data=external_data, fit_results=fit_results),
-        args.plot_file,
-    )
+    result = plot_function(data, external_data=external_data, fit_results=fit_results)
+    if definitions:
+        result, definitions = result
+        print(definitions, file=args.definitions_file)
+
+    save_or_show(result, args.plot_file)
 
 
 def beta_color(b):
