@@ -98,6 +98,7 @@ rule provenance_stamp:
         h5_data=h5_data,
         plots=plots,
         tables=tables,
+        definitions=definitions,
         ensemble_metadata="metadata/ensemble_metadata.csv",
         external_data=external_data,
     output:
@@ -105,4 +106,4 @@ rule provenance_stamp:
     conda:
         "envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.h5_data} {input.plots} {input.tables} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
+        "python -m {params.module} {input.h5_data} {input.plots} {input.tables} {input.definitions} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
