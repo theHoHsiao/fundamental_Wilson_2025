@@ -96,7 +96,7 @@ can be found in the [Snakemake documentation][snakemake-conda].
 
 Using `--cores 6` on a MacBook Pro with an M1 Pro processor,
 the analysis takes around 13 minutes starting from HDF5 files,
-and TODO minutes starting from raw data.
+and around 5 hours starting from raw data.
 
 ## Output
 
