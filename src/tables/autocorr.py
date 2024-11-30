@@ -28,17 +28,17 @@ def format_table(df):
             formatted_tau_exp_w0 = r"$\cdots$"
             formatted_delta_traj_w0 = r"$\cdots$"
         else:
-            formatted_tau_exp_w0 = "{:.0f}".format(row.tau_exp_w0.nominal_value)
+            formatted_tau_exp_w0 = "{:.02uSL}".format(row.tau_exp_w0)
             formatted_delta_traj_w0 = "{}".format(row.delta_traj_w0)
         content.append(
-            "{} & {} & {:.1f} & {:.1f} & {} & {} & {:.0f} \\\\\n".format(
+            "{} & {} & {:.02uSL} & {:.02uSL} & {} & {} & {:.02uSL} \\\\\n".format(
                 row.ensemble_name,
                 row.delta_traj_spectrum,
-                row.tau_exp_plaq.nominal_value,
-                row.tau_exp_ps_correlator.nominal_value,
+                row.tau_exp_plaq,
+                row.tau_exp_ps_correlator,
                 formatted_delta_traj_w0,
                 formatted_tau_exp_w0,
-                row.tau_exp_Q.nominal_value,
+                row.tau_exp_Q,
             )
         )
     return header + "".join(content) + footer
