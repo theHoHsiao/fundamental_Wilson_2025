@@ -2,12 +2,17 @@
 
 import matplotlib.pyplot as plt
 
-from ..plots_common import standard_plot_main, channel_color
+from ..plots_common import (
+    standard_plot_main,
+    channel_iterator,
+    add_figure_legend,
+    ONE_COLUMN,
+)
 
 
 def plot(data, **kwargs):
     fig, ax = plt.subplots(
-        1, 1, num="Figure_10", figsize=(3.5, 2.4), layout="constrained"
+        1, 1, num="Figure_10", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
 
     ax.set_ylim(5, 11)
@@ -16,9 +21,7 @@ def plot(data, **kwargs):
     ax.set_ylabel(r"$m_{\rm M} / f_{\rm ps}$")
 
     channels = ["ps", "v", "av", "at", "s"]
-    markers = "o^sx+"
-
-    for channel_idx, (channel, marker) in enumerate(zip(channels, markers)):
+    for channel, colour, marker in channel_iterator(channels):
         to_plot = []
 
         for datum in data:
@@ -42,21 +45,12 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color=channel_color(channel),
+            color=colour,
             label=channel,
             marker=marker,
         )
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=6,
-        borderaxespad=0.2,
-    )
-
+    add_figure_legend(fig, title=None)
     return fig
 
 

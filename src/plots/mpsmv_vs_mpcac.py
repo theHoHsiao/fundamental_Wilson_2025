@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-from ..plots_common import standard_plot_main
+from ..plots_common import standard_plot_main, beta_iterator, ONE_COLUMN
 
 
 def plot(data, **kwargs):
     fig, ax = plt.subplots(
-        1, 1, num="Figure_6", figsize=(3.5, 2.4), layout="constrained"
+        1, 1, num="Figure_6", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
 
     ax.set_ylim(0.78, 0.94)
@@ -15,8 +15,7 @@ def plot(data, **kwargs):
     ax.set_ylabel(r"$m_{\rm ps} / m_{\rm v}$")
 
     betas = sorted(set([datum["beta"] for datum in data]))
-    markers = "s"
-    for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+    for beta, colour, marker in beta_iterator(betas):
         to_plot = []
         for datum in data:
             if datum["beta"] != beta:
@@ -39,8 +38,8 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color="C0",
-            marker="s",
+            color=colour,
+            marker=marker,
         )
 
     return fig

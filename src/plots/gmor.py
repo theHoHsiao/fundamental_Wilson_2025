@@ -2,12 +2,18 @@
 
 import matplotlib.pyplot as plt
 
-from ..plots_common import standard_plot_main
+from ..plots_common import (
+    standard_plot_main,
+    beta_color,
+    beta_marker,
+    get_single_beta,
+    ONE_COLUMN,
+)
 
 
 def plot(data, **kwargs):
     fig, ax = plt.subplots(
-        1, 1, num="Figure_20", figsize=(3.5, 2.4), layout="constrained"
+        1, 1, num="Figure_20", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
 
     ax.set_xlim(0, 0.16)
@@ -16,6 +22,7 @@ def plot(data, **kwargs):
 
     to_plot = []
 
+    beta = get_single_beta(data)
     for datum in data:
         if "ps_mass_samples" not in datum:
             continue
@@ -36,8 +43,8 @@ def plot(data, **kwargs):
         yerr=y_errors,
         ls="none",
         alpha=1,
-        color="C0",
-        marker="s",
+        color=beta_color(beta),
+        marker=beta_marker(beta),
     )
 
     return fig

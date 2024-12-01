@@ -2,18 +2,22 @@
 
 import matplotlib.pyplot as plt
 
-from ..plots_common import standard_plot_main
+from ..plots_common import (
+    standard_plot_main,
+    beta_iterator,
+    add_figure_legend,
+    ONE_COLUMN,
+)
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(layout="constrained", figsize=(3.5, 3.0))
+    fig, ax = plt.subplots(layout="constrained", figsize=(ONE_COLUMN, 3.0))
 
     ax.set_xlabel(r"$\hat{m}_{\mathrm{PCAC}}$")
     ax.set_ylabel(r"$w_0 / a$")
 
     betas = sorted(set([datum["beta"] for datum in data]))
-    markers = "o^vsx+"
-    for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+    for beta, colour, marker in beta_iterator(betas):
         to_plot = []
         for datum in data:
             if datum["beta"] != beta:
@@ -33,14 +37,15 @@ def plot(data, **kwargs):
             xerr=x_errors,
             yerr=y_errors,
             ls="none",
-            color=f"C{beta_idx}",
+            color=colour,
             marker=marker,
             label=f"{beta}",
         )
 
     ax.set_xlim(0, None)
     ax.set_ylim(0, None)
-    ax.legend(loc="best", title=r"$\beta$")
+
+    add_figure_legend(fig)
     return fig
 
 

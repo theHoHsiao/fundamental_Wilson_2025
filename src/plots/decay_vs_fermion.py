@@ -2,11 +2,18 @@
 
 import matplotlib.pyplot as plt
 
-from ..plots_common import standard_plot_main, channel_color
+from ..plots_common import (
+    standard_plot_main,
+    channel_iterator,
+    add_figure_legend,
+    TWO_COLUMN,
+)
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(1, 2, num="Figure_9", figsize=(7, 2.4), layout="constrained")
+    fig, ax = plt.subplots(
+        1, 2, num="Figure_9", figsize=(TWO_COLUMN, 2.4), layout="constrained"
+    )
 
     ax[0].set_ylim(0, 0.18)
     ax[0].set_xlim(-1.08, -1.01)
@@ -19,9 +26,8 @@ def plot(data, **kwargs):
     ax[1].set_ylabel(r"$af_{\rm M}$")
 
     channels = ["ps", "v", "av"]
-    markers = "o^s"
 
-    for channel_idx, (channel, marker) in enumerate(zip(channels, markers)):
+    for channel, colour, marker in channel_iterator(channels):
         to_plot = []
         bare_mass = []
         for datum in data:
@@ -46,7 +52,7 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color=channel_color(channel),
+            color=colour,
             marker=marker,
         )
 
@@ -57,21 +63,12 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color=channel_color(channel),
+            color=colour,
             label=channel,
             marker=marker,
         )
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=6,
-        borderaxespad=0.2,
-    )
-
+    add_figure_legend(fig, title=None)
     return fig
 
 

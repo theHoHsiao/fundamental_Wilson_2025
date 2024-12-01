@@ -10,6 +10,7 @@ from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 import numpy as np
 
 from .dump import dump_dict
+from .plots_common import ONE_COLUMN
 from .utils import get_index_separation
 
 
@@ -82,7 +83,7 @@ def plot(flows, results, plot_filename, plot_styles):
         sharey=True,
         layout="constrained",
         gridspec_kw={"width_ratios": [3, 1]},
-        figsize=(3.5, 2.5),
+        figsize=(ONE_COLUMN, 2.5),
     )
 
     history_ax.step(flows.trajectories, flows.Q_history())

@@ -9,6 +9,10 @@ from uncertainties import UFloat
 from .dump import read_sample_files
 
 
+ONE_COLUMN = 3.4
+TWO_COLUMN = 7.0
+
+
 def save_or_show(fig, filename=None):
     if filename == "/dev/null":
         plt.close(fig)
@@ -92,7 +96,9 @@ def get_standard_plot_args(fit_results=False, external_data=False, definitions=F
     return parser.parse_args()
 
 
-def standard_plot_main(plot_function, definitions=False, **args_options):
+def standard_plot_main(
+    plot_function, group_key="beta", definitions=False, **args_options
+):
     args = get_standard_plot_args(definitions=definitions, **args_options)
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
@@ -101,7 +107,7 @@ def standard_plot_main(plot_function, definitions=False, **args_options):
         pd.read_csv(args.external_data) if args.external_data is not None else None
     )
 
-    fit_results = read_sample_files(args.fit_results, group_key="beta")
+    fit_results = read_sample_files(args.fit_results, group_key=group_key)
 
     result = plot_function(data, external_data=external_data, fit_results=fit_results)
     if definitions:
@@ -138,3 +144,49 @@ def ch_tag(ch):
     return {
         "rhoE1": r"v^\prime",
     }.get(ch, ch)
+
+
+def beta_marker(beta):
+    return {6.6: "o", 6.65: "^", 6.7: "v", 6.75: "s", 6.8: "x", 6.9: "+"}[beta]
+
+
+def channel_marker(channel):
+    return {
+        "ps": "o",
+        "v": "^",
+        "t": "v",
+        "s": "s",
+        "av": "x",
+        "at": "+",
+        "rhoE1": "*",
+    }[channel]
+
+
+def beta_iterator(betas):
+    for beta in betas:
+        yield beta, beta_color(beta), beta_marker(beta)
+
+
+def channel_iterator(channels):
+    for channel in channels:
+        yield channel, channel_color(channel), channel_marker(channel)
+
+
+def add_figure_legend(fig, ncol=6, title=r"$\beta$"):
+    handles, labels = fig.gca().get_legend_handles_labels()
+    by_label = dict(sorted(zip(labels, handles)))
+    fig.legend(
+        by_label.values(),
+        by_label.keys(),
+        loc="outside upper center",
+        ncol=ncol,
+        borderaxespad=0.2,
+        title=title,
+    )
+
+
+def get_single_beta(data):
+    betas = set(datum["beta"] for datum in data)
+    if len(betas) != 1:
+        raise ValueError("Inconsistent betas found")
+    return betas.pop()

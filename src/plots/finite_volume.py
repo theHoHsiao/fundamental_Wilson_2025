@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-from ..plots_common import standard_plot_main, ch_tag
+from ..plots_common import (
+    standard_plot_main,
+    ch_tag,
+    beta_color,
+    beta_marker,
+    ONE_COLUMN,
+)
 
 
 def plot(data, **kwargs):
     fig, axs = plt.subplots(
-        2, 1, num="Figure_2a", figsize=(3.5, 4.8), layout="constrained"
+        2, 1, num="Figure_2a", figsize=(ONE_COLUMN, 4.8), layout="constrained"
     )
-    if len(set([(datum["beta"], datum["mAS"]) for datum in data])) > 1:
+    ensemble_params = set([(datum["beta"], datum["mAS"]) for datum in data])
+    if len(ensemble_params) > 1:
         raise NotImplementedError("Inconsistent physical parameters found.")
+    beta, mAS = ensemble_params.pop()
 
     Ns_max = max([datum["Ns"] for datum in data])
     Ns_max_datum = [datum for datum in data if datum["Ns"] == Ns_max]
@@ -40,8 +48,8 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color="C0",
-            marker="s",
+            color=beta_color(beta),
+            marker=beta_marker(beta),
         )
 
     return fig

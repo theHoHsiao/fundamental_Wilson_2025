@@ -2,12 +2,17 @@
 
 import matplotlib.pyplot as plt
 
-from ..plots_common import standard_plot_main, beta_color
+from ..plots_common import (
+    standard_plot_main,
+    beta_iterator,
+    add_figure_legend,
+    ONE_COLUMN,
+)
 
 
 def plot(data, **kwargs):
     fig, ax = plt.subplots(
-        1, 1, num="Figure_17", figsize=(3.5, 2.4), layout="constrained"
+        1, 1, num="Figure_17", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
 
     ax.set_xlim(0.79, 1.61)
@@ -16,8 +21,7 @@ def plot(data, **kwargs):
 
     to_plot = []
     betas = sorted(set([datum["beta"] for datum in data]))
-    markers = "o^vsx+"
-    for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+    for beta, colour, marker in beta_iterator(betas):
         to_plot = []
         for datum in data:
             if datum["beta"] != beta:
@@ -47,21 +51,12 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color=beta_color(beta),
+            color=colour,
             marker=marker,
             label=f"{beta}",
         )
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=3,
-        borderaxespad=0.2,
-    )
-
+    add_figure_legend(fig)
     return fig
 
 

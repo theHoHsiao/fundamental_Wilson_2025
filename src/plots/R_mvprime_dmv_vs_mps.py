@@ -2,38 +2,20 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from ..plots_common import standard_plot_main, beta_color
-from ..bootstrap import BOOTSTRAP_SAMPLE_COUNT
+from uncertainties import ufloat
+
+from ..plots_common import (
+    standard_plot_main,
+    beta_iterator,
+    add_figure_legend,
+    ONE_COLUMN,
+)
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(1, 1, num="6", figsize=(3.5, 2.4), layout="constrained")
-
-    # from https://pdg.lbl.gov/2019/listings/rpp2019-list-rho-770.pdf
-    rho_770_mass = np.random.normal(775.26, 0.25, BOOTSTRAP_SAMPLE_COUNT)
-
-    # from https://pdg.lbl.gov/2014/listings/rpp2014-list-rho-1450.pdf
-    rho_1450_mass = np.random.normal(1465, 25, BOOTSTRAP_SAMPLE_COUNT)
-
-    R_ratio_QCD = rho_1450_mass / rho_770_mass
-
-    plt.fill_between(
-        [0.01, 0.1],
-        [
-            R_ratio_QCD.mean() - R_ratio_QCD.std(),
-            R_ratio_QCD.mean() - R_ratio_QCD.std(),
-        ],
-        [
-            R_ratio_QCD.mean() + R_ratio_QCD.std(),
-            R_ratio_QCD.mean() + R_ratio_QCD.std(),
-        ],
-        label=r"QCD $\rho(1450)/\rho(770)$",
-        alpha=1,
-        color="dodgerblue",
+    fig, ax = plt.subplots(
+        1, 1, num="6", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
-
-    # QCD data from https://pdg.lbl.gov/2019/listings/rpp2019-list-rho-770.pdf
-    # QCD data from https://pdg.lbl.gov/2014/listings/rpp2014-list-rho-1450.pdf
 
     ax.set_xlim(-0.01, 1.51)
     ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
@@ -41,8 +23,7 @@ def plot(data, **kwargs):
 
     to_plot = []
     betas = sorted(set([datum["beta"] for datum in data]))
-    markers = "o^vsx+"
-    for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+    for beta, colour, marker in beta_iterator(betas):
         to_plot = []
         for datum in data:
             if datum["beta"] != beta:
@@ -76,21 +57,32 @@ def plot(data, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color=beta_color(beta),
+            color=colour,
             marker=marker,
-            label=f"{beta}",
+            label=f"$\\beta={beta}$",
         )
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=3,
-        borderaxespad=0.2,
+    # Add QCD result
+    # from https://pdg.lbl.gov/2019/listings/rpp2019-list-rho-770.pdf
+    rho_770_mass = ufloat(775.26, 0.25)
+
+    # from https://pdg.lbl.gov/2014/listings/rpp2014-list-rho-1450.pdf
+    rho_1450_mass = ufloat(1465, 25)
+
+    R_ratio_QCD = rho_1450_mass / rho_770_mass
+    R_ratio_QCD_lower = R_ratio_QCD.nominal_value - R_ratio_QCD.std_dev
+    R_ratio_QCD_upper = R_ratio_QCD.nominal_value + R_ratio_QCD.std_dev
+
+    plt.fill_between(
+        [0.01, 0.1],
+        [R_ratio_QCD_lower, R_ratio_QCD_lower],
+        [R_ratio_QCD_upper, R_ratio_QCD_upper],
+        label=r"QCD $\rho(1450)/\rho(770)$",
+        alpha=1,
+        color="dodgerblue",
     )
 
+    add_figure_legend(fig, ncol=3, title=None)
     return fig
 
 

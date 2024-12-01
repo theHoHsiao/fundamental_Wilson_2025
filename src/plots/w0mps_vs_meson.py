@@ -2,7 +2,15 @@
 
 import matplotlib.pyplot as plt
 from ..dump import read_sample_files
-from ..plots_common import save_or_show, beta_color, ch_tag, channel_color
+from ..plots_common import (
+    save_or_show,
+    beta_iterator,
+    ch_tag,
+    channel_color,
+    add_figure_legend,
+    ONE_COLUMN,
+    TWO_COLUMN,
+)
 from argparse import ArgumentParser
 import numpy as np
 
@@ -73,10 +81,10 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
 
 def plot(data, fit_pars):
     data_fig, data_axes = plt.subplots(
-        3, 2, num="Figure_12", figsize=(7, 7), layout="constrained"
+        3, 2, num="Figure_12", figsize=(TWO_COLUMN, 7), layout="constrained"
     )
     summary_fig, summary_ax = plt.subplots(
-        1, 1, num="Figure_14", figsize=(3.5, 4.8), layout="constrained"
+        1, 1, num="Figure_14", figsize=(ONE_COLUMN, 4.8), layout="constrained"
     )
     summary_ax.plot([0, 6], [0, 6], "--", color="C0", label="ps")
     summary_ax.set_xlim(0.8, 1.5)
@@ -88,8 +96,7 @@ def plot(data, fit_pars):
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
         betas = sorted(set([datum["beta"] for datum in data]))
-        markers = "o^vsx+"
-        for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+        for beta, colour, marker in beta_iterator(betas):
             to_plot = []
             for datum in data:
                 if datum["beta"] != beta:
@@ -111,7 +118,7 @@ def plot(data, fit_pars):
                 yerr=y_errors,
                 ls="none",
                 alpha=1,
-                color=beta_color(beta),
+                color=colour,
                 marker=marker,
                 label=f"{beta}",
             )
@@ -136,30 +143,13 @@ def plot(data, fit_pars):
                     channel_color(ch),
                 )
 
-    handles, labels = data_fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    data_fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=6,
-        borderaxespad=0.2,
-    )
+    add_figure_legend(data_fig)
 
     summary_ax.set_ylim(0, 6)
     summary_ax.set_xlim(0.8, 1.5)
     summary_ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
     summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
-
-    handles, labels = summary_ax.get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    summary_fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=4,
-        borderaxespad=0.2,
-    )
+    add_figure_legend(summary_fig, 4)
 
     return data_fig, summary_fig
 

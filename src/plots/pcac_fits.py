@@ -6,7 +6,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ..dump import read_files
-from ..plots_common import errorbar_ufloat, save_or_show
+from ..plots_common import (
+    beta_iterator,
+    errorbar_ufloat,
+    save_or_show,
+    add_figure_legend,
+    TWO_COLUMN,
+)
 
 
 def get_args():
@@ -48,7 +54,7 @@ def get_ylim(data):
 
 
 def plot(plot_data, linear_fit_data):
-    fig, ax = plt.subplots(layout="constrained", figsize=(7, 3))
+    fig, ax = plt.subplots(layout="constrained", figsize=(TWO_COLUMN, 3))
 
     ax.set_xlabel("$am_0$")
     ax.set_ylabel(r"$am_{\mathrm{PCAC}}$")
@@ -59,10 +65,11 @@ def plot(plot_data, linear_fit_data):
     ax.set_ylim(ymin, ymax)
     x_range = np.linspace(xmin, xmax, 1000)
 
-    for beta_idx, beta in enumerate(sorted(set(plot_data.beta))):
+    for beta, colour, marker in beta_iterator(sorted(set(plot_data.beta))):
         subset = plot_data[plot_data.beta == beta]
-        colour = f"C{beta_idx}"
-        errorbar_ufloat(ax, subset.mAS, subset.mPCAC, color=colour, marker=".")
+        errorbar_ufloat(
+            ax, subset.mAS, subset.mPCAC, color=colour, marker=marker, label=f"{beta}"
+        )
 
         linear_fit_subset = linear_fit_data[linear_fit_data.beta == beta]
         if len(linear_fit_subset) > 0:
@@ -83,6 +90,7 @@ def plot(plot_data, linear_fit_data):
             )
             ax.plot(x_range, quadratic_fit_result(x_range), color=colour, dashes=(2, 3))
 
+    add_figure_legend(fig)
     return fig
 
 

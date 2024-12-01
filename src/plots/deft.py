@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ..bootstrap import BOOTSTRAP_SAMPLE_COUNT
-from ..plots_common import standard_plot_main, beta_color
+from ..plots_common import (
+    standard_plot_main,
+    beta_iterator,
+    add_figure_legend,
+    ONE_COLUMN,
+)
 
 
 def plot_axpb_y_minus(ax, A, B, ch, offset, color):
@@ -34,7 +39,7 @@ def plot_axpb_y_minus(ax, A, B, ch, offset, color):
 
 def plot(data, fit_results, **kwargs):
     fig, ax = plt.subplots(
-        1, 1, num="Figure_22", figsize=(3.5, 2.4), layout="constrained"
+        1, 1, num="Figure_22", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
 
     ax.set_ylim(0.4, 1.7)
@@ -43,9 +48,8 @@ def plot(data, fit_results, **kwargs):
     ax.set_ylabel(r"$\log [(am_{\rm ps})^2 / (am_{\rm PCAC})]$")
 
     betas = sorted(set([datum["beta"] for datum in data]))
-    markers = "o^vsx+"
 
-    for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+    for beta, colour, marker in beta_iterator(betas):
         to_plot = []
         for datum in data:
             if datum["beta"] != beta:
@@ -84,7 +88,7 @@ def plot(data, fit_results, **kwargs):
             ),  # line with a small band
             "",
             0,
-            beta_color(beta),
+            colour,
         )
 
         y_values, y_errors, x_values, x_errors = zip(*to_plot)
@@ -96,21 +100,12 @@ def plot(data, fit_results, **kwargs):
             yerr=y_errors,
             ls="none",
             alpha=1,
-            color=beta_color(beta),
+            color=colour,
             marker=marker,
             label=f"{beta}",
         )
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=5,
-        borderaxespad=0.2,
-    )
-
+    add_figure_legend(fig)
     return fig
 
 

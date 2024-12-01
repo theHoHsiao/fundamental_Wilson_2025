@@ -8,7 +8,7 @@ import numpy as np
 
 from ..definitions_common import format_definitions
 from ..dump import read_files
-from ..plots_common import save_or_show
+from ..plots_common import save_or_show, ONE_COLUMN
 
 
 def get_args():
@@ -46,7 +46,7 @@ def plot(data):
     fig, axes = plt.subplots(
         nrows=len(betas),
         layout="constrained",
-        figsize=(3.5, 1 + 1.5 * len(betas)),
+        figsize=(ONE_COLUMN, 1 + 1.5 * len(betas)),
     )
 
     for beta, ax in zip(betas, axes):

@@ -1,43 +1,13 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-from ..dump import read_sample_files
-from ..plots_common import save_or_show, beta_color
-from argparse import ArgumentParser
+from ..plots_common import (
+    beta_iterator,
+    standard_plot_main,
+    add_figure_legend,
+    TWO_COLUMN,
+)
 import numpy as np
-
-
-def get_args():
-    parser = ArgumentParser()
-
-    parser.add_argument(
-        "data_filenames",
-        nargs="+",
-        metavar="sample_filename",
-        help="Filenames of sample files containing data to plot",
-    )
-    parser.add_argument(
-        "--fit_results",
-        nargs="+",
-        metavar="sample_filename",
-        help="Filenames of sample files containing data to plot",
-    )
-    parser.add_argument(
-        "--plot_file",
-        default=None,
-        help="Where to place the resulting plot. Default is to output to screen.",
-    )
-    parser.add_argument(
-        "--plot_file2",
-        default=None,
-        help="Where to place the resulting plot. Default is to output to screen.",
-    )
-    parser.add_argument(
-        "--plot_styles",
-        default="styles/paperdraft.mplstyle",
-        help="Stylesheet to use for plots",
-    )
-    return parser.parse_args()
 
 
 def plot_axpb_y(ax, A, L, ch, offset, color):
@@ -65,8 +35,8 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
     )
 
 
-def plot(data, fit_pars, **kwargs):
-    fig = plt.figure(layout="constrained")
+def plot(data, fit_results, **kwargs):
+    fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 5))
     gs = fig.add_gridspec(nrows=2, ncols=4)
     ax0 = fig.add_subplot(gs[0, :2])
     ax1 = fig.add_subplot(gs[0, 2:])
@@ -75,16 +45,13 @@ def plot(data, fit_pars, **kwargs):
 
     subplot_ind = 0
 
-    for ch in ["ps", "v", "av"]:
-        ax = ax = axs[subplot_ind]
-
+    for ch, ax in zip(["ps", "v", "av"], axs):
         ax.set_xlim(0.8, 1.5)
         ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
         ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2$")
 
         betas = sorted(set([datum["beta"] for datum in data]))
-        markers = "o^vsx+"
-        for beta_idx, (beta, marker) in enumerate(zip(betas, markers)):
+        for beta, colour, marker in beta_iterator(betas):
             to_plot = []
             for datum in data:
                 if datum["beta"] != beta:
@@ -106,12 +73,12 @@ def plot(data, fit_pars, **kwargs):
                 yerr=y_errors,
                 ls="none",
                 alpha=1,
-                color=beta_color(beta),
+                color=colour,
                 marker=marker,
                 label=f"{beta}",
             )
 
-        for parameter in fit_pars:
+        for parameter in fit_results:
             if parameter["channel"] == ch:
                 plot_axpb_y(
                     ax,
@@ -127,27 +94,9 @@ def plot(data, fit_pars, **kwargs):
 
         subplot_ind += 1
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=6,
-        borderaxespad=0.2,
-    )
-
+    add_figure_legend(fig)
     return fig
 
 
-def main():
-    args = get_args()
-    plt.style.use(args.plot_styles)
-    data = read_sample_files(args.data_filenames)
-    fit_pars = read_sample_files(args.fit_results, group_key="channel")
-    fig = plot(data, fit_pars)
-    save_or_show(fig, args.plot_file)
-
-
 if __name__ == "__main__":
-    main()
+    standard_plot_main(plot, fit_results=True, group_key="channel")

@@ -2,12 +2,15 @@
 
 import matplotlib.pyplot as plt
 
-from ..plots_common import standard_plot_main
+from ..plots_common import (
+    standard_plot_main,
+    ONE_COLUMN,
+)
 
 
 def plot(data, external_data, fit_results):
     fig, ax = plt.subplots(
-        1, 1, num="Figure_15", figsize=(3.5, 2.4), layout="constrained"
+        1, 1, num="Figure_15", figsize=(ONE_COLUMN, 2.4), layout="constrained"
     )
 
     ax.set_xlim(0, 1.5)
@@ -20,18 +23,13 @@ def plot(data, external_data, fit_results):
         xerr=external_data.get("R_uncertainty").values,
         yerr=external_data.get("L_uncertainty").values * 2**0.5,
         linestyle="",
-        marker="o",
-        markerfacecolor="none",
-        elinewidth=1,
-        capthick=1,
-        capsize=1,
-        color="C3",
+        marker=".",
+        color="C6",
         alpha=1,
         label=r"$N_{\rm f}=2$ $Sp(4)$",
     )
 
     to_plot = []
-
     for datum in data:
         if "ps_mass_samples" not in datum:
             continue
@@ -57,8 +55,9 @@ def plot(data, external_data, fit_results):
         yerr=y_errors,
         ls="none",
         alpha=1,
-        color="C0",
-        marker="s",
+        color="C7",
+        marker="*",
+        markersize=3,
         label=r"$N_{\rm as}=3$ $Sp(4)$",
     )
 

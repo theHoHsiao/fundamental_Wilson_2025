@@ -3,7 +3,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..plots_common import standard_plot_main
+from ..plots_common import (
+    standard_plot_main,
+    get_single_beta,
+    beta_color,
+    beta_marker,
+    add_figure_legend,
+    ONE_COLUMN,
+)
 
 
 def plot_poly_M4(ax, A, B, C, ch, color):
@@ -32,7 +39,9 @@ def plot_poly_M4(ax, A, B, C, ch, color):
 
 
 def plot(data, external_data, fit_results):
-    fig, ax = plt.subplots(num="Figure_11", figsize=(3.5, 2.4), layout="constrained")
+    fig, ax = plt.subplots(
+        num="Figure_11", figsize=(ONE_COLUMN, 2.4), layout="constrained"
+    )
 
     ax.set_ylim(0, 1.8)
     ax.set_xlim(0, 1.4)
@@ -47,17 +56,14 @@ def plot(data, external_data, fit_results):
         xerr=external_data.w0m_ps_sq_err.values,
         yerr=external_data.w0m_v_sq_err.values,
         linestyle="",
-        marker="o",
-        markerfacecolor="none",
-        elinewidth=1,
-        capthick=1,
-        capsize=1,
-        color="C3",
+        marker=".",
+        color="C6",
         alpha=1,
         label=r"$N_{\rm f}=2$ $Sp(4)$",
     )
 
     to_plot = []
+    beta = get_single_beta(data)
     for datum in data:
         if "ps_mass_samples" not in datum:
             continue
@@ -83,21 +89,12 @@ def plot(data, external_data, fit_results):
         yerr=y_errors,
         ls="none",
         alpha=1,
-        color="C0",
-        marker="s",
+        color=beta_color(beta),
+        marker=beta_marker(beta),
         label=r"$N_{\rm as}=3$ $Sp(4)$",
     )
 
-    handles, labels = fig.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    fig.legend(
-        by_label.values(),
-        by_label.keys(),
-        loc="outside upper center",
-        ncol=6,
-        borderaxespad=0.2,
-    )
-
+    add_figure_legend(fig, title=None)
     return fig
 
 

@@ -7,7 +7,7 @@ from flow_analysis.measurements.scales import compute_wt_t
 
 import matplotlib.pyplot as plt
 
-from .plots_common import save_or_show
+from .plots_common import save_or_show, ONE_COLUMN
 
 
 def get_args():
@@ -56,7 +56,7 @@ def get_args():
 
 
 def plot(flows, threshold):
-    fig, ax = plt.subplots(figsize=(3.5, 2.5), layout="constrained")
+    fig, ax = plt.subplots(figsize=(ONE_COLUMN, 2.5), layout="constrained")
 
     ax.set_xlabel("$t / a^2$")
     ax.set_ylabel(r"$t \frac{\mathrm{d}}{\mathrm{d}t}\langle t^2 E\rangle$")
