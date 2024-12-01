@@ -149,7 +149,7 @@ def plot(data, fit_pars):
     summary_ax.set_xlim(0.8, 1.5)
     summary_ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
     summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
-    add_figure_legend(summary_fig, 4)
+    add_figure_legend(summary_fig, 4, title=None)
 
     return data_fig, summary_fig
 
