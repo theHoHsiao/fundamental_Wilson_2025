@@ -44,7 +44,7 @@ rule topological_charge:
         data=f"raw_data/flows/{dir_template}/out_wflow",
         script="src/top_charge.py",
     output:
-        data=f"intermediary_data/{dir_template}/top_charge.csv",
+        data=f"intermediary_data/{dir_template}/top_charge_mean.csv",
     conda:
         "../envs/flow_analysis.yml"
     shell:

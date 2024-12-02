@@ -13,6 +13,7 @@ include: "rules/combined_plots.smk"
 include: "rules/spectrum_plots.smk"
 include: "rules/spectrum_tables.smk"
 include: "rules/extrapolation.smk"
+include: "rules/csvs.smk"
 
 
 h5_data = expand(

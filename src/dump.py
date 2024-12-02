@@ -65,7 +65,71 @@ def combine_df_ufloats(df):
     return result
 
 
+def split_ufloat_column(column):
+    values, uncertainties = [], []
+    for datum in column:
+        if isinstance(datum, UFloat):
+            values.append(datum.nominal_value)
+            uncertainties.append(datum.std_dev)
+        else:
+            values.append(datum)
+            uncertainties.append(np.nan)
+    return pd.Series(values, name=f"{column.name}_value"), pd.Series(
+        uncertainties, name=f"{column.name}_uncertainty"
+    )
+
+
+def split_df_ufloats(df):
+    result = [pd.DataFrame()]
+    for column_name in df.columns:
+        if (
+            df[column_name].dtype == "O"
+            and df[column_name].map(lambda datum: isinstance(datum, UFloat)).any()
+        ):
+            if (
+                f"{column_name}_value" in df.columns
+                or f"{column_name}_uncertainty" in df.columns
+            ):
+                raise ValueError(f"Conflicting columns: {column_name}")
+            result.extend(split_ufloat_column(df[column_name]))
+        else:
+            result.append(df[column_name])
+    return pd.concat(result, axis=1)
+
+
+class NotYetFound:
+    """None-like class that will not compare equal with None."""
+
+    pass
+
+
+def make_consistent_column(columns):
+    result_values = []
+    column_name = columns.columns[0]
+    columns.columns = range(len(columns.columns))
+    not_yet_found = NotYetFound()
+
+    for row in columns.to_dict(orient="records"):
+        result_value = not_yet_found
+        for value in row.values():
+            if np.isnan(value):
+                continue
+            if result_value is not_yet_found:
+                result_value = value
+                continue
+            if value != result_value:
+                raise ValueError(f"Inconsistent data in column {column_name}")
+            if isinstance(value, int) or isinstance(value, np.integer):
+                result_value = value
+        if result_value is not_yet_found:
+            result_value = np.nan
+        result_values.append(result_value)
+
+    return pd.Series(result_values, name=column_name)
+
+
 def drop_duplicate_columns(df):
+    result_columns = []
     # Verify that duplicated columns are consistent
     for column in set(df.columns):
         column_subset = df[column]
@@ -74,10 +138,14 @@ def drop_duplicate_columns(df):
             first_column = column_subset.iloc[:, 0]
             for column_idx in range(1, len(column_subset.columns)):
                 if not (first_column == column_subset.iloc[:, column_idx]).all():
-                    raise ValueError(f"Inconsistent data for column {column}.")
+                    result_columns.append(make_consistent_column(column_subset))
+                    break
+            else:
+                result_columns.append(first_column)
+        else:
+            result_columns.append(column_subset)
 
-    # Drop the duplicated columns
-    return df.loc[:, ~df.columns.duplicated()].copy()
+    return pd.concat(result_columns, axis=1)
 
 
 # A key on which to search; only one is needed per file type.

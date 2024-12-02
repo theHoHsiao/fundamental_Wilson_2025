@@ -141,7 +141,7 @@ def autocorr_data(wildcards):
             "tau_ps_correlator_mean",
             "plaquette_mean",
             "w0_mean",
-            "top_charge",
+            "top_charge_mean",
         ]
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
