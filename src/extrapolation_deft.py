@@ -21,6 +21,7 @@ def main():
 
     dump_fit_result(
         args,
+        "deft",
         fit_result,
         ["A", "B"],
         y=fit_result[0][1] * 2 + 2,

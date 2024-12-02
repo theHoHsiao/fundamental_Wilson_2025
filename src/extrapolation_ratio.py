@@ -22,6 +22,7 @@ def main():
 
     dump_fit_result(
         args,
+        "continuum_ratio_to_fps",
         fit_result,
         [f"{var}_{args.channel}dfps" for var in ["R", "L", "W"]],
     )

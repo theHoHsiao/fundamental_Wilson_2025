@@ -20,6 +20,7 @@ def main():
 
     dump_fit_result(
         args,
+        "chipt",
         fit_result,
         ["A", "B"],
         mAS_min=data["mAS"].min(),

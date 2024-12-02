@@ -118,7 +118,7 @@ def check_name_value_lengths(names, values):
         raise ValueError(message)
 
 
-def dump_fit_result(args, fit_result, names, **extra_columns):
+def dump_fit_result(args, fit_type, fit_result, names, **extra_columns):
     fit_values, chisquare = fit_result
     check_name_value_lengths(names, fit_values)
 
@@ -127,6 +127,7 @@ def dump_fit_result(args, fit_result, names, **extra_columns):
     }
 
     results = {**keys, **{name: value for name, value in zip(names, fit_values)}}
+    results["fit_type"] = fit_type
 
     dump_dict(
         {**results, "chisquare": chisquare, **extra_columns},
