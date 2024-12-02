@@ -1,6 +1,8 @@
 def expand_ensemble(observables, condition_key, dir_slugs=[""]):
     return [
-        f"intermediary_data/{dir_template}{dir_slug}/{observable}_mean.csv".format(**row)
+        f"intermediary_data/{dir_template}{dir_slug}/{observable}_mean.csv".format(
+            **row
+        )
         for observable in observables
         for row in metadata.to_dict(orient="records")
         for dir_slug in dir_slugs
@@ -27,7 +29,11 @@ def all_spectrum_csvs(wildcards):
         expand_ensemble(main_plot_observables, "use_in_main_plots")
         + expand_ensemble(smear_observables, "use_smear")
         + expand_ensemble(finite_volume_observables, "use_in_finite_volume")
-        + expand_ensemble(["plaquette"], "use_in_plaquette_phase_diagram", ["_unitstart", "_randomstart"])
+        + expand_ensemble(
+            ["plaquette"],
+            "use_in_plaquette_phase_diagram",
+            ["_unitstart", "_randomstart"],
+        )
     )
     return list(dict.fromkeys(files_with_duplicates))
 
@@ -43,4 +49,26 @@ rule ensemble_csv:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.csv} --index_name ensemble_name"
+        "python -m {params.module} {input.data} --output_file {output.csv}"
+
+
+def per_beta_results(wildcards):
+    return [
+        f"intermediary_data/{fit_form}_extrapolation_results/{fit_form}_b{beta}_extp_mean.csv"
+        for fit_form in ["deft", "chipt"]
+        for beta in [6.6, 6.65, 6.7, 6.75, 6.8]
+    ]
+
+
+rule per_beta_fits:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=per_beta_results,
+        script="src/csvs/per_beta_csv.py",
+    output:
+        csv="data_assets/chipt_deft_data.csv",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.csv}"

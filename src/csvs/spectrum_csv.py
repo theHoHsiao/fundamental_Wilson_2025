@@ -1,34 +1,6 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser, FileType
-
-from ..dump import split_df_ufloats, read_files
-
-
-def get_args():
-    parser = ArgumentParser(
-        description="Collate many small CSV files into one large one for sharing."
-    )
-    parser.add_argument(
-        "data_filenames", nargs="+", help="Filenames of result files to tabulate"
-    )
-    parser.add_argument(
-        "--output_file",
-        type=FileType("w"),
-        default="-",
-        help="Where to place the resulting CSV",
-    )
-    parser.add_argument(
-        "--index_name",
-        required=True,
-        choices=["ensemble_name", "beta", "channel"],
-        help="Column to index on.",
-    )
-    return parser.parse_args()
-
-
-def common_column_order(columns):
-    return columns.map(common_column_index)
+from ..csv_common import standard_csv_main
 
 
 def common_column_index(column_name):
@@ -81,15 +53,9 @@ def common_column_index(column_name):
     return (7, column_name, perturbation)
 
 
-def main():
-    args = get_args()
-    data = read_files(args.data_filenames, index_name=args.index_name)
-    data["group_family"] = "Sp"
-    data["Nc"] = 4
-    split_df_ufloats(data.sort_index(axis="columns", key=common_column_order)).to_csv(
-        args.output_file, index=False
-    )
+def process_df(data):
+    return data.sort_index(axis="columns", key=lambda c: c.map(common_column_index))
 
 
 if __name__ == "__main__":
-    main()
+    standard_csv_main(df_processor=process_df, index_name="ensemble_name")
