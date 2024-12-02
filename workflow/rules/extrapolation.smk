@@ -58,7 +58,7 @@ rule Decay_continuum_massless_extrapolation:
         ),
         script="src/extrapolation_decay.py",
     output:
-        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_decay_mean.csv",
+        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_decayconstant_mean.csv",
         samples=f"intermediary_data/extrapolation_results/{{channel}}_extp_decay_samples.json",
     conda:
         "../envs/flow_analysis.yml"

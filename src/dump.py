@@ -174,14 +174,18 @@ key_observables = {
 def read_files(filenames, index_name="ensemble_name"):
     data = defaultdict(list)
     for filename in filenames:
-        file_data = pd.read_csv(filename).set_index(index_name)
-        for observable in key_observables[index_name]:
-            key = f"{observable}_value"
-            if key in file_data.columns:
-                data[key].append(file_data)
-                break
+        file_data = pd.read_csv(filename)
+        if index_name is None:
+            data[None].append(file_data)
         else:
-            raise ValueError(f"Unrecognised data in {filename}.")
+            indexed_data = file_data.set_index(index_name)
+            for observable in key_observables[index_name]:
+                key = f"{observable}_value"
+                if key in indexed_data.columns:
+                    data[key].append(indexed_data)
+                    break
+            else:
+                raise ValueError(f"Unrecognised data in {filename}.")
 
     data_frames = [pd.concat(obs_data) for obs_data in data.values()]
 

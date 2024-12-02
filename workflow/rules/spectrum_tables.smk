@@ -115,7 +115,7 @@ def continuum_massless_extrapolation_mass(wildcards):
 
 def continuum_massless_extrapolation_decay(wildcards):
     return [
-        f"intermediary_data/extrapolation_results/{channel}_extp_decay_mean.csv".format()
+        f"intermediary_data/extrapolation_results/{channel}_extp_decayconstant_mean.csv".format()
         for channel in ["ps", "v", "av"]
     ]
 

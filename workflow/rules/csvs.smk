@@ -72,3 +72,29 @@ rule per_beta_fits:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file {output.csv}"
+
+
+def global_eft_results(wildcards):
+    channels = {
+        "mass": ("at", "av", "rhoE1", "s", "t", "v"),
+        "decayconstant": ("av", "ps", "v"),
+    }
+    return [
+        f"intermediary_data/extrapolation_results/{channel}_extp_{observable}_mean.csv"
+        for observable, obs_channels in channels.items()
+        for channel in obs_channels
+    ] + ["intermediary_data/extrapolation_results/R_mvdfps_extp_mean.csv"]
+
+
+rule global_eft_fits:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=global_eft_results,
+        script="src/csvs/global_eft_csv.py",
+    output:
+        csv="data_assets/global_eft_data.csv",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.csv}"
