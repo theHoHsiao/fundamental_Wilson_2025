@@ -89,7 +89,7 @@ def get_volumes(ensemble):
     nt, nx, ny, nz = ensemble["lattice"]
     if nx != ny or ny != nz:
         raise NotImplementedError("This code expects NX == NY == NZ")
-    return {"NT": nt, "NS": nx}
+    return {"Nt": nt, "Ns": nx}
 
 
 def get_mass(ensemble):
@@ -159,8 +159,8 @@ def main():
         args.ensemble_name,
     )
     metadata_fields = [
-        "NT",
-        "NS",
+        "Nt",
+        "Ns",
         "mAS",
         "beta",
         "Ncfg_spectrum",

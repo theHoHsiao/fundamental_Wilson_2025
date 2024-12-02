@@ -36,7 +36,7 @@ def format_table(results, skip_missing_names=True):
             " & ".join(
                 [
                     result["ensemble_name"],
-                    f"${result['NT']} \\times {result['NS']}^3$",
+                    f"${result['Nt']} \\times {result['Ns']}^3$",
                     f"{result['beta']}",
                     f"{result['mAS']}",
                     f"{result['Ncfg_spectrum']}",
