@@ -26,7 +26,7 @@ rule package_gflow:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         files=glob("raw_data/flows/*/out_wflow"),
-        script="src/collate_flows_hdf5.py",
+        script="src/package_flows.py",
     output:
         h5=protected("data_assets/flows.h5"),
     conda:
