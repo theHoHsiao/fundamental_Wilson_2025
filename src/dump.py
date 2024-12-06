@@ -189,7 +189,9 @@ def read_files(filenames, index_name="ensemble_name"):
 
     data_frames = [pd.concat(obs_data) for obs_data in data.values()]
 
-    result = drop_duplicate_columns(pd.concat(data_frames, axis=1).reset_index())
+    result = drop_duplicate_columns(
+        pd.concat(data_frames, axis=1).reset_index(drop=True)
+    )
     return combine_df_ufloats(result)
 
 

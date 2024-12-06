@@ -149,7 +149,7 @@ def main():
             "w0": w0_mean,
             "tau_exp_w0": tau_exp_w0,
             "delta_traj_w0": trajectory_step,
-            "num_configs": trajectories,
+            "Ncfg_GF": trajectories,
         },
         args.output_file_mean,
     )

@@ -19,6 +19,7 @@ def common_column_index(column_name):
         "mAS",
         "mS",
         "mADJ",
+        "start",
         "init_conf",
         "final_conf",
         "delta_conf_spectrum",
@@ -41,19 +42,27 @@ def common_column_index(column_name):
         return (3, column_name, perturbation)
     if "plaquette" in column_name:
         return (4, column_name, perturbation)
+    if column_name == "mPCAC":
+        return (5, column_name, perturbation)
     if any(
         [
             column_name.endswith(key)
-            for key in ["mass", "decay_constant", "matrix_element", "chisquare"]
+            for key in ["mass", "decay_constant", "matrix_element", "Rfps", "chisquare"]
         ]
-    ):
-        return (5, column_name, perturbation)
-    if column_name.startswith("smear_"):
+    ) and not column_name.startswith("smear_"):
         return (6, column_name, perturbation)
-    return (7, column_name, perturbation)
+    if column_name.startswith("smear_"):
+        return (7, column_name, perturbation)
+    return (8, column_name, perturbation)
 
 
 def process_df(data):
+    # Currently this workflow is only used for nAS=3,
+    # so hardcode this here.
+    # This should be generalised elsewhere in the workflow
+    # if this is applied to other theories.
+    if "nAS" not in data.columns:
+        data["nAS"] = 3
     return data.sort_index(axis="columns", key=lambda c: c.map(common_column_index))
 
 

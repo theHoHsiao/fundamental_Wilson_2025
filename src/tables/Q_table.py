@@ -37,16 +37,16 @@ def format_table(df):
 
         if np.isnan(row.w0.nominal_value) or np.isnan(row.w0.std_dev):
             w0 = r"\cdots"
-            num_configs = r"$\cdots$"
+            Ncfg_GF = r"$\cdots$"
             incomplete_ensembles.append(row.ensemble_name)
         else:
             w0 = f"{row.w0:.02uSL}"
-            num_configs = row.num_configs
+            Ncfg_GF = row.Ncfg_GF
 
         content.append(
             "{} & {} & ${}$ & ${:.02uSL}$ & ${:.02uSL}$ \\\\\n".format(
                 row.ensemble_name,
-                num_configs,
+                Ncfg_GF,
                 w0,
                 row.Q0,
                 row.sigma_Q,
