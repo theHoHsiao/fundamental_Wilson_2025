@@ -10,6 +10,7 @@ from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 import numpy as np
 
 from .dump import dump_dict
+from .flow import read_flows
 from .plots_common import ONE_COLUMN
 from .utils import get_index_separation
 
@@ -21,7 +22,7 @@ def get_args():
     parser.add_argument(
         "--filetype",
         choices=list(readers),
-        default="hirep",
+        default="hdf5",
         help="How to interpret the input file",
     )
     parser.add_argument(
@@ -55,7 +56,35 @@ def get_args():
         default="styles/paperdraft.mplstyle",
         help="Stylesheet to use for plots",
     )
-    parser.add_argument("--ensemble_name", default=None, help="Name of ensemble")
+    parser.add_argument(
+        "--ensemble_name",
+        default=None,
+        help="Name of the ensemble to analyse. Only used for tagging output.",
+    )
+    parser.add_argument(
+        "--beta",
+        type=float,
+        default=None,
+        help="The beta value of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--mAS",
+        type=float,
+        default=None,
+        help="The antisymmetric fermion mass of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--Nt",
+        type=int,
+        default=None,
+        help="The temporal extent of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--Ns",
+        type=int,
+        default=None,
+        help="The spatial extent of the ensemble to analyse",
+    )
 
     return parser.parse_args()
 
@@ -117,7 +146,7 @@ def plot(flows, results, plot_filename, plot_styles):
 def main():
     args = get_args()
 
-    flows = readers[args.filetype](args.flow_filename).thin(
+    flows = read_flows(args).thin(
         min_trajectory=args.min_trajectory,
         max_trajectory=args.max_trajectory,
     )

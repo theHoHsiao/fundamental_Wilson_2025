@@ -7,6 +7,7 @@ from flow_analysis.measurements.scales import compute_wt_t
 
 import matplotlib.pyplot as plt
 
+from .flow import read_flows
 from .plots_common import save_or_show, ONE_COLUMN
 
 
@@ -17,7 +18,7 @@ def get_args():
     parser.add_argument(
         "--filetype",
         choices=list(readers),
-        default="hirep",
+        default="hdf5",
         help="How to interpret the input file",
     )
     parser.add_argument(
@@ -50,6 +51,30 @@ def get_args():
         "--plot_styles",
         default="styles/paperdraft.mplstyle",
         help="Stylesheet to use for plots",
+    )
+    parser.add_argument(
+        "--beta",
+        type=float,
+        default=None,
+        help="The beta value of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--mAS",
+        type=float,
+        default=None,
+        help="The antisymmetric fermion mass of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--Nt",
+        type=int,
+        default=None,
+        help="The temporal extent of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--Ns",
+        type=int,
+        default=None,
+        help="The spatial extent of the ensemble to analyse",
     )
 
     return parser.parse_args()
@@ -86,7 +111,7 @@ def main():
     args = get_args()
     plt.style.use(args.plot_styles)
 
-    flows = readers[args.filetype](args.flow_filename).thin(
+    flows = read_flows(args).thin(
         min_trajectory=args.min_trajectory,
         max_trajectory=args.max_trajectory,
         trajectory_step=args.trajectory_step,
