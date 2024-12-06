@@ -7,7 +7,7 @@ from os.path import basename
 import h5py
 import numpy as np
 
-from .provenance import get_flat_metadata
+from .provenance import add_provenance_hdf5
 
 
 def get_args():
@@ -239,9 +239,7 @@ def write_hdf5(data, filename):
                     value = np.asarray(value, dtype=get_correct_type(value))
                 group.create_dataset(key, data=value)
 
-        provenance_group = h5file.create_group("_comment")
-        for key, value in sorted(get_flat_metadata().items()):
-            provenance_group.create_dataset(key, data=value)
+        add_provenance_hdf5(h5file)
 
 
 def main():

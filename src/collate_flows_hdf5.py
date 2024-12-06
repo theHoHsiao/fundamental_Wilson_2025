@@ -7,6 +7,8 @@ from flow_analysis.readers import read_flows_hirep
 import h5py
 import numpy as np
 
+from .provenance import add_provenance_hdf5
+
 
 def get_args():
     parser = ArgumentParser(
@@ -78,6 +80,8 @@ def process_file(flow_filename, h5file):
     group = h5file.create_group(group_name)
     group.create_dataset("beta", data=flows.metadata["beta"])
     group.create_dataset("configurations", data=flows.cfg_filenames.astype("S"))
+    group.create_dataset("trajectory indices", data=flows.trajectories)
+    group.create_dataset("ensemble names", data=flows.ensemble_names.astype("S"))
     group.create_dataset("gauge group", data=f"SP({flows.metadata['Nc']})")
     group.create_dataset(
         "lattice",
@@ -98,6 +102,7 @@ def main():
     with h5py.File(args.h5_filename, "w-") as h5file:
         for flow_filename in args.flow_filenames:
             process_file(flow_filename, h5file)
+        add_provenance_hdf5(h5file)
 
 
 if __name__ == "__main__":

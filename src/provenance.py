@@ -120,6 +120,12 @@ def number_to_latex(number, tolerate_non_numbers=False):
     return result
 
 
+def add_provenance_hdf5(h5file):
+    provenance_group = h5file.create_group("_comment")
+    for key, value in sorted(get_flat_metadata().items()):
+        provenance_group.create_dataset(key, data=value)
+
+
 def get_args():
     parser = ArgumentParser(
         description="Summarise inputs to a workflow in a JSON file."
