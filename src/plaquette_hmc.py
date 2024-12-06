@@ -179,22 +179,22 @@ def get_plaquette(filename, Nt, Ns, beta, mass, start):
     separation = get_index_separation([index for index, plaquette in plaquettes])
     skip = get_skip(plaquettes)
     if skip is None:
-        result["plaq_tau_exp"] = np.nan
+        result["tau_exp_plaq"] = np.nan
         result["plaq_therm"] = np.nan
         result["avg_plaquette"] = uncertainties.ufloat(np.nan, np.nan)
         return result
 
-    result["plaq_tau_exp"] = (
+    result["tau_exp_plaq"] = (
         bimodal_autocorrelation_time(plaquettes[skip:]) * separation
     )
     result["plaq_therm"] = min(
-        int(10 * result["plaq_tau_exp"].nominal_value), len(plaquettes) // 2
+        int(10 * result["tau_exp_plaq"].nominal_value), len(plaquettes) // 2
     )
     plaquettes_subset = [
         plaquette
         for index, plaquette in plaquettes
         if index >= skip + result["plaq_therm"]
-        and index % max(1, int(result["plaq_tau_exp"].nominal_value)) == 0
+        and index % max(1, int(result["tau_exp_plaq"].nominal_value)) == 0
     ]
     result["avg_plaquette"] = basic_bootstrap(plaquettes_subset, get_rng(filename))
     return result
