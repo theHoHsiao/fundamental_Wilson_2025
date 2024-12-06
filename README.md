@@ -125,7 +125,7 @@ and is not guaranteed to be trivial for someone not already familiar with the co
 
 [datarelease]: https://doi.org/10.5281/zenodo.13819562
 [miniforge]: https://github.com/conda-forge/miniforge
-[paper]: TODO
+[paper]: https://doi.org/10.48550/arXiv.2412.01170
 [snakemake]: https://snakemake.github.io
 [snakemake-conda]: https://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html
 [texlive]: https://tug.org/texlive/
