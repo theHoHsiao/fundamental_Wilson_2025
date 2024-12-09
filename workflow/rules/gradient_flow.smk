@@ -69,7 +69,7 @@ rule topological_charge_history_plot:
 def all_flow_data(wildcards):
     return [
         f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
-        for basename in ["w0_mean", "top_charge"]
+        for basename in ["w0_mean", "top_charge_mean"]
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]
     ]
