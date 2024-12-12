@@ -70,7 +70,7 @@ def get_header(column_headings, column_separation=None, hlines=2):
         separation_spec = f",colsep={column_separation}"
     begin_cmd = (
         r"\begin{{tblr}}{{width=\textwidth,colspec={column_spec}{separation_spec}}}"
-        "\n\hline\hline"
+        "\n\\hline\\hline"
     ).format(
         column_spec="|c" * len(column_headings) + "|",
         separation_spec=separation_spec,
