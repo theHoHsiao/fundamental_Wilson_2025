@@ -12,14 +12,14 @@ import subprocess
 
 
 def get_commit_id():
-    return (
-        subprocess.run(
-            ["git", "describe", "--always", "--dirty"],
-            capture_output=True,
-        )
-        .stdout.decode()
-        .strip()
+    git_result = subprocess.run(
+        ["git", "describe", "--always", "--dirty"],
+        capture_output=True,
     )
+    if git_result.returncode != 0:
+        return "[No commit ID available]"
+
+    return git_result.stdout.decode().strip()
 
 
 def sha256_file(filename):
