@@ -88,10 +88,19 @@ definitions = expand(
         "heavy_ps_limit",
     ],
 )
+csv_data = expand(
+    "data_assets/{csv}.csv",
+    csv=["ensemble_data", "chipt_deft_data", "global_eft_data"],
+)
 external_data = expand(
     "external_data/{filename}",
     filename=["mv_fps_fund.csv", "meson_meta_fund.csv", "m2v_fit_pms.json"],
 )
+
+rule all:
+    input:
+        assets="assets/info.json",
+        data_assets="data_assets/info.json",
 
 
 rule provenance_stamp:
@@ -111,3 +120,20 @@ rule provenance_stamp:
         "envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.h5_data} {input.plots} {input.tables} {input.definitions} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
+
+
+rule data_provenance_stamp:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        script="src/provenance.py",
+        h5_data=h5_data,
+        csv_data=csv_data,
+        ensemble_metadata="metadata/ensemble_metadata.csv",
+        external_data=external_data,
+    output:
+        stamp="data_assets/info.json",
+    conda:
+        "envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.h5_data} {input.csv_data} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
