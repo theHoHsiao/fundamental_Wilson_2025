@@ -92,7 +92,7 @@ def plot(data, fit_pars):
     for ax, ch in zip(data_axes.ravel(), ["v", "t", "s", "av", "at", "rhoE1"]):
         ax.set_xlim(0.8, 1.5)
 
-        ax.set_xlabel(r"$m_{\rm ps}^{\rm inf} L$")
+        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
         betas = sorted(set([datum["beta"] for datum in data]))
