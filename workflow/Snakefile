@@ -1,6 +1,6 @@
 metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
 dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
-plot_styles = "styles/paperdraft.mplstyle"
+plot_styles = "styles/prd.mplstyle"
 plot_filetype = "pdf"
 
 
