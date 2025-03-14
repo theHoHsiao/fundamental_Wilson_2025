@@ -25,7 +25,7 @@ create a new x86-64 Conda environment with Snakemake,
 using
 
 ``` shellsession
-conda create -n snakemake_x86 -c conda-forge -c bioconda snakemake
+conda create --platform osx-64 -n snakemake_x86 -c conda-forge -c bioconda snakemake
 ```
 
 then activate this and install Mamba.
