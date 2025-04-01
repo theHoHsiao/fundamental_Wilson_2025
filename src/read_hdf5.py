@@ -4,14 +4,14 @@ import re
 
 
 def get_ensemble(
-    ensembles, beta=None, mAS=None, Nt=None, Ns=None, num_source=1, epsilon=None
+    ensembles, beta=None, mF=None, Nt=None, Ns=None, num_source=1, epsilon=None
 ):
     candidate_ensembles = []
     for ensemble in ensembles.values():
         if beta is not None and ensemble.get("beta", {(): None})[()] != beta:
             continue
-        if mAS is not None and (
-            len(masses := ensemble.get("quarkmasses", [])) != 1 or masses[0] != mAS
+        if mF is not None and (
+            len(masses := ensemble.get("quarkmasses", [])) != 1 or masses[0] != mF
         ):
             continue
         if Nt is not None and ensemble.get("lattice", [None])[0] != Nt:
@@ -49,3 +49,10 @@ def filter_configurations(
     )
 
     return filtered_indices
+
+
+def get_meson_h5_representation(rep):
+    return {
+        "f": "TRIPLET",
+        "as": "anti TRIPLET",
+    }.get(rep, rep)

@@ -2,9 +2,11 @@
 
 from argparse import ArgumentParser, FileType, SUPPRESS
 
+import itertools
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-from uncertainties import UFloat
+from uncertainties import UFloat, ufloat
 
 from .dump import read_sample_files
 
@@ -12,6 +14,7 @@ from .dump import read_sample_files
 ONE_COLUMN = 3.4
 TWO_COLUMN = 7.0
 
+markers = itertools.cycle(['o','s','v'])
 
 def save_or_show(fig, filename=None):
     if filename == "/dev/null":
@@ -119,12 +122,11 @@ def standard_plot_main(
 
 def beta_color(b):
     return {
-        6.6: "C0",
-        6.65: "C1",
-        6.7: "C2",
-        6.75: "C3",
-        6.8: "C4",
-        6.9: "C5",
+        6.9: "C0",
+        7.05: "C1",
+        7.2: "C2",
+        7.4: "C3",
+        7.5: "C4",
     }.get(b, b)
 
 
@@ -147,7 +149,7 @@ def ch_tag(ch):
 
 
 def beta_marker(beta):
-    return {6.6: "o", 6.65: "^", 6.7: "v", 6.75: "s", 6.8: "x", 6.9: "+"}[beta]
+    return {6.9: "o", 7.05: "^", 7.2: "v", 7.4: "s", 7.5: "x",}[beta]
 
 
 def channel_marker(channel):
@@ -190,3 +192,84 @@ def get_single_beta(data):
     if len(betas) != 1:
         raise ValueError("Inconsistent betas found")
     return betas.pop()
+
+
+def plot_line(v, e, ti, tf, color):
+    plt.gca().add_patch(
+        plt.Rectangle(
+            [ti - 0.2, v - e], tf - ti + 0.4, 2 * e, facecolor=color, alpha=0.4
+        )
+    )
+
+
+def plot_meson_gevp_energy_states(args, eigenvalues, energy_states):
+    plt.style.use(args.plot_styles)
+    fig, ax = plt.subplots(layout="constrained")
+
+    for n, eigenvalue in enumerate(eigenvalues):
+        fit_value, fit_error = energy_states[n].mean, energy_states[n].samples.std()
+        if np.isnan(fit_value):
+            fit_results = ""
+        else:
+            fit_results_uf = ufloat(fit_value, fit_error)
+            fit_results = ": "+"{:.02uSL}".format(fit_results_uf)
+        plot_mass_eff_cosh(ax, eigenvalue, 2, args.Nt/2 + 1, "$E_"+f"{n}"+"$"+fit_results)
+        plateau_start = getattr(args, f"E{n}_plateau_start")
+        plateau_end = getattr(args, f"E{n}_plateau_end")
+        
+        
+        plot_line(fit_value, fit_error , plateau_start, plateau_end, plt.gca().lines[-1].get_color())
+    
+    ax.set_xlabel("$t / a$")
+    ax.set_ylabel("$aE_n$")
+    ax.set_ylim(None, 3)
+    fig.legend(loc="upper right")
+    fig.savefig(args.effmass_plot_file)
+
+
+def plot_mass_eff_cosh(ax, corr_bootstrapset, ti, tf, measurement):
+    
+    time_slices = np.arange(ti, tf, 1, dtype=int)
+
+    mass_to_plot = []
+    err_to_plot = []
+    mass_value = np.arccosh(
+        (np.roll(corr_bootstrapset.mean, 1, axis=1) + np.roll(corr_bootstrapset.mean, -1,axis=1))
+        / corr_bootstrapset.mean
+        / 2
+    )[0]
+    mass_sample = np.arccosh(
+        (np.roll(corr_bootstrapset.samples, 1, axis=1) + np.roll(corr_bootstrapset.samples, -1, axis=1))
+        / corr_bootstrapset.samples
+        / 2
+    )
+
+    for t in time_slices:
+        mass_to_plot.append(mass_value[t])
+        err_to_plot.append( mass_sample[:,t].std())
+
+    mass_to_plot = np.array(mass_to_plot)
+    err_to_plot = np.array(err_to_plot)
+
+    select = abs(err_to_plot / mass_to_plot) < 0.4
+    marker = next(markers)
+
+    ax.errorbar(
+        time_slices[select],
+        mass_to_plot[select],
+        err_to_plot[select],
+        linestyle="",
+        alpha=0.6,
+        marker=marker,
+        label=measurement,
+    )
+
+    ax.errorbar(
+        time_slices[~select],
+        mass_to_plot[~select],
+        err_to_plot[~select],
+        linestyle="",
+        color=plt.gca().lines[-1].get_color(),
+        marker=marker,
+        alpha=0.1,
+    )

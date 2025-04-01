@@ -79,34 +79,35 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
     )
 
 
-def plot(data, fit_pars):
+def plot(data):
     data_fig, data_axes = plt.subplots(
-        3, 2, num="Figure_12", figsize=(TWO_COLUMN, 7), layout="constrained"
+        1, 1, num="Figure_12", figsize=(ONE_COLUMN, 4), layout="constrained"
     )
-    summary_fig, summary_ax = plt.subplots(
-        1, 1, num="Figure_14", figsize=(ONE_COLUMN, 4.8), layout="constrained"
-    )
-    summary_ax.plot([0, 6], [0, 6], "--", color="C0", label="ps")
-    summary_ax.set_xlim(0.8, 1.5)
 
-    for ax, ch in zip(data_axes.ravel(), ["v", "t", "s", "av", "at", "rhoE1"]):
-        ax.set_xlim(0.8, 1.5)
+    for ax, ch in zip([data_axes], ["v"]):
 
-        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
-        ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
+        #ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
+        #ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
+
+        ax.set_xlabel(r"$am_{\mathrm{ps}}^2$")
+        ax.set_ylabel(r"$am_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):
             to_plot = []
             for datum in data:
+                
                 if datum["beta"] != beta:
                     continue
-
-                if "w0_samples" not in datum or "smear_ps_mass_samples" not in datum:
+                
+                #if "w0_samples" not in datum:
+                #    continue
+                
+                if "gevp_f_ps_E0_mass_samples" not in datum:
                     continue
 
-                X = (datum["w0_samples"] * datum["smear_ps_mass_samples"]) ** 2
-                Y = (datum["w0_samples"] * datum[f"smear_{ch}_mass_samples"]) ** 2
+                X = (  datum["gevp_f_ps_E0_mass_samples"]) ** 2
+                Y = (  datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
@@ -123,45 +124,17 @@ def plot(data, fit_pars):
                 label=f"{beta}",
             )
 
-        for parameter in fit_pars:
-            if parameter["channel"] == ch:
-                plot_axpb_y(
-                    ax,
-                    parameter["M_samples"].samples,
-                    parameter["L_samples"].samples,
-                    "",
-                    0.4,
-                    "k",
-                )
-
-                plot_axpb_y(
-                    summary_ax,
-                    parameter["M_samples"].samples,
-                    parameter["L_samples"].samples,
-                    r"$ \rm " + ch_tag(ch) + "$",
-                    0.8,
-                    channel_color(ch),
-                )
-
     add_figure_legend(data_fig)
 
-    summary_ax.set_ylim(0, 6)
-    summary_ax.set_xlim(0.8, 1.5)
-    summary_ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
-    summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
-    add_figure_legend(summary_fig, 4, title=None)
-
-    return data_fig, summary_fig
+    return data_fig
 
 
 def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
-    fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
-    data_fig, summary_fig = plot(data, fit_pars)
+    data_fig = plot(data)
     save_or_show(data_fig, args.plot_file_data)
-    save_or_show(summary_fig, args.plot_file_summary)
 
 
 if __name__ == "__main__":

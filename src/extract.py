@@ -1,7 +1,7 @@
 from . import fitting
 import numpy as np
 from scipy import linalg
-from .bootstrap import BootstrapSampleSet
+from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT
 
 
 def extract_meson_mass(C_tmp, plateau_start, plateau_end):
@@ -23,7 +23,7 @@ def meson_decay_constant(Css, Csp, plateau_start, plateau_end):
     return E_fit, A_fit, round(chisquare, 2)
 
 
-def GEVP_fixT(Cmat_mean, Cmat, t0, ti, tf):
+def gevp_fixT(Cmat_mean, Cmat, t0, ti, tf):
     Mshape = Cmat.shape
 
     Lambda_n_sample = np.zeros(shape=(Mshape[0], Mshape[1], Mshape[2]))
@@ -57,3 +57,33 @@ def GEVP_fixT(Cmat_mean, Cmat, t0, ti, tf):
         eigenvalues.append(BootstrapSampleSet(mean[:, :, n], samples[:, :, n]))
 
     return eigenvalues
+
+
+def extract_energy_states(eigenvalues, args):
+
+    masses=[]
+    chisquares_dof=[]
+
+    for n in range(len(eigenvalues)):
+        eigenvalue_n = eigenvalues[n]
+        plateau_start = getattr(args, f"E{n}_plateau_start")
+        plateau_end = getattr(args, f"E{n}_plateau_end")
+        
+        if plateau_start == 0 or plateau_end == 0:
+            E_fit = BootstrapSampleSet(np.nan, np.nan * np.zeros(BOOTSTRAP_SAMPLE_COUNT))
+            chisquare = np.nan
+
+        else:
+            try:
+                E_fit, A_fit, chisquare = fitting.fit_cosh_bootstrap(eigenvalue_n, plateau_start, plateau_end)
+            except:
+                print(f"Error fitting {n}th energy state {plateau_start} {plateau_end}")
+                fig, ax = plt.subplots(layout="constrained")
+                plot_mass_eff_cosh(ax, eigenvalue_n, 2, args.Nt/2 + 1, "$E_"+f"{n}"+"$")
+                plt.show()
+
+
+        masses.append(E_fit)
+        chisquares_dof.append(chisquare)
+    
+    return masses, chisquares_dof

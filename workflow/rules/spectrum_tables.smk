@@ -4,10 +4,10 @@ from functools import partial
 
 all_metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 
-metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
+metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nF == {nF} & mF == {mF}"
 metadata_lookup = partial(lookup, within=all_metadata, query=metadata_query)
 
-dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
+dir_template = "Sp{Nc}b{beta}nF{nF}mF{mF}T{Nt}L{Ns}"
 
 channels = ["ps", "v", "t", "av", "at", "s"]
 

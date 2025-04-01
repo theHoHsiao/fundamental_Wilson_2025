@@ -4,12 +4,90 @@ from functools import partial
 
 all_metadata = pd.read_csv("metadata/ensemble_metadata.csv")
 
-metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nAS == {nAS} & mAS == {mAS}"
+metadata_query = "Nc == {Nc} & Nt == {Nt} & Ns == {Ns} & beta == {beta} & nF == {nF} & mF == {mF}"
 metadata_lookup = partial(lookup, within=all_metadata, query=metadata_query)
 
-dir_template = "Sp{Nc}b{beta}nAS{nAS}mAS{mAS}T{Nt}L{Ns}"
+dir_template = "Sp{Nc}b{beta}nF{nF}mF{mF}T{Nt}L{Ns}"
 
-channels = ["ps", "v", "t", "av", "at", "s"]
+channels = ["ps", "v"]
+
+
+rule gevp_meson_mass:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=metadata_lookup(),
+        E0_plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E0_plateau_start"),
+        E0_plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E0_plateau_end"),
+        E1_plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E1_plateau_start"),
+        E1_plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E1_plateau_end"),
+        E2_plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E2_plateau_start"),
+        E2_plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E2_plateau_end"),
+        E3_plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E3_plateau_start"),
+        E3_plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_E3_plateau_end"),
+    input:
+        data="data_assets/corr_sp4_FUN.h5",
+        script="src/mass_gevp_meson.py",
+    output:
+        samples=f"intermediary_data/{dir_template}/meson_gevp_{{channel}}_samples.json",
+        plot=f"intermediary_data/{dir_template}/meson_gevp_{{channel}}_eff_mass.pdf",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --effmass_plot_file {output.plot} --plot_styles {plot_styles}"
+        " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
+        " --channel {wildcards.channel} --gevp_t0 {params.metadata.gevp_t0}"
+        " --n_smear_min {params.metadata.n_smear_min} --n_smear_max {params.metadata.n_smear_max} --n_smear_diff {params.metadata.n_smear_diff}"
+        " --E0_plateau_start {params.E0_plateau_start} --E0_plateau_end {params.E0_plateau_end}"
+        " --E1_plateau_start {params.E1_plateau_start} --E1_plateau_end {params.E1_plateau_end}"
+        " --E2_plateau_start {params.E2_plateau_start} --E2_plateau_end {params.E2_plateau_end}"
+        " --E3_plateau_start {params.E3_plateau_start} --E3_plateau_end {params.E3_plateau_end}"
+
+
+rule meson_matrix_element:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=metadata_lookup(),
+        plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_matrix_element_plateau_start"),
+        plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_matrix_element_plateau_end"),
+    input:
+        data="data_assets/corr_sp4_FUN.h5",
+        script="src/matrix_element_meson.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/meson_extraction_{{channel}}_mean.csv",
+        samples=f"intermediary_data/{dir_template}/meson_extraction_{{channel}}_samples.json",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name}"
+        " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
+        " --n_smear_max {params.metadata.n_smear_max} --channel {wildcards.channel} --E0_plateau_start {params.plateau_start} --E0_plateau_end {params.plateau_end}"
+ 
+
+def extraction_samples(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/meson_extraction_{rep}_{channel}_samples.json".format(**row)
+        for row in metadata.to_dict(orient="records")
+        for channel in ["ps", "v"]
+        for rep in ["f"]
+    ] 
+
+
+rule get_meson_decay:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=extraction_samples,
+        script="src/decay_constant.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/decay_constant_{{channel}}_mean.csv",
+        samples=f"intermediary_data/{dir_template}/decay_constant_{{channel}}_samples.json",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples}"
+
 
 
 rule ps_correlator_autocorrelation:
@@ -29,87 +107,11 @@ rule ps_correlator_autocorrelation:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
 
 
-rule fit_mass_wall:
-    params:
-        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-        metadata=metadata_lookup(),
-        plateau_start=lambda wildcards: metadata_lookup(
-            cols=f"{wildcards.channel}_plateau_start"
-        ),
-        plateau_end=lambda wildcards: metadata_lookup(
-            cols=f"{wildcards.channel}_plateau_end"
-        ),
-    input:
-        data="data_assets/correlators_wall.h5",
-        script="src/mass_wall.py",
-    output:
-        mean=f"intermediary_data/{dir_template}/meson_{{channel}}_mean.csv",
-        samples=f"intermediary_data/{dir_template}/meson_{{channel}}_samples.json",
-    conda:
-        "../envs/flow_analysis.yml"
-    shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --channel {wildcards.channel} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
-
-
-rule fit_mass_smear:
-    params:
-        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-        metadata=metadata_lookup(),
-        plateau_start=lambda wildcards: metadata_lookup(
-            cols=f"smear_{wildcards.channel}_plateau_start"
-        ),
-        plateau_end=lambda wildcards: metadata_lookup(
-            cols=f"smear_{wildcards.channel}_plateau_end"
-        ),
-        N_sink=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_N_sink"),
-    input:
-        data="data_assets/correlators_smear.h5",
-        script="src/mass_smear.py",
-    output:
-        mean=f"intermediary_data/{dir_template}/smear_meson_{{channel}}_mean.csv",
-        samples=f"intermediary_data/{dir_template}/smear_meson_{{channel}}_samples.json",
-    conda:
-        "../envs/flow_analysis.yml"
-    shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --channel {wildcards.channel} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum} --N_sink {params.N_sink} --num_source {params.metadata.smear_num_source} --epsilon {params.metadata.smear_epsilon}"
-
-
-rule fit_mass_GEVP_rhoE1:
-    params:
-        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-        metadata=metadata_lookup(),
-    input:
-        data="data_assets/correlators_smear.h5",
-        script="src/mass_gevp.py",
-    output:
-        mean=f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_mean.csv",
-        samples=f"intermediary_data/{dir_template}/gevp_smear_meson_rhoE1_samples.json",
-    conda:
-        "../envs/flow_analysis.yml"
-    shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.metadata.smear_rhoE1_plateau_start} --plateau_end {params.metadata.smear_rhoE1_plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum} --N_sink {params.metadata.rhoE1_N_sink} --num_source {params.metadata.smear_num_source} --epsilon {params.metadata.smear_epsilon} --GEVP_t0 {params.metadata.GEVP_t0}"
-
-
 def mass_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_{wildcards.channel}_samples.json",
         f"intermediary_data/{dir_template}/plaquette_samples.json",
     ]
-
-
-rule get_meson_decay:
-    params:
-        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
-    input:
-        data=mass_samples,
-        script="src/decay_constant.py",
-    output:
-        mean=f"intermediary_data/{dir_template}/decay_constant_{{channel}}_mean.csv",
-        samples=f"intermediary_data/{dir_template}/decay_constant_{{channel}}_samples.json",
-    conda:
-        "../envs/flow_analysis.yml"
-    shell:
-        "python -m {params.module} {input.data} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples}"
 
 
 def ratio_fps_samples(wildcards):
