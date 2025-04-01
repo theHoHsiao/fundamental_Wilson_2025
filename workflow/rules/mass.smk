@@ -28,12 +28,14 @@ rule gevp_meson_mass:
         data="data_assets/corr_sp4_FUN.h5",
         script="src/mass_gevp_meson.py",
     output:
+        mean=f"intermediary_data/{dir_template}/meson_gevp_E0_{{channel}}_mean.csv",
         samples=f"intermediary_data/{dir_template}/meson_gevp_{{channel}}_samples.json",
         plot=f"intermediary_data/{dir_template}/meson_gevp_{{channel}}_eff_mass.pdf",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --effmass_plot_file {output.plot} --plot_styles {plot_styles}"
+        "python -m {params.module} {input.data} --output_file_samples {output.samples} --output_file_mean {output.mean} "
+        "--ensemble_name {params.metadata.ensemble_name} --effmass_plot_file {output.plot} --plot_styles {plot_styles}"
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
         " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
         " --channel {wildcards.channel} --gevp_t0 {params.metadata.gevp_t0}"

@@ -4,7 +4,7 @@
 import h5py
 import numpy as np
 
-from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT
+from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract
 from .mass import (
@@ -61,7 +61,7 @@ def main():
     )
 
     eigenvalues = gevp_meson_extraction(ensemble, args)
-    masses, chiquares = extract.extract_energy_states(eigenvalues, args)
+    masses, chisquares = extract.extract_energy_states(eigenvalues, args)
 
     if args.effmass_plot_file:
         plot_meson_gevp_energy_states(args, eigenvalues, masses)
@@ -74,11 +74,20 @@ def main():
         "Ns": args.Ns,
     }
 
+    dump_dict(
+        {
+            **metadata,
+            f"gevp_{args.channel}_E0_chisquare": chisquares[0],
+            f"gevp_{args.channel}_E0_mass": bootstrap_finalize(masses[0]),
+        },
+        args.output_file_mean,
+    )
+
     if args.output_file_samples:
         data_to_save = {**metadata}
 
         for n, mass in enumerate(masses):
-            data_to_save[f"gevp_{args.channel}_E{n}_chisquare"] = chiquares[n]
+            data_to_save[f"gevp_{args.channel}_E{n}_chisquare"] = chisquares[n]
             data_to_save[f"gevp_{args.channel}_E{n}_mass"] = mass
         
         dump_samples(data_to_save,args.output_file_samples)

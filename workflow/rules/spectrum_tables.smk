@@ -15,8 +15,16 @@ def extraction_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v"]
         for rep in ["f"]
-    ] 
+    ]
 
+
+def gevp_E0_means(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/meson_gevp_E0_{rep}_{channel}_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        for channel in ["ps", "v"]
+        for rep in ["f"]
+    ] 
 
 
 def decay_constant_means(wildcards):
@@ -27,17 +35,26 @@ def decay_constant_means(wildcards):
         for rep in ["f"]
     ] 
 
+def w0_means(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/w0_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_extrapolation"]
+    ] 
+
 
 rule f_meson_mass_table:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
         decay=decay_constant_means,
-        mass=extraction_means, #passing more data than the code needs to generate all the results. To be changed...
-        script="src/tables/print_matrix_element_meson_f.py",
+        mass=extraction_means,
+        E0=gevp_E0_means,
+        w0=w0_means,
+        script="src/tables/print_spectrum_meson_f.py",
     output:
-        table="assets/tables/matrix_element_meson_f.tex",
+        table="assets/tables/spectrum_meson_f.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.decay} {input.mass} --output_file {output.table}"
+        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} --output_file {output.table}"

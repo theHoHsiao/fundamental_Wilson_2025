@@ -10,10 +10,10 @@ import numpy as np
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $am_{\mathrm{ps}} $ & $af_{\mathrm{ps}} $ & $\chi^2$ / {\textrm{d.o.f.}} &"
-        r" $am_{\mathrm{v}} $ & $af_{\mathrm{v}} $ & $\chi^2$ / {\textrm{d.o.f.}} \\"
+        r"Ensemble & $w_0$ & $aE^0_{\mathrm{ps}}$ & $am_{\mathrm{ps}} $ & $af_{\mathrm{ps}} $ &"
+        r" $aE^0_{\mathrm{v}}$ & $am_{\mathrm{v}} $ & $af_{\mathrm{v}} $ \\"
         "\n\\hline"
     )
     footer = "\\hline\\hline\n\\end{tabular}"
@@ -27,16 +27,17 @@ def format_table(df):
 
         content.append(
             (
-                "{} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02}$ & ${:.02uSL}$ & "
-                "${:.02uSL}$ & ${:.02}$\\\\\n"
+                "{} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
+                "${:.02uSL}$ & ${:.02uSL}$\\\\\n"
             ).format(
                 row.ensemble_name,
+                row.w0,
+                row.gevp_f_ps_E0_mass,
                 row.f_ps_mass,
                 row.f_ps_decay_constant,
-                row.f_ps_chisquare,
+                row.gevp_f_v_E0_mass,
                 row.f_v_mass,
                 row.f_v_decay_constant,
-                row.f_v_chisquare,
             )
         )
 

@@ -81,6 +81,12 @@ def get_args():
         help="The antisymmetric fermion mass of the ensemble to analyse",
     )
     parser.add_argument(
+        "--mF",
+        type=float,
+        default=None,
+        help="The fundamental fermion mass of the ensemble to analyse",
+    )
+    parser.add_argument(
         "--Nt",
         type=int,
         default=None,
@@ -108,7 +114,7 @@ def read_flows(args):
         return readers[args.filetype](args.flow_filename)
 
     with h5py.File(args.flow_filename, "r") as h5file:
-        (ensemble,) = get_ensemble(h5file, args.beta, args.mAS, args.Nt, args.Ns)
+        (ensemble,) = get_ensemble(h5file, args.beta, args.mF, args.Nt, args.Ns)
         ensemble_name = ensemble.name
     return readers["hdf5"](args.flow_filename, group_name=ensemble_name)
 

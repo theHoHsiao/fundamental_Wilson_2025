@@ -10,7 +10,7 @@ rule w0:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=metadata, query=metadata_query),
     input:
-        data=f"data_assets/flows.h5",
+        data=f"data_assets/nf2_gflow.h5",
         script="src/flow.py",
     output:
         mean=f"intermediary_data/{dir_template}/w0_mean.csv",
@@ -18,7 +18,8 @@ rule w0:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_w0} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
+        " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
 
 
 rule w0_flow_plot:

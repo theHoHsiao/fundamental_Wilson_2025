@@ -87,10 +87,7 @@ def plot(data):
     for ax, ch in zip([data_axes], ["v"]):
 
         ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
-        ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
-
-        #ax.set_xlabel(r"$am_{\mathrm{ps}}^2$")
-        #ax.set_ylabel(r"$am_{\mathrm{" + ch_tag(ch) + "}}^2$")
+        ax.set_ylabel(r"$ m_{\mathrm{ps}} / m_{\mathrm{" + ch_tag(ch) + "}} $")
 
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):
@@ -107,7 +104,7 @@ def plot(data):
                     continue
 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
-                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2
+                Y = (  datum["gevp_f_ps_E0_mass_samples"] / datum[f"gevp_f_{ch}_E0_mass_samples"]) 
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 

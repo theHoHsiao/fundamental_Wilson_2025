@@ -25,10 +25,10 @@ def get_ensemble(
         if epsilon is not None and ensemble.get("Wuppertal_eps_anti", [])[0] != epsilon:
             continue
         candidate_ensembles.append(ensemble)
-    if len(candidate_ensembles) != num_source:
-        raise ValueError("Did not uniquely identify one ensemble.")
-    elif len(candidate_ensembles) == 0:
+    if len(candidate_ensembles) == 0:
         raise ValueError("No ensembles found.")
+    elif len(candidate_ensembles) != num_source:
+        raise ValueError(f"Did not uniquely identify one ensemble. {candidate_ensembles}")
     else:
         return candidate_ensembles
 
