@@ -3,7 +3,7 @@ import numpy as np
 from argparse import ArgumentParser, FileType
 
 from .dump import read_sample_files, dump_dict, dump_samples
-from .mass import renormalisation_constant
+from .mass import renormalisation_constant, casimir_operator
 
 
 def get_args():
@@ -17,7 +17,7 @@ def get_args():
     )
     parser.add_argument(
         "--channel",
-        choices=["ps", "v", "av"],
+        choices=["f_ps", "f_v", "f_av"],
         default=None,
         help="Measuring channel",
     )
@@ -43,7 +43,9 @@ def main():
     datum = read_sample_files(args.data_filename)[0]
 
     #  calculation of renormalisation factor based on Eqs. (29) and (30)
-    Z_factor = 1 + 2 * (renormalisation_constant(args.channel)) * (
+    rep = args.channel.split("_")[0]
+    meson_type = args.channel.split("_")[1]
+    Z_factor = 1 + (casimir_operator(rep)) * (renormalisation_constant(meson_type)) * (
         8 / datum["beta"]
     ) / (16 * np.pi**2 * datum["plaquette_samples"])
 
@@ -52,7 +54,7 @@ def main():
     metadata = {
         "ensemble_name": datum["ensemble_name"],
         "beta": datum["beta"],
-        "mAS": datum["mAS"],
+        "mF": datum["mF"],
         "Nt": datum["Nt"],
         "Ns": datum["Ns"],
     }

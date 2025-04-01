@@ -6,8 +6,8 @@ rule avg_plaquette:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=metadata, query=metadata_query),
     input:
-        data="data_assets/correlators_wall.h5",
-        script="src/plaquette.py",
+        data="data_assets/corr_sp4_FUN.h5",
+        script="src/plaquette_skip.py",
     wildcard_constraints:
         Ns=r"\d+",
     output:
@@ -16,7 +16,7 @@ rule avg_plaquette:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
 
 
 rule avg_plaquette_hmc:

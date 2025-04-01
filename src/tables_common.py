@@ -88,3 +88,12 @@ def get_header(column_headings, column_separation=None, hlines=2):
 
 def get_footer():
     return "\hline\hline\n\end{tblr}"
+
+
+def ensemble_table_main(tabulate_function):
+    args = get_standard_table_args()
+    data = read_files(args.data_filenames)
+    print(
+        tabulate_function(data.sort_values(by="ensemble_name", key=by_ensemble_name)), 
+        file=args.output_file,
+    )

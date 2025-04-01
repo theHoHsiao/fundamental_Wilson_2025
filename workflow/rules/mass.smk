@@ -78,7 +78,8 @@ rule get_meson_decay:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        data=extraction_samples,
+        mass=f"intermediary_data/{dir_template}/meson_extraction_{{channel}}_samples.json",
+        plaq=f"intermediary_data/{dir_template}/plaquette_samples.json",
         script="src/decay_constant.py",
     output:
         mean=f"intermediary_data/{dir_template}/decay_constant_{{channel}}_mean.csv",
@@ -86,7 +87,7 @@ rule get_meson_decay:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples}"
+        "python -m {params.module} {input.mass} {input.plaq} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples}"
 
 
 
@@ -97,7 +98,7 @@ rule ps_correlator_autocorrelation:
         plateau_start=lambda wildcards: metadata_lookup(cols="ps_plateau_start"),
         plateau_end=lambda wildcards: metadata_lookup(cols=f"ps_plateau_end"),
     input:
-        data="data_assets/correlators_wall.h5",
+        data="data_assets/corr_sp4_FUN.h5",
         script="src/ps_correlators_autocorrelation.py",
     output:
         mean=f"intermediary_data/{dir_template}/tau_ps_correlator_mean.csv",

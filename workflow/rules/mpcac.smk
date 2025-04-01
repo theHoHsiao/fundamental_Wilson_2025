@@ -9,7 +9,7 @@ rule fit_pcac:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=metadata, query=metadata_query),
     input:
-        data="data_assets/correlators_wall.h5",
+        data="data_assets/corr_sp4_FUN.h5",
         script="src/mpcac.py",
     output:
         mean=f"intermediary_data/{dir_template}/mpcac_mean.csv",

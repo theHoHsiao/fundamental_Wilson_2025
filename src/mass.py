@@ -185,6 +185,13 @@ def renormalisation_constant(ch):
     }.get(ch, ch)
 
 
+def casimir_operator(rep):
+    return {
+        "f": 5/4,
+        "as": 2,
+    }.get(rep, rep)
+
+
 def get_correlator_samples(
     ensemble,
     measurement,
@@ -209,6 +216,7 @@ def get_channel_tags(ch):
         "av": ["g5g1", "g5g2", "g5g3"],
         "at": ["g0g5g1", "g0g5g2", "g0g5g3"],
         "s": ["id"],
+        "ps-av" : ["g5_g0g5_re"],
     }.get(ch, ch)
 
 
@@ -239,7 +247,6 @@ def bin_meson_correlator_samples(
     target_channels = get_channel_tags(measurement.split("_")[1])
     C_bin =[]
     for channel in target_channels:
-
         #C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, filtered_indices]
         C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, :]
         # TO DO: how shall we deal with jumpping configs

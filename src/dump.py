@@ -154,9 +154,10 @@ key_observables = {
     "ensemble_name": (
         ["Q0", "w0", "mPCAC", "avg_plaquette", "tau_exp_ps_correlator"]
         + [f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]]
-        + [f"{state}_decay_constant" for state in ["ps", "v", "av"]]
+        + [f"f_{state}_decay_constant" for state in ["ps", "v", "av"]]
+        + [f"f_{state}_matrix_element" for state in ["ps", "v"]]
         + [
-            f"smear_{state}_mass"
+            f"gevp_f_{state}_E0_mass_samples"
             for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
         ]
         + [
