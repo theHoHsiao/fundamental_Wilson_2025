@@ -26,7 +26,7 @@ def get_ensemble(
             continue
         candidate_ensembles.append(ensemble)
     if len(candidate_ensembles) == 0:
-        raise ValueError("No ensembles found.")
+        raise ValueError(f"No ensembles found. {beta} {mF} {Nt} {Ns}")
     elif len(candidate_ensembles) != num_source:
         raise ValueError(f"Did not uniquely identify one ensemble. {candidate_ensembles}")
     else:

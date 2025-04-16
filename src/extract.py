@@ -1,7 +1,10 @@
-from . import fitting
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy import linalg
+
+from . import fitting
 from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT
+from .plots_common import plot_mass_eff_cosh
 
 
 def extract_meson_mass(C_tmp, plateau_start, plateau_end):

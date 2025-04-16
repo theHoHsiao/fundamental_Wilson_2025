@@ -255,6 +255,9 @@ def bin_meson_correlator_samples(
     
     C_bin = np.array(C_bin)
     C = C_bin.mean(axis=0)
+    #num_configs = (max_trajectory - min_trajectory) / trajectory_step + 1
+    #if C.shape[1] != num_configs:
+    #    raise ValueError(f"Number of configurations does not match the expected number -> got {C.shape[1]} but expected {num_configs}")
     
     if target_channels[0] == "g5_g0g5_re":
         C_flod = -fold_correlators_cross(C.T)
@@ -279,6 +282,6 @@ def get_meson_corr( ensemble, args, Nsource, Nsink, channel):
         return corr * args.Ns**3
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"An unexpected error occurred: {args.ensemble_name} {e}")
         return None
     

@@ -92,10 +92,13 @@ def plot(data):
         #ax.set_xlabel(r"$am_{\mathrm{ps}}^2$")
         #ax.set_ylabel(r"$am_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
+            
+
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):
             to_plot = []
             for datum in data:
+                
                 
                 if datum["beta"] != beta:
                     continue
@@ -108,6 +111,10 @@ def plot(data):
 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
                 Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2
+
+                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean)
+
+                
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 

@@ -84,10 +84,13 @@ def plot(data):
         1, 1, num="Figure_12", figsize=(ONE_COLUMN, 4), layout="constrained"
     )
 
-    for ax, ch in zip([data_axes], ["v"]):
+    for ax, ch in zip([data_axes], ["ps"]):
 
         ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
-        ax.set_ylabel(r"$  m_{\mathrm{" + ch_tag(ch) + "}} / m_{\mathrm{ps}} $")
+        ax.set_ylabel(r"$m_\mathrm{" + ch_tag(ch) + "} L$")
+
+        #ax.set_xlabel(r"$am_{\mathrm{ps}}^2$")
+        #ax.set_ylabel(r"$am_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):
@@ -103,10 +106,8 @@ def plot(data):
                 if "gevp_f_ps_E0_mass_samples" not in datum:
                     continue
 
-                print(datum["ensemble_name"])
-
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
-                Y = (  datum["gevp_f_v_E0_mass_samples"] / datum[f"gevp_f_ps_E0_mass_samples"]) 
+                Y = ( datum[f"gevp_f_{ch}_E0_mass_samples"] * datum["Ns"]) 
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 

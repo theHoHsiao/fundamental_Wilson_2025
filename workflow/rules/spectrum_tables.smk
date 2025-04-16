@@ -15,6 +15,7 @@ def extraction_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v"]
         for rep in ["f"]
+        if row["use_in_table"]
     ]
 
 
@@ -24,6 +25,7 @@ def gevp_E0_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v"]
         for rep in ["f"]
+        if row["use_in_table"]
     ] 
 
 
@@ -33,13 +35,14 @@ def decay_constant_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v"]
         for rep in ["f"]
+        if row["use_in_table"]
     ] 
 
 def w0_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/w0_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_extrapolation"]
+        if row["use_in_w0"]
     ] 
 
 

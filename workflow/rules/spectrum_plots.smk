@@ -38,6 +38,8 @@ def decay_samples(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v"]
         for rep in ["f"]
+        if row["use_in_extrapolation"]
+
     ]
 
 
@@ -50,6 +52,21 @@ rule plot_extrapolations_meson_mass:
         script="src/plots/w0mps_vs_meson.py",
     output:
         plot_data="assets/plots/m2_all_con_sp4fund.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
+
+
+rule plot_mpsL:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=mass_gevp_samples,
+        w0=w0_samples,
+        script="src/plots/mps_vs_mpsL.py",
+    output:
+        plot_data="assets/plots/mpsL.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -86,3 +103,17 @@ rule plot_extrapolations_Rvps:
     shell:
         "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
 
+
+rule plot_test:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        #data=mass_gevp_samples,
+        w0=w0_samples,
+        script="src/plots/test.py",
+    output:
+        plot_data="assets/plots/test.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
