@@ -51,12 +51,15 @@ def main():
 
     decay_constant = datum[f"{args.channel}_matrix_element_samples"] * Z_factor
 
+    #chisquare = datum[f"{args.channel}_chisquare"]
+
     metadata = {
         "ensemble_name": datum["ensemble_name"],
         "beta": datum["beta"],
         "mF": datum["mF"],
         "Nt": datum["Nt"],
         "Ns": datum["Ns"],
+        f"{args.channel}_chisquare":datum[f"{args.channel}_chisquare"]
     }
     dump_dict(
         {

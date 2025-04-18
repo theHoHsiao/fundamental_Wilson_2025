@@ -106,7 +106,7 @@ def fit_w0_tau_exp(w0, flows, operator="sym"):
     flow_time_index = abs(flows.times - w0**2).argmin()
     energy_density = {"sym": flows.Ecs, "plaq": flows.Eps}[operator]
     raw_tau_exp = exp_autocorrelation_fit(energy_density[:, flow_time_index])
-    return raw_tau_exp * get_index_separation(flows.trajectories)
+    return raw_tau_exp #* get_index_separation(flows.trajectories)
 
 
 def read_flows(args):
@@ -146,12 +146,17 @@ def main():
             flows,
             operator=args.operator,
         )
-        trajectory_step = get_index_separation(thinned_flows.trajectories)
+        #trajectory_step = get_index_separation(thinned_flows.trajectories)
+        trajectory_step = args.trajectory_step ##To BE change
         trajectories = len(thinned_flows.trajectories)
 
     dump_dict(
         {
             "ensemble_name": args.ensemble_name,
+            "beta":args.beta,
+            "mF":args.mF,
+            "Nt":args.Nt,
+            "Ns":args.Ns,
             "w0": w0_mean,
             "tau_exp_w0": tau_exp_w0,
             "delta_traj_w0": trajectory_step,
@@ -163,6 +168,10 @@ def main():
         dump_samples(
             {
                 "ensemble_name": args.ensemble_name,
+                "beta":args.beta,
+                "mF":args.mF,
+                "Nt":args.Nt,
+                "Ns":args.Ns,
                 "w0_value": w0_mean.nominal_value,
                 "w0_samples": w0_samples,
             },

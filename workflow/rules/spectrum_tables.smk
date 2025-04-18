@@ -45,6 +45,13 @@ def w0_means(wildcards):
         if row["use_in_w0"]
     ] 
 
+def plaq_means(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/plaquette_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_table"]
+    ] 
+
 
 rule f_meson_mass_table:
     params:
@@ -61,3 +68,18 @@ rule f_meson_mass_table:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} --output_file {output.table}"
+
+
+rule ens_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        plaq=plaq_means,
+        w0=w0_means,
+        script="src/tables/print_ens.py",
+    output:
+        table="assets/tables/ensemble.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.plaq} {input.w0} --output_file {output.table}"

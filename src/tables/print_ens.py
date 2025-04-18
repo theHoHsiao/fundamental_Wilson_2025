@@ -10,10 +10,9 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $\beta$ & $m_0$ & $w_0$ & $aE^0_{\mathrm{ps}}$ & $am_{\mathrm{ps}} $ & $af_{\mathrm{ps}} $ &"
-        r" $aE^0_{\mathrm{v}}$ & $am_{\mathrm{v}} $ & $af_{\mathrm{v}} $ \\"
+        r"Ensemble & $\beta$ & $m_0$ & $Nt$ & $Ns$ & $w_0$ & $<P>$ \\"
         "\n\\hline"
     )
     footer = "\\hline\\hline\n\\end{tabular}"
@@ -27,19 +26,16 @@ def format_table(df):
 
         content.append(
             (
-                "{} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
-                "${:.02uSL}$ & ${:.02uSL}$\\\\\n"
+                "{} & {} & {} & {} & {:-1} & ${:.02uSL}$ & ${:.02uSL}$ "
+                "\\\\\n"
             ).format(
                 row.ensemble_name,
                 row.beta,
                 row.mF,
+                int(row.Nt),
+                int(row.Ns),
                 row.w0,
-                row.gevp_f_ps_E0_mass,
-                row.f_ps_mass,
-                row.f_ps_decay_constant,
-                row.gevp_f_v_E0_mass,
-                row.f_v_mass,
-                row.f_v_decay_constant,
+                row.avg_plaquette,
             )
         )
 

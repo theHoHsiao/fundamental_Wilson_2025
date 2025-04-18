@@ -20,6 +20,7 @@ def format_table(df):
     content = []
     previous_prefix = None
     for row in df.itertuples():
+        print(row)
         if (next_prefix := row.ensemble_name[:4]) != previous_prefix:
             previous_prefix = next_prefix
             content.append("\\hline\n")
