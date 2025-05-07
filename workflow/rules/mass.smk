@@ -67,6 +67,31 @@ rule meson_matrix_element:
         " --n_smear_max {params.metadata.n_smear_max} --channel {wildcards.channel} --E0_plateau_start {params.plateau_start} --E0_plateau_end {params.plateau_end}"
  
 
+
+rule smear_meson_mass:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=metadata_lookup(),
+        plateau_start=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_smear_mass_plateau_start"),
+        plateau_end=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_smear_mass_plateau_end"),
+        n_source_smear=lambda wildcards: metadata_lookup(cols=f"{wildcards.channel}_n_source_smear"),
+    input:
+        data="data_assets/corr_sp4_FUN.h5",
+        script="src/mass_smear.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/meson_smear_mass_{{channel}}_mean.csv",
+        samples=f"intermediary_data/{dir_template}/meson_smear_mass_{{channel}}_samples.json",
+        plot=f"intermediary_data/{dir_template}/meson_smear_{{channel}}_eff_mass.pdf",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name}"
+        " --effmass_plot_file {output.plot}  --plot_styles {plot_styles} "
+        " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
+        " --channel {wildcards.channel} --n_smear_source {params.n_source_smear} --smear_plateau_start {params.plateau_start} --smear_plateau_end {params.plateau_end}"
+ 
+
 def extraction_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_extraction_{rep}_{channel}_samples.json".format(**row)

@@ -227,6 +227,32 @@ def plot_meson_gevp_energy_states(args, eigenvalues, energy_states):
     fig.savefig(args.effmass_plot_file)
 
 
+def plot_meson_smear(args, corr, fit_results):
+    plt.style.use(args.plot_styles)
+    fig, ax = plt.subplots(layout="constrained")
+
+    
+    fit_value, fit_error = fit_results.mean, fit_results.samples.std()
+    if np.isnan(fit_value):
+        fit_print = ""
+    else:
+        fit_results_uf = ufloat(fit_value, fit_error)
+        fit_results = ": "+"{:.02uSL}".format(fit_results_uf)
+
+    plot_mass_eff_cosh(ax, corr, 2, args.Nt/2 + 1, fit_results)
+    plateau_start = getattr(args, "smear_plateau_start")
+    plateau_end = getattr(args, f"smear_plateau_end")
+        
+        
+    plot_line(fit_value, fit_error , plateau_start, plateau_end, plt.gca().lines[-1].get_color())
+    
+    ax.set_xlabel("$t / a$")
+    ax.set_ylabel("$aE_n$")
+    #ax.set_ylim(None, None)
+    fig.legend(loc="upper right")
+    fig.savefig(args.effmass_plot_file)
+
+
 def plot_mass_eff_cosh(ax, corr_bootstrapset, ti, tf, measurement):
     
     time_slices = np.arange(ti, tf, 1, dtype=int)

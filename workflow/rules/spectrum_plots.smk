@@ -23,6 +23,16 @@ def mass_gevp_samples(wildcards):
     ]
 
 
+def mass_smear_samples(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/meson_smear_mass_{rep}_{channel}_samples.json".format(**row)
+        for row in metadata.to_dict(orient="records")
+        for channel in ["ps", "v"]
+        for rep in ["f"]
+        if row["use_in_extrapolation"]
+    ]
+
+
 
 def w0_samples(wildcards):
     return [
@@ -117,3 +127,34 @@ rule plot_test:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
+
+
+rule plot_extrapolations_meson_mass_smear:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=mass_smear_samples,
+        w0=w0_samples,
+        script="src/plots/w0mps_vs_meson_smear.py",
+    output:
+        plot_data="assets/plots/m2_all_con_sp4fund_smear.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
+
+
+rule compare_mass_smear_gevp:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=mass_smear_samples,
+        data2=mass_gevp_samples,
+        w0=w0_samples,
+        script="src/plots/compare_smear_gevp.py",
+    output:
+        plot_data="assets/plots/compare_mass_smear_gevp.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {input.data2} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"

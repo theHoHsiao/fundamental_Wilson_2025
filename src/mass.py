@@ -169,6 +169,21 @@ def get_args():
         help="diff smearing level",
     )
     parser.add_argument(
+        "--n_smear_source",
+        type=float,
+        default=None,
+        help="optimal smearing level",
+    )
+    parser.add_argument(
+        "--smear_plateau_start",
+        type=float,
+        default=None,
+        help="Time slice at which plateau starts",
+    )
+    parser.add_argument(
+        "--smear_plateau_end", type=float, default=None, help="Time slice at which plateau ends"
+    )
+    parser.add_argument(
         "--num_source",
         type=int,
         default=None,
@@ -246,9 +261,10 @@ def bin_meson_correlator_samples(
     rep = get_meson_h5_representation(measurement.split("_")[0])
     target_channels = get_channel_tags(measurement.split("_")[1])
     C_bin =[]
-    for channel in target_channels:
-        #C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, filtered_indices]
-        C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, :]
+    for channel in target_channels:        
+        C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, filtered_indices]
+        
+        #C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, :]
         # TO DO: how shall we deal with jumpping configs
 
         C_bin.append(C)
