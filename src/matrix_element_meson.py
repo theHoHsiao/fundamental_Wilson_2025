@@ -80,7 +80,7 @@ def main():
     metadata = {
         "ensemble_name": args.ensemble_name,
         "beta": args.beta,
-        "mAS": args.mAS,
+        "mF": args.mF,
         "Nt": args.Nt,
         "Ns": args.Ns,
     }
