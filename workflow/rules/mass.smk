@@ -9,8 +9,6 @@ metadata_lookup = partial(lookup, within=all_metadata, query=metadata_query)
 
 dir_template = "Sp{Nc}b{beta}nF{nF}mF{mF}T{Nt}L{Ns}"
 
-channels = ["ps", "v"]
-
 
 rule gevp_meson_mass:
     params:
@@ -96,7 +94,7 @@ def extraction_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_extraction_{rep}_{channel}_samples.json".format(**row)
         for row in metadata.to_dict(orient="records")
-        for channel in ["ps", "v"]
+        for channel in ["ps", "v", "av"]
         for rep in ["f"]
     ] 
 
@@ -115,7 +113,6 @@ rule get_meson_decay:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.mass} {input.plaq} --channel {wildcards.channel} --output_file_mean {output.mean} --output_file_samples {output.samples}"
-
 
 
 rule ps_correlator_autocorrelation:
