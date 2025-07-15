@@ -187,6 +187,28 @@ def add_figure_legend(fig, ncol=6, title=r"$\beta$"):
     )
 
 
+def add_figure_legend_axes(fig, axes, ncol=6, title=r"$\beta$"):
+    handles = []
+    labels = []
+    for ax in axes.flat:
+        h, l = ax.get_legend_handles_labels()
+        handles.extend(h)
+        labels.extend(l)
+
+    # Remove duplicates
+    unique = dict(zip(labels, handles))
+    handles = list(unique.values())
+    labels = list(unique.keys())
+    fig.legend(
+        handles,
+        labels,
+        loc="outside upper center",
+        ncol=ncol,
+        borderaxespad=0.2,
+        title=title,
+    )
+
+
 def get_single_beta(data):
     betas = set(datum["beta"] for datum in data)
     if len(betas) != 1:
@@ -277,7 +299,7 @@ def plot_mass_eff_cosh(ax, corr_bootstrapset, ti, tf, measurement):
     mass_to_plot = np.array(mass_to_plot)
     err_to_plot = np.array(err_to_plot)
 
-    select = abs(err_to_plot / mass_to_plot) < 0.4
+    select = abs(err_to_plot / mass_to_plot) < 0.6
     marker = next(markers)
 
     ax.errorbar(
@@ -285,7 +307,7 @@ def plot_mass_eff_cosh(ax, corr_bootstrapset, ti, tf, measurement):
         mass_to_plot[select],
         err_to_plot[select],
         linestyle="",
-        alpha=0.6,
+        alpha=0.7,
         marker=marker,
         label=measurement,
     )

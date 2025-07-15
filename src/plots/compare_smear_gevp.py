@@ -81,7 +81,7 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
 
 def plot(data):
     data_fig, data_axes = plt.subplots(
-        1, 1, num="Figure_12", figsize=(ONE_COLUMN, 4), layout="constrained"
+        1, 1, num="Figure_12", figsize=(TWO_COLUMN, 4), layout="constrained"
     )
 
     for datum in data:
@@ -136,6 +136,7 @@ def plot(data):
                 alpha=1,
                 color=colour,
                 marker="o",
+                markersize=10
             )
 
             ax.errorbar(
@@ -147,6 +148,7 @@ def plot(data):
                 alpha=1,
                 color=colour,
                 marker="s",
+                markersize=10
             )
 
     ax.errorbar(
@@ -159,6 +161,7 @@ def plot(data):
                 color="k",
                 marker="o",
                 label="smear",
+                markersize=10,
             )
 
     ax.errorbar(
@@ -174,8 +177,8 @@ def plot(data):
             )
     
     #add_figure_legend(data_fig)
-    ax.set_yticks([6.9, 7.05, 7.2, 7.4])
-    ax.set_yticklabels([6.9, 7.05, 7.2, 7.4])
+    ax.set_yticks([6.9, 7.05, 7.2, 7.4, 7.5])
+    ax.set_yticklabels([6.9, 7.05, 7.2, 7.4, 7.5])
     
     plt.legend()
 

@@ -8,6 +8,7 @@ from ..plots_common import (
     ch_tag,
     channel_color,
     add_figure_legend,
+    add_figure_legend_axes,
     ONE_COLUMN,
     TWO_COLUMN,
 )
@@ -59,7 +60,7 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
     x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(x_min)
+    x_i = 0
     x_f = np.sqrt(x_max)
     x = np.linspace(x_i, x_f, n_fit)
 
@@ -79,16 +80,18 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
     )
 
 
-def plot(data):
+def plot(data, fit_pars):
     data_fig, data_axes = plt.subplots(
-        1, 1, num="Figure_12", figsize=(ONE_COLUMN, 4), layout="constrained"
+        3, 2, num="Figure_12", figsize=(TWO_COLUMN, 12), layout="constrained"
     )
 
     for datum in data:
         print(datum["ensemble_name"], datum["beta"], datum["mF"])
 
 
-    for ax, ch in zip([data_axes], ["v"]):
+    for ax, ch in zip(data_axes.ravel(), ["v", "t", "av", "at", "s"]):
+        
+        print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
 
         ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
@@ -109,13 +112,13 @@ def plot(data):
                 if "w0_samples" not in datum:
                     continue
                 
-                if "gevp_f_ps_E0_mass_samples" not in datum:
-                    continue
+                if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.6:
+                    print(f"gevp_f_{ch}_E0_chisquare > 1.6 in {datum['ensemble_name']}")
                 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
                 Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2
 
-                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean)
+                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
                 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
@@ -131,8 +134,22 @@ def plot(data):
                 marker=marker,
                 label=f"{beta}",
             )
+        
+        for parameter in fit_pars:
+            if parameter["channel"] == ch:
+                plot_axpb_y(
+                    ax,
+                    parameter["M_samples"].samples,
+                    parameter["L_samples"].samples,
+                    "",
+                    0.4,
+                    "k",
+                )
 
-    add_figure_legend(data_fig)
+        ax.set_xlim(0.0, 0.45)
+
+    #add_figure_legend(data_fig)
+    add_figure_legend_axes(data_fig, data_axes)
 
     return data_fig
 
@@ -141,7 +158,8 @@ def main():
     args = get_args()
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
-    data_fig = plot(data)
+    fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
+    data_fig = plot(data, fit_pars)
     save_or_show(data_fig, args.plot_file_data)
 
 

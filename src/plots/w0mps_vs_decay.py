@@ -15,7 +15,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
     x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(x_min)
+    x_i = np.sqrt(0)
     x_f = np.sqrt(x_max)
     x = np.linspace(x_i, x_f, n_fit)
 
@@ -36,13 +36,16 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
 
 
 def plot(data, fit_results, **kwargs):
-    fig, data_axes = plt.subplots(
-        1, 2, num="Figure_12", figsize=(TWO_COLUMN, 4), layout="constrained"
-    )
-    for datum in data:
-        print(datum["ensemble_name"], datum["beta"], datum["mF"])
+    fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 5))
+    gs = fig.add_gridspec(nrows=2, ncols=4)
+    ax0 = fig.add_subplot(gs[0, :2])
+    ax1 = fig.add_subplot(gs[0, 2:])
+    ax2 = fig.add_subplot(gs[1, 1:3])
+    axs = [ax0, ax1, ax2]
 
-    for ax, ch in zip([data_axes[0], data_axes[1]], ["ps","v"]):
+    subplot_ind = 0
+
+    for ch, ax in zip(["ps", "v", "av"], axs):
 
         print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
 
@@ -99,8 +102,9 @@ def plot(data, fit_results, **kwargs):
                     "k",
                 )
 
-        #ax.set_xlim(0.8, 1.5)
+        ax.set_xlim(0.0, 0.45)
         ax.set_ylim(None, None)
+        subplot_ind += 1
 
 
     add_figure_legend(fig)
