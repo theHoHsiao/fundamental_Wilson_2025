@@ -155,7 +155,7 @@ key_observables = {
         ["Q0", "w0", "mPCAC", "avg_plaquette", "tau_exp_ps_correlator"]
         + [f"{state}_mass" for state in ["ps", "v", "t", "av", "at", "s"]]
         + [f"f_{state}_decay_constant" for state in ["ps", "v", "av"]]
-        + [f"f_{state}_matrix_element" for state in ["ps", "v"]]
+        + [f"f_{state}_matrix_element" for state in ["ps", "v", "av"]]
         + [
             f"gevp_f_{state}_E0_mass"
             for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]

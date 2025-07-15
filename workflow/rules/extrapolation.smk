@@ -10,7 +10,7 @@ def extp_samples(wildcards, observables):
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
         for observable in observables
         for row in metadata.to_dict(orient="records")
-        if row["use_in_main_plots"]
+        #if row["use_in_main_plots"]
         if row["use_in_extrapolation"]
     ]
 
@@ -23,19 +23,18 @@ rule Mass_continuum_massless_extrapolation:
             extp_samples,
             observables=[
                 "w0",
-                "smear_meson_ps",
-                "smear_meson_v",
-                "smear_meson_t",
-                "smear_meson_av",
-                "smear_meson_at",
-                "smear_meson_s",
-                "gevp_smear_meson_rhoE1",
+                "meson_gevp_f_ps",
+                "meson_gevp_f_v",
+                "meson_gevp_f_t",
+                "meson_gevp_f_av",
+                "meson_gevp_f_at",
+                "meson_gevp_f_s",
             ],
         ),
         script="src/extrapolation_mass.py",
     output:
-        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_mass_mean.csv",
-        samples=f"intermediary_data/extrapolation_results/{{channel}}_extp_mass_samples.json",
+        mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_mass_mean.csv",
+        samples=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_mass_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -50,16 +49,16 @@ rule Decay_continuum_massless_extrapolation:
             extp_samples,
             observables=[
                 "w0",
-                "meson_ps",
-                "decay_constant_ps",
-                "decay_constant_v",
-                "decay_constant_av",
+                "meson_gevp_f_ps",
+                "decay_constant_f_ps",
+                "decay_constant_f_v",
+                "decay_constant_f_av",
             ],
         ),
         script="src/extrapolation_decay.py",
     output:
-        mean=f"intermediary_data/extrapolation_results/{{channel}}_extp_decayconstant_mean.csv",
-        samples=f"intermediary_data/extrapolation_results/{{channel}}_extp_decay_samples.json",
+        mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_decayconstant_mean.csv", 
+        samples=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_decayconstant_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:
