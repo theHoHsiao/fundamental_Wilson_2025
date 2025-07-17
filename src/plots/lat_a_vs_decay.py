@@ -23,7 +23,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
     y_dn = np.zeros(n_fit)
 
     for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
+        Yfit[n] = A[n]  + L[n] * x**2
 
     for i in range(n_fit):
         y_err = Yfit[0:-1, i].std()
@@ -49,10 +49,11 @@ def plot(data, fit_results, **kwargs):
 
         print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
 
-        ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
+        ax.set_xlabel(r"$\hat{a}$")
         ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2$")
 
-        #ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2 - " r"W \hat{a}$")
+        #ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2 - " r"F^2L~ \hat{m}_{\mathrm{ps}}^2$")
+
 
         for parameter in fit_results:
             if parameter["channel"] == ch:
@@ -78,8 +79,8 @@ def plot(data, fit_results, **kwargs):
                     print("decay constant not found in " + datum["ensemble_name"])
                     continue
                 
-                X = (datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
-                Y = (datum["w0_samples"] * datum[f"f_{ch}_decay_constant_samples"]) ** 2 #- W_fit / datum["w0_samples"]
+                X = (1 / datum["w0_samples"])
+                Y = (datum["w0_samples"] * datum[f"f_{ch}_decay_constant_samples"]) ** 2 #- L_fit * F_fit * ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
@@ -103,13 +104,13 @@ def plot(data, fit_results, **kwargs):
                 plot_axpb_y(
                     ax,
                     parameter["F_samples"].samples,
-                    parameter["L_samples"].samples,
+                    parameter["W_samples"].samples,
                     "",
                     0,
                     "k",
                 )
 
-        ax.set_xlim(0.0, 0.45)
+        ax.set_xlim(0.0, 1.5)
         ax.set_ylim(None, None)
         subplot_ind += 1
 

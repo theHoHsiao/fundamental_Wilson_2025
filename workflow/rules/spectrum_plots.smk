@@ -187,3 +187,52 @@ rule compare_mass_smear_gevp:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} {input.data2} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
+
+
+rule check_lat_a_extrapolations_meson_mass:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=mass_gevp_samples,
+        w0=w0_samples,
+        fit_results=partial(
+            mass_extp,
+            observables=[
+                "f_v_extp_mass",
+                "f_t_extp_mass",
+                "f_av_extp_mass",
+                "f_at_extp_mass",
+                "f_s_extp_mass",
+            ],
+        ),
+        script="src/plots/lat_a_vs_meson.py",
+    output:
+        plot_data="assets/plots/m2_all_lat_a_sp4fund.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --fit_parameters {input.fit_results}"
+
+
+rule check_lat_a_extrapolations_meson_decay:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        mass=mass_gevp_samples,
+        decay=decay_samples,
+        w0=w0_samples,
+        fit_results=partial(
+            mass_extp,
+            observables=[
+                "f_ps_extp_decayconstant",
+                "f_v_extp_decayconstant",
+                "f_av_extp_decayconstant",
+            ],
+        ),
+        script="src/plots/lat_a_vs_decay.py",
+    output:
+        plot_data="assets/plots/dec2_all_lat_a_sp4fund.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.mass} {input.decay} {input.w0} --plot_styles {plot_styles} --plot_file {output.plot_data} --fit_results {input.fit_results}"

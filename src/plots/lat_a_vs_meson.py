@@ -68,7 +68,7 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
     y_dn = np.zeros(n_fit)
 
     for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
+        Yfit[n] = A[n]  + L[n] * x**2
 
     for i in range(n_fit):
         y_err = Yfit[0:-1, i].std()
@@ -93,11 +93,11 @@ def plot(data, fit_pars):
         
         print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
 
-        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
+        ax.set_xlabel(r"$\hat{a}$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
-        
-        #ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2 - W \hat{a}$")
 
+        
+        #ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2 - M^2L~ \hat{m}_{\mathrm{ps}}^2$")
 
         for parameter in fit_pars:
             if parameter["channel"] == ch:
@@ -119,8 +119,8 @@ def plot(data, fit_pars):
                 if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.6:
                     print(f"gevp_f_{ch}_E0_chisquare > 1.6 in {datum['ensemble_name']}")
                 
-                X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
-                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2 #- W_fit / datum["w0_samples"]
+                X = (1 / datum["w0_samples"])
+                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2 #- L_fit * M_fit * ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
 
                 print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
                 
@@ -144,13 +144,13 @@ def plot(data, fit_pars):
                 plot_axpb_y(
                     ax,
                     parameter["M_samples"].samples,
-                    parameter["L_samples"].samples,
+                    parameter["W_samples"].samples,
                     "",
                     0.4,
                     "k",
                 )
 
-        ax.set_xlim(0.0, 0.45)
+        ax.set_xlim(0.0, 1.5)
 
     #add_figure_legend(data_fig)
     add_figure_legend_axes(data_fig, data_axes)
