@@ -106,7 +106,7 @@ def fit_w0_tau_exp(w0, flows, operator="sym"):
     flow_time_index = abs(flows.times - w0**2).argmin()
     energy_density = {"sym": flows.Ecs, "plaq": flows.Eps}[operator]
     raw_tau_exp = exp_autocorrelation_fit(energy_density[:, flow_time_index])
-    return raw_tau_exp #* get_index_separation(flows.trajectories)
+    return raw_tau_exp * get_index_separation(flows.trajectories)
 
 
 def read_flows(args):
@@ -143,7 +143,7 @@ def main():
         w0_mean = bootstrap_finalize(w0_samples)
         tau_exp_w0 = fit_w0_tau_exp(
             w0_mean.nominal_value,
-            flows,
+            thinned_flows,
             operator=args.operator,
         )
         #trajectory_step = get_index_separation(thinned_flows.trajectories)

@@ -38,6 +38,12 @@ def get_args():
         help="Highest trajectory index to consider",
     )
     parser.add_argument(
+        "--trajectory_step",
+        type=int,
+        default=1,
+        help="Interval of trajectories to consider",
+    )
+    parser.add_argument(
         "--output_file",
         type=FileType("w"),
         default="-",
@@ -68,10 +74,10 @@ def get_args():
         help="The beta value of the ensemble to analyse",
     )
     parser.add_argument(
-        "--mAS",
+        "--mF",
         type=float,
         default=None,
-        help="The antisymmetric fermion mass of the ensemble to analyse",
+        help="The fermion mass of the ensemble to analyse",
     )
     parser.add_argument(
         "--Nt",
@@ -149,6 +155,7 @@ def main():
     flows = read_flows(args).thin(
         min_trajectory=args.min_trajectory,
         max_trajectory=args.max_trajectory,
+        trajectory_step=args.trajectory_step,
     )
     results = compute_stats(flows)
     dump_dict(
