@@ -11,7 +11,7 @@ from .mass import (
     get_meson_corr,
     get_args,
 )
-from .read_hdf5 import get_ensemble
+from .read_hdf5 import get_ensemble, filter_configurations
 from .plots_common import plot_meson_gevp_energy_states
 
 def get_meson_Cmat_single(ensemble, args, Nmin, Nmax, Nd, channel):
@@ -63,6 +63,10 @@ def main():
     eigenvalues = gevp_meson_extraction(ensemble, args)
     masses, chisquares = extract.extract_energy_states(eigenvalues, args)
 
+    filtered_indices = filter_configurations(ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step)
+    N_cnfg = np.sum(filtered_indices)
+    #print(filtered_indices)
+
     if args.effmass_plot_file:
         plot_meson_gevp_energy_states(args, eigenvalues, masses)
 
@@ -79,6 +83,7 @@ def main():
             **metadata,
             f"gevp_{args.channel}_E0_chisquare": chisquares[0],
             f"gevp_{args.channel}_E0_mass": bootstrap_finalize(masses[0]),
+            "N_cnfg": N_cnfg,
         },
         args.output_file_mean,
     )
