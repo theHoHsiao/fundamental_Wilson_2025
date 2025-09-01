@@ -9,7 +9,7 @@ include: "rules/package.smk"
 include: "rules/mpcac.smk"
 include: "rules/mass.smk"
 include: "rules/plaquette.smk"
-include: "rules/combined_plots.smk"
+#include: "rules/combined_plots.smk"
 include: "rules/spectrum_plots.smk"
 include: "rules/spectrum_tables.smk"
 include: "rules/extrapolation.smk"
@@ -18,62 +18,68 @@ include: "rules/csvs.smk"
 
 h5_data = expand(
     "data_assets/{datafile}.h5",
-    datafile=["correlators_wall", "correlators_smear", "flows", "hmc"],
+    datafile=["corr_sp4_FUN", "nf2_gflow"],
 )
 
 topology_history_plots = [
     f"top_charge_history_{ensemble}"
     for ensemble in [
-        "Sp4b6.7nAS3mAS-1.045T48L24",
-        "Sp4b6.7nAS3mAS-1.067T54L36",
-        "Sp4b6.8nAS3mAS-1.035T56L24",
-        "Sp4b6.8nAS3mAS-1.046T54L36",
+        "Sp4b6.9nF2mF-0.85T32L16",
+        "Sp4b6.9nF2mF-0.87T32L16",
+        "Sp4b6.9nF2mF-0.89T32L16",
+        "Sp4b6.9nF2mF-0.91T32L16",
+        "Sp4b6.9nF2mF-0.924T32L24",
+        "Sp4b6.9nF2mF-0.92T32L24",
+        "Sp4b6.9nF2mF-0.9T32L16",
+        "Sp4b7.05nF2mF-0.835T36L20",
+        "Sp4b7.05nF2mF-0.857T36L32",
+        "Sp4b7.05nF2mF-0.85T36L24",
+        "Sp4b7.05nF2mF-0.863T36L36",
+        "Sp4b7.05nF2mF-0.867T36L36",
+        "Sp4b7.2nF2mF-0.76T36L16",
+        "Sp4b7.2nF2mF-0.77T36L24",
+        "Sp4b7.2nF2mF-0.78T36L24",
+        "Sp4b7.2nF2mF-0.794T36L28",
+        "Sp4b7.2nF2mF-0.799T40L32",
+        "Sp4b7.2nF2mF-0.79T36L24",
+        "Sp4b7.2nF2mF-0.803T42L36",
+        "Sp4b7.2nF2mF-0.808T48L36",
+        "Sp4b7.2nF2mF-0.808T48L42",
+        "Sp4b7.2nF2mF-0.813T48L36",
+        "Sp4b7.4nF2mF-0.74T48L36",
+        "Sp4b7.4nF2mF-0.755T48L42",
+        "Sp4b7.4nF2mF-0.75T48L32",
+        "Sp4b7.5nF2mF-0.71T48L36",
+        "Sp4b7.5nF2mF-0.72T48L36",
     ]
 ]
 plots = expand(
     f"assets/plots/{{plot}}.{plot_filetype}",
     plot=[
-        "mpcac_vs_m0",
-        "plaquette_phasediagram",
-        "w0_vs_mpcac",
-        "w0_flow_Sp4b6.8nAS3mAS-1.043T54L32",
+        #"mpcac_vs_m0",
+        #"plaquette_phasediagram",
+        #"w0_vs_mpcac",
         *topology_history_plots,
-        "mps_mv_vs_mpsL",
-        "mpsmv_vs_mpcac_b6p7",
-        "mpsfps_vs_mpcac_b6p7",
-        "meson_masses_b6p7_m0",
-        "meson_decay_b6p7_m0",
-        "mmfps_vs_mpcac_b6p7",
-        "m2v_vs_m2ps_GF_b6p7",
-        "m2_all_con_sp4as",
-        "meson_spectrum_con",
-        "f2_con_sp4as",
-        "mvfps_vs_m2ps_GF_F_vs_AS",
-        "excited_vector_ratio",
-        "w0vsmps2",
-        "mfpsvsmps2",
-        "gmor_b6p7",
-        "chipt2",
-        "deft1",
+        "dec2_all_con_sp4fund.pdf",
+        "dec2_all_lat_a_sp4fund.pdf",
+        "m2_all_con_sp4fund.pdf",
+        "m2_all_lat_a_sp4fund.pdf",
+        "mpsL.pdf",
+        "Rvps_all_con_sp4fund.pdf",
+
     ],
 )
 tables = expand(
     "assets/tables/{table}.tex",
     table=[
-        "plaquette_table",
+        #"plaquette_table",
+        "ensemble",
         "gflow_table",
-        "nlo_coefficients_decay",
+        "nlo_coefficients_decayconstant",
         "nlo_coefficients_mass",
-        "wall_results1",
-        "wall_results2",
-        "wall_results_ratio",
-        "smear_mass",
-        "smear_decay",
-        "chipt_table",
-        "deft_table",
         "autocorr_table",
-        "finite_volume_table",
-    ],
+        "spectrum_meson_f",
+        ],
 )
 definitions = expand(
     "assets/definitions/{definition}.tex",
@@ -81,7 +87,6 @@ definitions = expand(
         "gflow_incomplete_ensembles",
         "plaquette_phasediagram_betas",
         "spectrum_plots_target_beta",
-        "chipt_ratio_indirect",
         "chipt_ratio_direct",
         "chipt_beta_values",
         "finite_volume_definitions",
@@ -100,7 +105,7 @@ external_data = expand(
 rule all:
     input:
         assets="assets/info.json",
-        data_assets="data_assets/info.json",
+        #data_assets="data_assets/info.json",
 
 
 rule provenance_stamp:
@@ -111,7 +116,6 @@ rule provenance_stamp:
         h5_data=h5_data,
         plots=plots,
         tables=tables,
-        definitions=definitions,
         ensemble_metadata="metadata/ensemble_metadata.csv",
         external_data=external_data,
     output:
@@ -119,7 +123,7 @@ rule provenance_stamp:
     conda:
         "envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.h5_data} {input.plots} {input.tables} {input.definitions} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
+        "python -m {params.module} {input.h5_data} {input.plots} {input.tables} {input.ensemble_metadata} {input.external_data} --output_file {output.stamp}"
 
 
 rule data_provenance_stamp:
