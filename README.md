@@ -60,7 +60,7 @@ the steps below involving running `snakemake` should work correctly.
        or
     2. Download the `correlators_smear.h5`,
        `correlators_wall.h5`,
-       `flows.h5`,
+       `nf2_gflow.h5`,
        and `hmc.h5`
        files from [the data release][datarelease],
        and place them into the `data_assets` directory.
