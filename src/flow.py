@@ -146,9 +146,8 @@ def main():
             thinned_flows,
             operator=args.operator,
         )
-        #trajectory_step = get_index_separation(thinned_flows.trajectories)
-        trajectory_step = args.trajectory_step ##To BE change
-        trajectories = len(thinned_flows.trajectories)
+        trajectory_step = get_index_separation(thinned_flows.trajectories)
+        trajectories = int(len(thinned_flows.trajectories))
 
     dump_dict(
         {
