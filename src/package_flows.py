@@ -76,7 +76,7 @@ def get_filename_metadata(metadata, content):
 
 def process_file(flow_filename, h5file):
     flows = read_flows_hirep(flow_filename, metadata_callback=get_filename_metadata)
-    group_name = "gflow_{NT}x{NX}x{NY}x{NZ}b{beta}m{mAS}".format(**flows.metadata)
+    group_name = "gflow_{NT}x{NX}x{NY}x{NZ}b{beta}m{mF}".format(**flows.metadata)
     group = h5file.create_group(group_name)
     group.create_dataset("beta", data=flows.metadata["beta"])
     group.create_dataset("configurations", data=flows.cfg_filenames.astype("S"))
@@ -88,7 +88,7 @@ def process_file(flow_filename, h5file):
         data=np.asarray([flows.metadata[key] for key in ["NT", "NX", "NY", "NZ"]]),
     )
     group.create_dataset("plaquette", data=flows.plaquettes)
-    group.create_dataset("quarkmasses", data=[flows.metadata["mAS"]])
+    group.create_dataset("quarkmasses", data=[flows.metadata["mF"]])
     group.create_dataset("flow type", data=flows.metadata.get("flow_type"))
 
     group.create_dataset("flow times", data=flows.times)
