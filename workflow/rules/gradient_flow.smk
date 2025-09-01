@@ -12,6 +12,7 @@ rule w0:
     input:
         data=f"data_assets/nf2_gflow.h5",
         script="src/flow.py",
+        #top_charge=f"assets/plots/top_charge_history_{dir_template}.pdf"
     output:
         mean=f"intermediary_data/{dir_template}/w0_mean.csv",
         samples=f"intermediary_data/{dir_template}/w0_samples.json",
@@ -27,7 +28,7 @@ rule w0_flow_plot:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=metadata, query=metadata_query),
     input:
-        data=f"data_assets/flows.h5",
+        data=f"data_assets/nf2_gflow.h5",
         script="src/plot_w_flow.py",
     output:
         plot=f"assets/plots/w0_flow_{dir_template}.{{plot_filetype}}",
@@ -42,14 +43,14 @@ rule topological_charge:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=metadata, query=metadata_query),
     input:
-        data=f"data_assets/flows.h5",
+        data=f"data_assets/nf2_gflow.h5",
         script="src/top_charge.py",
     output:
         data=f"intermediary_data/{dir_template}/top_charge_mean.csv",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file {output.data} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        "python -m {params.module} {input.data} --output_file {output.data} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
 
 
 rule topological_charge_history_plot:
@@ -57,14 +58,14 @@ rule topological_charge_history_plot:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=lookup(within=metadata, query=metadata_query),
     input:
-        data=f"data_assets/flows.h5",
+        data=f"data_assets/nf2_gflow.h5",
         script="src/top_charge.py",
     output:
         plot=f"assets/plots/top_charge_history_{dir_template}.pdf",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file /dev/null --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --plot_file {output.plot} --plot_styles {plot_styles} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        "python -m {params.module} {input.data} --output_file /dev/null --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --plot_file {output.plot} --plot_styles {plot_styles} --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
 
 
 def all_flow_data(wildcards):
@@ -72,7 +73,7 @@ def all_flow_data(wildcards):
         f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
         for basename in ["w0_mean", "top_charge_mean"]
         for row in metadata.to_dict(orient="records")
-        if row["use_in_main_plots"]
+        if row["use_in_w0"]
     ]
 
 

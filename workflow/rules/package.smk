@@ -25,10 +25,10 @@ rule package_gflow:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
-        files=glob("raw_data/flows/*/out_wflow"),
+        files=glob("raw_data/*/topology/out/out_flow"),
         script="src/package_flows.py",
     output:
-        h5=protected("data_assets/flows.h5"),
+        h5=protected("data_assets/nf2_gflow.h5"),
     conda:
         "../envs/flow_analysis.yml"
     shell:
