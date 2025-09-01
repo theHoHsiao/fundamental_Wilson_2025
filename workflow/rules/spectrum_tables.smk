@@ -9,6 +9,25 @@ metadata_lookup = partial(lookup, within=all_metadata, query=metadata_query)
 
 dir_template = "Sp{Nc}b{beta}nF{nF}mF{mF}T{Nt}L{Ns}"
 
+W0_threshold = 0.28125
+
+
+def autocorr_data(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/{basename}.csv".format(**row)
+        for basename in [
+            "tau_ps_correlator_mean",
+            "plaquette_mean",
+            "w0_mean",
+            "top_charge_mean",
+            "tau_ps_eff_w0_mean",
+            
+        ]
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
+    ]
+
+
 def extraction_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_extraction_{rep}_{channel}_mean.csv".format(**row)
@@ -90,13 +109,14 @@ rule ens_table:
     input:
         plaq=plaq_means,
         w0=w0_means,
+        mass=gevp_E0_means,
         script="src/tables/print_ens.py",
     output:
         table="assets/tables/ensemble.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.plaq} {input.w0} --output_file {output.table}"
+        "python -m {params.module} {input.plaq} {input.w0} {input.mass} --output_file {output.table}"
 
 
 rule continuum_massless_mass:
@@ -121,6 +141,20 @@ rule continuum_massless_decayconstant:
         script="src/tables/continuum_massless_decayconstant.py",
     output:
         table="assets/tables/nlo_coefficients_decayconstant.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule autocorr_table:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=autocorr_data,
+        script="src/tables/autocorr.py",
+    output:
+        table="assets/tables/autocorr_table.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:

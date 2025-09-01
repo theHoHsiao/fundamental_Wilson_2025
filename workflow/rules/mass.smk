@@ -119,8 +119,8 @@ rule ps_correlator_autocorrelation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
         metadata=metadata_lookup(),
-        plateau_start=lambda wildcards: metadata_lookup(cols="ps_plateau_start"),
-        plateau_end=lambda wildcards: metadata_lookup(cols=f"ps_plateau_end"),
+        plateau_start=lambda wildcards: metadata_lookup(cols="f_ps_matrix_element_plateau_start"),
+        plateau_end=lambda wildcards: metadata_lookup(cols=f"f_ps_matrix_element_plateau_end"),
     input:
         data="data_assets/corr_sp4_FUN.h5",
         script="src/ps_correlators_autocorrelation.py",
@@ -129,8 +129,30 @@ rule ps_correlator_autocorrelation:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.plateau_start} --plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --ensemble_name {params.metadata.ensemble_name}"
+        " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        " --E0_plateau_start {params.plateau_start} --E0_plateau_end {params.plateau_end}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
+        " --n_smear_max {params.metadata.n_smear_max}"
 
+
+rule ps_eff_w0_autocorrelation:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=metadata_lookup(),
+        plateau_start=lambda wildcards: metadata_lookup(cols="f_ps_matrix_element_plateau_start"),
+        plateau_end=lambda wildcards: metadata_lookup(cols=f"f_ps_matrix_element_plateau_end"),
+    input:
+        data="data_assets/corr_sp4_FUN.h5",
+        flow_data="data_assets/nf2_gflow.h5",
+        script="src/ps_eff_w0_autocorrelation.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/tau_ps_eff_w0_mean.csv",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --flow_filename {input.flow_data} --W0 {W0_threshold} --output_file_mean {output.mean} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --E0_plateau_start {params.plateau_start} --E0_plateau_end {params.plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
+        " --n_smear_max {params.metadata.n_smear_max}"    
 
 def mass_samples(wildcards):
     return [

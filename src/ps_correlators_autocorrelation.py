@@ -8,7 +8,7 @@ import re
 from .dump import dump_dict
 from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 from .mass import get_args
-from .read_hdf5 import get_ensemble
+from .read_hdf5 import get_ensemble, filter_configurations
 from .utils import get_index_separation
 
 
@@ -19,16 +19,18 @@ def ps_correlator_autocorrelation(ensemble, args):
             for filename in ensemble["configurations"]
         ]
     )
-    filtered_indices = (
-        (indices >= args.min_trajectory) if args.min_trajectory is not None else True
-    ) & ((indices <= args.max_trajectory) if args.max_trajectory is not None else True)
+    
+    filtered_indices = filter_configurations(ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step)
 
-    corr_ps = ensemble["TRIPLET/g5"][args.plateau_start, filtered_indices]
-    trajectory_separation = get_index_separation(indices)
+    corr_ps_smear = ensemble[f"source_N{args.n_smear_max}_sink_N{args.n_smear_max}/TRIPLET g5"][args.E0_plateau_start, filtered_indices]
+    corr_ps_point = ensemble[f"source_N0_sink_N0/TRIPLET g5"][args.E0_plateau_start, filtered_indices]
+    
+    trajectory_separation = get_index_separation(indices[filtered_indices])
 
-    tau_ps_correlator = exp_autocorrelation_fit(corr_ps) * trajectory_separation
+    tau_ps_correlator_smear = exp_autocorrelation_fit(corr_ps_smear) * trajectory_separation
+    tau_ps_correlator_point = exp_autocorrelation_fit(corr_ps_point) * trajectory_separation
 
-    return tau_ps_correlator
+    return tau_ps_correlator_smear, tau_ps_correlator_point
 
 
 def main():
@@ -36,10 +38,10 @@ def main():
 
     data = h5py.File(args.h5file, "r")
     (ensemble,) = get_ensemble(
-        data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
+        data, beta=args.beta, mF=args.mF, Nt=args.Nt, Ns=args.Ns
     )
 
-    auto = ps_correlator_autocorrelation(ensemble, args)
+    auto_smear, auto_point = ps_correlator_autocorrelation(ensemble, args)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -49,7 +51,9 @@ def main():
         "Ns": args.Ns,
     }
     dump_dict(
-        {**metadata, "tau_exp_ps_correlator": auto},
+        {**metadata,
+         "tau_exp_ps_correlator_smear": auto_smear,
+         "tau_exp_ps_correlator_point": auto_point},
         args.output_file_mean,
     )
 
