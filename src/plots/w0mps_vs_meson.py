@@ -82,7 +82,7 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
 
 def plot(data, fit_pars):
     data_fig, data_axes = plt.subplots(
-        3, 2, num="Figure_12", figsize=(TWO_COLUMN, 12), layout="constrained"
+        3, 2, num="Figure_12", figsize=(TWO_COLUMN, 8), layout="constrained"
     )
 
     for datum in data:

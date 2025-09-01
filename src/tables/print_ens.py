@@ -10,9 +10,9 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $\beta$ & $m_0$ & $Nt$ & $Ns$ & $w_0$ & $<P>$ \\"
+        r"Ensemble & $\beta$ & $m_0$ & $Nt$ & $Ns$ & $N_{\rm config.}^{\rm spec.}$ & $N_{\rm config.}^{\rm GF}$ &$w_0$ & $<P>$ \\"
         "\n\\hline"
     )
     footer = "\\hline\\hline\n\\end{tabular}"
@@ -26,7 +26,7 @@ def format_table(df):
 
         content.append(
             (
-                "{} & {} & {} & {} & {:-1} & ${:.02uSL}$ & ${:.02uSL}$ "
+                "{} & {} & {} & {} & {} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ "
                 "\\\\\n"
             ).format(
                 row.ensemble_name,
@@ -34,6 +34,8 @@ def format_table(df):
                 row.mF,
                 int(row.Nt),
                 int(row.Ns),
+                row.N_cnfg,
+                row.Ncfg_GF,
                 row.w0,
                 row.avg_plaquette,
             )
