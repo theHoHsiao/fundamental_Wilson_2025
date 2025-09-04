@@ -60,12 +60,12 @@ plots = expand(
         #"plaquette_phasediagram",
         #"w0_vs_mpcac",
         *topology_history_plots,
-        "dec2_all_con_sp4fund.pdf",
-        "dec2_all_lat_a_sp4fund.pdf",
-        "m2_all_con_sp4fund.pdf",
-        "m2_all_lat_a_sp4fund.pdf",
-        "mpsL.pdf",
-        "Rvps_all_con_sp4fund.pdf",
+        "dec2_all_con_sp4fund",
+        "dec2_all_lat_a_sp4fund",
+        "m2_all_con_sp4fund",
+        "m2_all_lat_a_sp4fund",
+        "mpsL",
+        "Rvps_all_con_sp4fund",
 
     ],
 )
