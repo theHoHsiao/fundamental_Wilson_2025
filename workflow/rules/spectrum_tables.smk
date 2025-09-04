@@ -20,8 +20,7 @@ def autocorr_data(wildcards):
             "plaquette_mean",
             "w0_mean",
             "top_charge_mean",
-            "tau_ps_eff_w0_mean",
-            
+            f"meson_gevp_E0_f_ps_mean",      
         ]
         for row in metadata.to_dict(orient="records")
         if row["use_in_main_plots"]

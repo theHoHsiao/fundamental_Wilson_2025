@@ -30,7 +30,7 @@ def ps_correlator_autocorrelation(ensemble, args):
     tau_ps_correlator_smear = exp_autocorrelation_fit(corr_ps_smear) * trajectory_separation
     tau_ps_correlator_point = exp_autocorrelation_fit(corr_ps_point) * trajectory_separation
 
-    return tau_ps_correlator_smear, tau_ps_correlator_point
+    return tau_ps_correlator_smear, tau_ps_correlator_point, trajectory_separation
 
 
 def main():
@@ -41,7 +41,7 @@ def main():
         data, beta=args.beta, mF=args.mF, Nt=args.Nt, Ns=args.Ns
     )
 
-    auto_smear, auto_point = ps_correlator_autocorrelation(ensemble, args)
+    auto_smear, auto_point, trajectory_separation = ps_correlator_autocorrelation(ensemble, args)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -53,7 +53,8 @@ def main():
     dump_dict(
         {**metadata,
          "tau_exp_ps_correlator_smear": auto_smear,
-         "tau_exp_ps_correlator_point": auto_point},
+         "tau_exp_ps_correlator_point": auto_point,
+         "delta_traj_auto": trajectory_separation},
         args.output_file_mean,
     )
 

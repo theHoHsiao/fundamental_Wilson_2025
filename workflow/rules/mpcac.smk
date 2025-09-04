@@ -18,7 +18,7 @@ rule fit_pcac:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --effmass_plot_file {output.plot} --plot_styles {plot_styles} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.metadata.mpcac_plateau_start} --plateau_end {params.metadata.mpcac_plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_spectrum}"
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --effmass_plot_file {output.plot} --plot_styles {plot_styles} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.metadata.mpcac_plateau_start} --plateau_end {params.metadata.mpcac_plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
 
 
 def all_pcac_data(wildcards):

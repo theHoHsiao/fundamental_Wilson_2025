@@ -84,6 +84,7 @@ def main():
             f"gevp_{args.channel}_E0_chisquare": chisquares[0],
             f"gevp_{args.channel}_E0_mass": bootstrap_finalize(masses[0]),
             "N_cnfg": N_cnfg,
+            "delta_traj_spec": args.trajectory_step,
         },
         args.output_file_mean,
     )
