@@ -10,7 +10,7 @@ import re
 
 from .bootstrap import sample_bootstrap_0d, bootstrap_finalize, get_rng
 from .dump import dump_dict, dump_samples
-from .read_hdf5 import get_ensemble
+from .read_hdf5 import get_ensemble, filter_configurations
 from .utils import get_index_separation
 
 
@@ -71,6 +71,12 @@ def get_args():
         help="Interval of trajectories to consider",
     )
     parser.add_argument(
+        "--trajectory_step_auto",
+        type=int,
+        default=1,
+        help="Interval of trajectories to consider for autocorrelation time",
+    )
+    parser.add_argument(
         "--output_file_mean",
         type=FileType("w"),
         default="-",
@@ -111,8 +117,6 @@ def get_cfg_indices(cfgs, start_cfg=0, end_cfg=None, cfg_step=1):
             trajectory_indices.append(trajectory_index)
             array_indices.append(array_index)
 
-    print(len(trajectory_indices))
-
     separation = get_index_separation(trajectory_indices)
     if separation != cfg_step and cfg_step > 1:
         message = f"Requested a delta_traj of {cfg_step}, but actually see {separation}"
@@ -121,20 +125,36 @@ def get_cfg_indices(cfgs, start_cfg=0, end_cfg=None, cfg_step=1):
     return trajectory_indices, array_indices
 
 
-def avg_plaquette(ensemble, start_cfg, end_cfg, cfg_step, name="..."):
+def avg_plaquette(ensemble, args):
     result = {}
     result.update(get_volumes(ensemble))
-    result["ensemble_name"] = name
+    result["ensemble_name"] = args.ensemble_name
     result["mF"] = get_mass(ensemble)
     result["beta"] = ensemble["beta"][()]
-    spectrum_trajectory_indices, _ = get_cfg_indices(
-        ensemble["configurations"], start_cfg, end_cfg, cfg_step
+
+    trajectory_indices, _ = get_cfg_indices(
+        ensemble["configurations"], args.min_trajectory, args.max_trajectory, args.trajectory_step_auto
     )
-    result["plaquette"] = sample_bootstrap_0d(raw_plaquettes, get_rng(ensemble.name))
+    result["Ncfg"] = len(trajectory_indices)
+    result["delta_traj"] = args.trajectory_step_auto
+
+
+    spectrum_trajectory_indices, _ = get_cfg_indices(
+        ensemble["configurations"], args.min_trajectory, args.max_trajectory, args.trajectory_step
+    )
+    result["Ncfg_spectrum"] = len(spectrum_trajectory_indices)
+    result["delta_traj_spec"] = args.trajectory_step
+    filtered_indices = filter_configurations(ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step)
+
+
+    plaq_auto = ensemble["plaquette"]
+    plaq_spec = ensemble["plaquette"][filtered_indices]
+    result["plaquette"] = sample_bootstrap_0d(plaq_spec, get_rng(ensemble.name))
+    
 
     result["avg_plaquette"] = bootstrap_finalize(result["plaquette"])
     result["tau_exp_plaq"] = (
-        exp_autocorrelation_fit(raw_plaquettes) * result["delta_traj_plaq"]
+        exp_autocorrelation_fit(plaq_auto ) * result["delta_traj"]
     )
     return result
 
@@ -150,32 +170,32 @@ def main():
         Nt=args.Nt,
         Ns=args.Ns,
     )
-    plaq = ensemble["plaquette"]
-    results = sample_bootstrap_0d(plaq, get_rng(ensemble.name))
-    
-    metadata = {
-        "ensemble_name": args.ensemble_name,
-        "beta": args.beta,
-        "mF": args.mF,
-        "Nt": args.Nt,
-        "Ns": args.Ns,
-    }
-
-    dump_dict(
-        {
-            **metadata,
-            "avg_plaquette": results.to_ufloat(),
-        },
-        args.output_file_mean,
+    #results = sample_bootstrap_0d(plaq, get_rng(ensemble.name))
+    result = avg_plaquette(
+        ensemble,
+        args,
     )
 
+    metadata_fields = [
+        "Nt",
+        "Ns",
+        "mF",
+        "beta",
+        "Ncfg",
+        "delta_traj",
+        "Ncfg_spectrum",
+        "delta_traj_spec",
+        "ensemble_name",
+    ]
+    dump_dict(
+        {k: result[k] for k in [*metadata_fields, "avg_plaquette", "tau_exp_plaq"]},
+        args.output_file_mean,
+    )
     if args.output_file_samples:
-        data_to_save = {**metadata}
-        data_to_save["plaquette_samples"] = results.samples
-        data_to_save["plaquette_value"] = results.mean
-
-        
-        dump_samples(data_to_save,args.output_file_samples)
+        dump_samples(
+            {k: result[k] for k in [*metadata_fields, "plaquette"]},
+            args.output_file_samples,
+        )
 
 
 if __name__ == "__main__":

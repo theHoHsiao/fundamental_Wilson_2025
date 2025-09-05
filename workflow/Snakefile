@@ -9,7 +9,7 @@ include: "rules/package.smk"
 include: "rules/mpcac.smk"
 include: "rules/mass.smk"
 include: "rules/plaquette.smk"
-#include: "rules/combined_plots.smk"
+include: "rules/combined_plots.smk"
 include: "rules/spectrum_plots.smk"
 include: "rules/spectrum_tables.smk"
 include: "rules/extrapolation.smk"
@@ -58,7 +58,7 @@ plots = expand(
     plot=[
         #"mpcac_vs_m0",
         #"plaquette_phasediagram",
-        #"w0_vs_mpcac",
+        "w0_vs_mpcac",
         *topology_history_plots,
         "dec2_all_con_sp4fund",
         "dec2_all_lat_a_sp4fund",
@@ -72,7 +72,7 @@ plots = expand(
 tables = expand(
     "assets/tables/{table}.tex",
     table=[
-        #"plaquette_table",
+        "plaquette_table",
         "ensemble",
         "gflow_table",
         "nlo_coefficients_decayconstant",

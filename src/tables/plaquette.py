@@ -24,24 +24,24 @@ def format_table(results, skip_missing_names=True):
     heavy_ps_limit = 0.45
 
     for result in results.sort_values(
-        by=["beta", "mAS"], ascending=[True, False]
+        by=["beta", "mF"], ascending=[True, False]
     ).to_dict(orient="records"):
         if skip_missing_names and result["ensemble_name"] is None:
             continue
         if result["beta"] != previous_beta:
             previous_beta = result["beta"]
             content.append(r"\hline")
-        comment = "heavy" if result["ps_mass"].nominal_value > heavy_ps_limit else ""
+        #comment = "heavy" if result["ps_mass"].nominal_value > heavy_ps_limit else ""
         content.append(
             " & ".join(
                 [
                     result["ensemble_name"],
                     f"${result['Nt']} \\times {result['Ns']}^3$",
                     f"{result['beta']}",
-                    f"{result['mAS']}",
-                    f"{result['Ncfg_spectrum']}",
+                    f"{result['mF']}",
+                    f"{result['Ncfg']}",
                     f"{result['avg_plaquette']:.02uSL}",
-                    comment,
+                    "comment",
                 ]
             )
             + r" \\"
