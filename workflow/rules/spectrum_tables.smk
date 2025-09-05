@@ -23,7 +23,7 @@ def autocorr_data(wildcards):
             f"meson_gevp_E0_f_ps_mean",      
         ]
         for row in metadata.to_dict(orient="records")
-        if row["use_in_main_plots"]
+        if row["use_in_table"]
     ]
 
 
@@ -44,6 +44,13 @@ def gevp_E0_means(wildcards):
         for channel in ["ps", "v"]
         for rep in ["f"]
         if row["use_in_table"]
+    ]
+
+def mPCAC_means(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/mpcac_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_table"]
     ] 
 
 
@@ -60,7 +67,7 @@ def w0_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/w0_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_w0"]
+        if row["use_in_table"]
     ] 
 
 def plaq_means(wildcards):
@@ -93,13 +100,14 @@ rule f_meson_mass_table:
         mass=extraction_means,
         E0=gevp_E0_means,
         w0=w0_means,
+        mPCAC=mPCAC_means,
         script="src/tables/print_spectrum_meson_f.py",
     output:
         table="assets/tables/spectrum_meson_f.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} --output_file {output.table}"
+        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} {input.mPCAC} --output_file {output.table}"
 
 
 rule ens_table:

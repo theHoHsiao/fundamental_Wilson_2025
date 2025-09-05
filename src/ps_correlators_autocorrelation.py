@@ -21,6 +21,7 @@ def ps_correlator_autocorrelation(ensemble, args):
     )
     
     filtered_indices = filter_configurations(ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step)
+    Ncfg = sum(filtered_indices)
 
     corr_ps_smear = ensemble[f"source_N{args.n_smear_max}_sink_N{args.n_smear_max}/TRIPLET g5"][args.E0_plateau_start, filtered_indices]
     corr_ps_point = ensemble[f"source_N0_sink_N0/TRIPLET g5"][args.E0_plateau_start, filtered_indices]
@@ -41,7 +42,7 @@ def main():
         data, beta=args.beta, mF=args.mF, Nt=args.Nt, Ns=args.Ns
     )
 
-    auto_smear, auto_point, trajectory_separation = ps_correlator_autocorrelation(ensemble, args)
+    Ncfg, auto_smear, auto_point, trajectory_separation = ps_correlator_autocorrelation(ensemble, args)
 
     metadata = {
         "ensemble_name": args.ensemble_name,
@@ -49,6 +50,7 @@ def main():
         "mAS": args.mAS,
         "Nt": args.Nt,
         "Ns": args.Ns,
+        "Ncfg": Ncfg,
     }
     dump_dict(
         {**metadata,

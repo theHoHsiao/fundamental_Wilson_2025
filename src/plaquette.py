@@ -129,7 +129,7 @@ def avg_plaquette(ensemble, start_cfg, end_cfg, cfg_step, name="..."):
     result = {}
     result.update(get_volumes(ensemble))
     result["ensemble_name"] = name
-    result["mAS"] = get_mass(ensemble)
+    result["mF"] = get_mass(ensemble)
     result["beta"] = ensemble["beta"][()]
     spectrum_trajectory_indices, _ = get_cfg_indices(
         ensemble["configurations"], start_cfg, end_cfg, cfg_step

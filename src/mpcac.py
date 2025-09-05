@@ -35,6 +35,12 @@ def get_args():
         help="The antisymmetric fermion mass of the ensemble to analyse",
     )
     parser.add_argument(
+        "--mF",
+        type=float,
+        default=None,
+        help="The fundamental fermion mass of the ensemble to analyse",
+    )
+    parser.add_argument(
         "--Nt",
         type=int,
         default=None,
@@ -113,8 +119,8 @@ def get_eff_mass_samples(
         ensemble, min_trajectory, max_trajectory, trajectory_step
     )
 
-    g5 = ensemble["TRIPLET"]["g5"][:, filtered_indices]
-    g5_g0g5_re = ensemble["TRIPLET"]["g5_g0g5_re"][:, filtered_indices]
+    g5 = ensemble["source_N0_sink_N0/TRIPLET g5"][:, filtered_indices]
+    g5_g0g5_re = -ensemble["source_N0_sink_N0/TRIPLET g5_g0g5_re"][:, filtered_indices]
 
     g5_samples = sample_bootstrap_1d(g5.T, get_rng(ensemble.name))
     g5_g0g5_re_samples = sample_bootstrap_1d(g5_g0g5_re.T, get_rng(ensemble.name))
@@ -177,7 +183,7 @@ def main():
 
     data = h5py.File(args.h5file, "r")
     (ensemble,) = get_ensemble(
-        data, beta=args.beta, mAS=args.mAS, Nt=args.Nt, Ns=args.Ns
+        data, beta=args.beta, mF=args.mF, Nt=args.Nt, Ns=args.Ns
     )
     eff_mass_samples = get_eff_mass_samples(
         ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step

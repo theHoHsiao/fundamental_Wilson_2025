@@ -64,7 +64,7 @@ def main():
     masses, chisquares = extract.extract_energy_states(eigenvalues, args)
 
     filtered_indices = filter_configurations(ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step)
-    N_cnfg = np.sum(filtered_indices)
+    Ncfg_spec = np.sum(filtered_indices)
     #print(filtered_indices)
 
     if args.effmass_plot_file:
@@ -83,7 +83,7 @@ def main():
             **metadata,
             f"gevp_{args.channel}_E0_chisquare": chisquares[0],
             f"gevp_{args.channel}_E0_mass": bootstrap_finalize(masses[0]),
-            "N_cnfg": N_cnfg,
+            "Ncfg_spec": Ncfg_spec,
             "delta_traj_spec": args.trajectory_step,
         },
         args.output_file_mean,

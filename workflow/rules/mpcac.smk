@@ -18,7 +18,11 @@ rule fit_pcac:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --effmass_plot_file {output.plot} --plot_styles {plot_styles} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mAS {params.metadata.mAS} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.metadata.mpcac_plateau_start} --plateau_end {params.metadata.mpcac_plateau_end} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples}"
+        " --effmass_plot_file {output.plot} --plot_styles {plot_styles} --ensemble_name {params.metadata.ensemble_name}"
+        " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
+        " --plateau_start {params.metadata.f_ps_matrix_element_plateau_start} --plateau_end {params.metadata.f_ps_matrix_element_plateau_end}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
 
 
 def all_pcac_data(wildcards):
@@ -33,7 +37,7 @@ def linear_fittable_pcac_data(wildcards):
     return [
         f"intermediary_data/{dir_template}/mpcac_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_linear_PCAC_fits"] and row["use_in_main_plots"]
+        if row["use_in_extrapolation"] and row["use_in_main_plots"]
     ]
 
 

@@ -8,11 +8,13 @@ def format_table(df):
         [
             r"Ensemble",
             r"$N_{\rm cfg}$", #
+            r"$N_{\rm cfg}^{\rm spec.}$",
             r"$\delta^{\rm meas}_{\mathrm{traj}}$",
             r"$\delta^{\rm spec}_{\mathrm{traj}}$",
             #r"$\tau_{\mathrm{exp}}^{\mathcal{P}}$",
             r"$\tau_{\mathrm{exp}}^{\mathrm{ps-pt}}$ ",
             r"$\tau_{\mathrm{exp}}^{\mathrm{ps-sm}}$ ",
+            r"$\tau_{\mathrm{exp}}^{\mathcal{P}}$",
             r"$\tau_{\mathrm{exp}}^{w_0}$",
             r"$\tau_{\mathrm{exp}}^{\mathcal{Q}}$",
         ],
@@ -33,13 +35,15 @@ def format_table(df):
             formatted_tau_exp_w0 = "{:.02uSL}".format(row.tau_exp_w0)
             formatted_delta_traj_w0 = "{}".format(row.delta_traj_w0)
         content.append(
-            "{} & {} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & {} & ${:.02uSL}$ \\\\\n".format(
+            "{} & {} & {} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & {} & ${:.02uSL}$ \\\\\n".format(
                 row.ensemble_name,
-                row.Ncfg_GF, #
+                row.Ncfg, 
+                row.Ncfg_spec, 
                 row.delta_traj_auto, #row.tau_exp_plaq, {:.02uSL} &
                 row.delta_traj_spec,
                 row.tau_exp_ps_correlator_point,
                 row.tau_exp_ps_correlator_smear,
+                row.tau_exp_plaq,
                 formatted_tau_exp_w0,
                 row.tau_exp_Q,
             )
