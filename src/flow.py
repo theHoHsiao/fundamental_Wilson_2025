@@ -12,6 +12,9 @@ from uncertainties import ufloat
 from .dump import dump_dict, dump_samples
 from .read_hdf5 import get_ensemble
 from .utils import get_index_separation
+from .ps_correlators_autocorrelation import bin_data, check_bin_sizes
+from .bootstrap import get_rng, sample_bootstrap_0d
+import matplotlib.pyplot as plt
 
 
 def get_args():
@@ -41,6 +44,12 @@ def get_args():
         type=int,
         default=1,
         help="Interval of trajectories to consider",
+    )
+    parser.add_argument(
+        "--trajectory_step_auto",
+        type=int,
+        default=1,
+        help="Interval of trajectories to consider for autocorrelation analysis",
     )
     parser.add_argument(
         "W0", type=float, help="Threshold value at which to take t = w0^2"
@@ -98,14 +107,53 @@ def get_args():
         default=None,
         help="The spatial extent of the ensemble to analyse",
     )
+    parser.add_argument(
+        "--bin_size_plot_file",
+        default=None,
+        help="Where to output the effective mass plot. (Skipped if not specified)",
+    )
+    parser.add_argument(
+        "--plot_styles",
+        default="styles/paperdraft.mplstyle",
+        help="Stylesheet to use for plots",
+    )
 
     return parser.parse_args()
 
 
-def fit_w0_tau_exp(w0, flows, operator="sym"):
+def check_bin_sizes(args, w0_raw, max_size=20):
+    plt.style.use(args.plot_styles)
+    fig, ax = plt.subplots(layout="constrained")
+    
+    
+    bootsample_w0 = sample_bootstrap_0d(w0_raw, get_rng(args.ensemble_name))
+    ax.errorbar(1-0.2, bootsample_w0.mean, yerr=bootsample_w0.samples.std(), fmt='o', label='w0', color='C0')
+    
+    for bin_size in range(2, max_size+1):
+        bined_w0 = bin_data(w0_raw, bin_size)
+
+        bootsample_w0= sample_bootstrap_0d(bined_w0, get_rng(args.ensemble_name))
+        ax.errorbar(bin_size, bootsample_w0.mean, yerr=bootsample_w0.samples.std(), fmt='o', color='C0')
+    
+    ax.set_xlabel("Bin Size")
+    ax.set_ylabel("w0")    
+    ax.set_xticks(np.arange(1, max_size+1))
+
+    fig.legend()
+
+
+    fig.savefig(args.bin_size_plot_file)
+
+
+def fit_w0_tau_exp(args, w0, flows, operator="sym"):
     flow_time_index = abs(flows.times - w0**2).argmin()
     energy_density = {"sym": flows.Ecs, "plaq": flows.Eps}[operator]
-    raw_tau_exp = exp_autocorrelation_fit(energy_density[:, flow_time_index])
+    energy_density_flow_time = energy_density[:, flow_time_index]
+    raw_tau_exp = exp_autocorrelation_fit(energy_density_flow_time )
+
+    if args.bin_size_plot_file:
+        check_bin_sizes( args, energy_density_flow_time)
+
     return raw_tau_exp * get_index_separation(flows.trajectories)
 
 
@@ -141,13 +189,23 @@ def main():
             operator=args.operator,
         )
         w0_mean = bootstrap_finalize(w0_samples)
-        tau_exp_w0 = fit_w0_tau_exp(
-            w0_mean.nominal_value,
-            thinned_flows,
-            operator=args.operator,
-        )
         trajectory_step = get_index_separation(thinned_flows.trajectories)
         trajectories = int(len(thinned_flows.trajectories))
+
+
+        thinned_flows_auto = flows.thin(
+            min_trajectory=args.min_trajectory,
+            max_trajectory=args.max_trajectory,
+            trajectory_step=args.trajectory_step_auto,
+        )
+        tau_exp_w0 = fit_w0_tau_exp(
+            args,
+            w0_mean.nominal_value,
+            thinned_flows_auto,
+            operator=args.operator,
+        )
+        
+        
 
     dump_dict(
         {

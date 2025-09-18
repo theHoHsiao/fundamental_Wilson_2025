@@ -10,12 +10,12 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\n"
+        "\\begin{tblr}{|c|c|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
         r"Ensemble & $\beta$ & $m_0$ & $Nt$ & $Ns$ & $N_{\rm config.}$ & $N_{\rm config.}^{\rm spec.}$ & $N_{\rm config.}^{\rm GF}$ &$w_0$ & $<P>$ \\"
         "\n\\hline"
     )
-    footer = "\\hline\\hline\n\\end{tabular}"
+    footer = "\\hline\\hline\n\\end{tblr}"
     content = []
     previous_prefix = None
     for row in df.itertuples():

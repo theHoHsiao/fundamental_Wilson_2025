@@ -16,12 +16,15 @@ rule w0:
     output:
         mean=f"intermediary_data/{dir_template}/w0_mean.csv",
         samples=f"intermediary_data/{dir_template}/w0_samples.json",
+        bin_size_plot=f"intermediary_data/{dir_template}/w0_bin_size_check.pdf"
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples} --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs} --ensemble_name {params.metadata.ensemble_name}"
+        "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
+        " --trajectory_step {params.metadata.delta_conf_obs} --trajectory_step_auto {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
-
+        " --bin_size_plot_file {output.bin_size_plot} --plot_styles {plot_styles}"
 
 rule w0_flow_plot:
     params:

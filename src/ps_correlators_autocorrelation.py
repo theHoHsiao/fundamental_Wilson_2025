@@ -10,7 +10,77 @@ from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
 from .mass import get_args
 from .read_hdf5 import get_ensemble, filter_configurations
 from .utils import get_index_separation
+from .bootstrap import get_rng, sample_bootstrap_0d
+import matplotlib.pyplot as plt
 
+
+def bin_data(values, bin_size):
+    """
+    Bin data into blocks of size bin_size by averaging within each block.
+    Any leftover data at the end that doesn't fit into a full block is dropped.
+
+    Parameters
+    ----------
+    values : array_like
+        Input data (1D or 2D).
+    bin_size : int
+        Number of consecutive samples per bin.
+
+    Returns
+    -------
+    binned_values : ndarray
+        Binned data with shape (n_bins, ...) where n_bins = len(values)//bin_size
+    """
+    values = np.asarray(values)
+    n = len(values)
+    n_bins = n // bin_size
+    trimmed = values[: n_bins * bin_size]
+
+    if values.ndim == 1:
+        return trimmed.reshape(n_bins, bin_size).mean(axis=1)
+    elif values.ndim == 2:
+        return trimmed.reshape(n_bins, bin_size, values.shape[1]).mean(axis=1)
+    else:
+        raise ValueError("bin_data only supports 1D or 2D arrays")
+
+def check_bin_sizes(args, ensemble, corr_ps_point, corr_ps_smear, max_size=10):
+    plt.style.use(args.plot_styles)
+    fig, ax = plt.subplots(layout="constrained")
+    
+    ax2 = ax.twinx()
+    
+    bootsample_point = sample_bootstrap_0d(corr_ps_point, get_rng(ensemble.name))
+    bootsample_smear = sample_bootstrap_0d(corr_ps_smear, get_rng(ensemble.name))
+    ax.errorbar(1-0.2, bootsample_point.mean, yerr=bootsample_point.samples.std(), fmt='o', label='Point Source', color='C0')
+    ax2.errorbar(1+0.2, bootsample_smear.mean, yerr=bootsample_smear.samples.std(), fmt='o', label='Smeared Source', color='C1')
+    
+    for bin_size in range(2, max_size+1):
+        bined_smear = bin_data(corr_ps_smear, bin_size)
+        bined_point = bin_data(corr_ps_point, bin_size)
+
+        bootsample_point = sample_bootstrap_0d(bined_point, get_rng(ensemble.name))
+        bootsample_smear = sample_bootstrap_0d(bined_smear, get_rng(ensemble.name))
+        ax.errorbar(bin_size-0.2, bootsample_point.mean, yerr=bootsample_point.samples.std(), fmt='o', color='C0')
+        ax2.errorbar(bin_size+0.2, bootsample_smear.mean, yerr=bootsample_smear.samples.std(), fmt='o', color='C1')
+    
+    ax.set_xlabel("Bin Size")
+    ax.set_ylabel("Point-Point PS Correlator")
+    ax2.set_ylabel("Smeares-Smeared PS Correlator")
+
+    ax.tick_params(axis="y", colors="C0")
+    ax2.tick_params(axis="y", colors="C1")
+    
+    ax.set_xticks(np.arange(1, max_size+1))
+
+    lines1, labels1 = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    fig.legend(lines1 + lines2, labels1 + labels2, loc="outside upper center", ncol=2)
+
+
+    fig.savefig(args.effmass_plot_file)
+
+   
+        
 
 def ps_correlator_autocorrelation(ensemble, args):
     indices = np.asarray(
@@ -31,7 +101,12 @@ def ps_correlator_autocorrelation(ensemble, args):
     tau_ps_correlator_smear = exp_autocorrelation_fit(corr_ps_smear) * trajectory_separation
     tau_ps_correlator_point = exp_autocorrelation_fit(corr_ps_point) * trajectory_separation
 
-    return tau_ps_correlator_smear, tau_ps_correlator_point, trajectory_separation
+
+    if args.effmass_plot_file:
+        check_bin_sizes(args, ensemble, corr_ps_point, corr_ps_smear)
+
+    
+    return Ncfg, tau_ps_correlator_smear, tau_ps_correlator_point, trajectory_separation
 
 
 def main():

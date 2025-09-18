@@ -126,6 +126,7 @@ rule ps_correlator_autocorrelation:
         script="src/ps_correlators_autocorrelation.py",
     output:
         mean=f"intermediary_data/{dir_template}/tau_ps_correlator_mean.csv",
+        bin_plot=f"intermediary_data/{dir_template}/ps_correlator_bin_size_check.pdf",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -133,7 +134,7 @@ rule ps_correlator_autocorrelation:
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
         " --E0_plateau_start {params.plateau_start} --E0_plateau_end {params.plateau_end}"
         " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf}"
-        " --n_smear_max {params.metadata.n_smear_max}"
+        " --n_smear_max {params.metadata.n_smear_max} --effmass_plot_file {output.bin_plot} --plot_styles {plot_styles}"
 
 
 rule ps_eff_w0_autocorrelation:
