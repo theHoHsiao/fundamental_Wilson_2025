@@ -22,7 +22,8 @@ rule w0:
     shell:
         "python -m {params.module} {input.data} {W0_threshold} --output_file_mean {output.mean} --output_file_samples {output.samples}"
         " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
-        " --trajectory_step {params.metadata.delta_conf_obs} --trajectory_step_auto {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
+        " --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size}"
+        " --trajectory_step_auto {params.metadata.delta_conf} --ensemble_name {params.metadata.ensemble_name}"
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
         " --bin_size_plot_file {output.bin_size_plot} --plot_styles {plot_styles}"
 

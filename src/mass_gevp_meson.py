@@ -76,6 +76,7 @@ def main():
         "mF": args.mF,
         "Nt": args.Nt,
         "Ns": args.Ns,
+        "bin_size": args.bin_size,
     }
 
     dump_dict(

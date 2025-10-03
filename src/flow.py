@@ -52,6 +52,12 @@ def get_args():
         help="Interval of trajectories to consider for autocorrelation analysis",
     )
     parser.add_argument(
+        "--bin_size",
+        type=int,
+        default=1,
+        help="Number of consecutive configurations to bin together",
+    )
+    parser.add_argument(
         "W0", type=float, help="Threshold value at which to take t = w0^2"
     )
     parser.add_argument(
@@ -187,6 +193,7 @@ def main():
             thinned_flows,
             args.W0,
             operator=args.operator,
+            bin_size=args.bin_size,
         )
         w0_mean = bootstrap_finalize(w0_samples)
         trajectory_step = get_index_separation(thinned_flows.trajectories)
@@ -218,6 +225,7 @@ def main():
             "tau_exp_w0": tau_exp_w0,
             "delta_traj_w0": trajectory_step,
             "Ncfg_GF": trajectories,
+            "bin_size": args.bin_size,
         },
         args.output_file_mean,
     )

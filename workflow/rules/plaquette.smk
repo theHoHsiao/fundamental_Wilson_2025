@@ -18,7 +18,8 @@ rule avg_plaquette:
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
         " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
-        " --trajectory_step {params.metadata.delta_conf_obs} --trajectory_step_auto {params.metadata.delta_conf}"
+        " --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size}"
+        " --trajectory_step_auto {params.metadata.delta_conf}"
 
 
 rule avg_plaquette_hmc:

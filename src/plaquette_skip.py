@@ -77,6 +77,12 @@ def get_args():
         help="Interval of trajectories to consider for autocorrelation time",
     )
     parser.add_argument(
+        "--bin_size",
+        type=int,
+        default=1,
+        help="Number of consecutive configurations to bin together",
+    )
+    parser.add_argument(
         "--output_file_mean",
         type=FileType("w"),
         default="-",
@@ -149,7 +155,7 @@ def avg_plaquette(ensemble, args):
 
     plaq_auto = ensemble["plaquette"]
     plaq_spec = ensemble["plaquette"][filtered_indices]
-    result["plaquette"] = sample_bootstrap_0d(plaq_spec, get_rng(ensemble.name))
+    result["plaquette"] = sample_bootstrap_0d(plaq_spec, get_rng(ensemble.name), bin_size=args.bin_size)
     
 
     result["avg_plaquette"] = bootstrap_finalize(result["plaquette"])

@@ -108,6 +108,12 @@ def get_args():
         help="Interval of trajectories to consider",
     )
     parser.add_argument(
+        "--bin_size",
+        type=int,
+        default=1,
+        help="Number of consecutive configurations to bin together",
+    )
+    parser.add_argument(
         "--output_file_mean",
         type=FileType("w"),
         default="-",
@@ -255,6 +261,7 @@ def bin_meson_correlator_samples(
     min_trajectory=None,
     max_trajectory=None,
     trajectory_step=1,
+    bin_size=1,
 ):
     filtered_indices = filter_configurations(ensemble, min_trajectory, max_trajectory, trajectory_step)
 
@@ -263,24 +270,17 @@ def bin_meson_correlator_samples(
     C_bin =[]
     for channel in target_channels:        
         C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, filtered_indices]
-        
-        #C = ensemble[f"source_N{Nsource}_sink_N{Nsink}/{rep} {channel}"][:, :]
-        # TO DO: how shall we deal with jumpping configs
-
         C_bin.append(C)
     
     C_bin = np.array(C_bin)
     C = C_bin.mean(axis=0)
-    #num_configs = (max_trajectory - min_trajectory) / trajectory_step + 1
-    #if C.shape[1] != num_configs:
-    #    raise ValueError(f"Number of configurations does not match the expected number -> got {C.shape[1]} but expected {num_configs}")
     
     if target_channels[0] == "g5_g0g5_re":
         C_flod = -fold_correlators_cross(C.T)
     else:
         C_flod = fold_correlators(C.T)
 
-    return sample_bootstrap_1d(C_flod, get_rng(ensemble.name))
+    return sample_bootstrap_1d(C_flod, get_rng(ensemble.name), bin_size=bin_size)
 
 def get_meson_corr( ensemble, args, Nsource, Nsink, channel):
 
@@ -293,6 +293,7 @@ def get_meson_corr( ensemble, args, Nsource, Nsink, channel):
             args.min_trajectory,
             args.max_trajectory,
             args.trajectory_step,
+            args.bin_size,
         )
         
         return corr * args.Ns**3

@@ -35,7 +35,8 @@ rule gevp_meson_mass:
         "python -m {params.module} {input.data} --output_file_samples {output.samples} --output_file_mean {output.mean} "
         "--ensemble_name {params.metadata.ensemble_name} --effmass_plot_file {output.plot} --plot_styles {plot_styles}"
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
-        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
+        " --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size}"
         " --channel {wildcards.channel} --gevp_t0 {params.metadata.gevp_t0}"
         " --n_smear_min {params.metadata.n_smear_min} --n_smear_max {params.metadata.n_smear_max} --n_smear_diff {params.metadata.n_smear_diff}"
         " --E0_plateau_start {params.E0_plateau_start} --E0_plateau_end {params.E0_plateau_end}"
@@ -61,7 +62,8 @@ rule meson_matrix_element:
     shell:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name}"
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
-        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
+        " --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size}"
         " --n_smear_max {params.metadata.n_smear_max} --channel {wildcards.channel} --E0_plateau_start {params.plateau_start} --E0_plateau_end {params.plateau_end}"
  
 
@@ -86,7 +88,8 @@ rule smear_meson_mass:
         "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --ensemble_name {params.metadata.ensemble_name}"
         " --effmass_plot_file {output.plot}  --plot_styles {plot_styles} "
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
-        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
+        " --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size}"
         " --channel {wildcards.channel} --n_smear_source {params.n_source_smear} --smear_plateau_start {params.plateau_start} --smear_plateau_end {params.plateau_end}"
  
 
