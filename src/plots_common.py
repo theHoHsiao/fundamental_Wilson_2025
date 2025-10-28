@@ -145,7 +145,7 @@ def channel_color(ch):
 def ch_tag(ch):
     return {
         "rhoE1": r"v^\prime",
-    }.get(ch, ch)
+    }.get(ch, ch.upper())
 
 
 def beta_marker(beta):
