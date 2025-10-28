@@ -80,6 +80,12 @@ def get_args():
         help="Interval of trajectories to consider",
     )
     parser.add_argument(
+        "--bin_size",
+        type=int,
+        default=1,
+        help="Number of consecutive configurations to bin together",
+    )
+    parser.add_argument(
         "--output_file_mean",
         type=FileType("w"),
         default="-",
@@ -113,7 +119,7 @@ def get_g5_eff_mass(sampled_correlator):
 
 
 def get_eff_mass_samples(
-    ensemble, min_trajectory=None, max_trajectory=None, trajectory_step=1
+    ensemble, min_trajectory=None, max_trajectory=None, trajectory_step=1, bin_size=1
 ):
     filtered_indices = filter_configurations(
         ensemble, min_trajectory, max_trajectory, trajectory_step
@@ -122,8 +128,8 @@ def get_eff_mass_samples(
     g5 = ensemble["source_N0_sink_N0/TRIPLET g5"][:, filtered_indices]
     g5_g0g5_re = -ensemble["source_N0_sink_N0/TRIPLET g5_g0g5_re"][:, filtered_indices]
 
-    g5_samples = sample_bootstrap_1d(g5.T, get_rng(ensemble.name))
-    g5_g0g5_re_samples = sample_bootstrap_1d(g5_g0g5_re.T, get_rng(ensemble.name))
+    g5_samples = sample_bootstrap_1d(g5.T, get_rng(ensemble.name), bin_size=bin_size)
+    g5_g0g5_re_samples = sample_bootstrap_1d(g5_g0g5_re.T, get_rng(ensemble.name), bin_size=bin_size)
 
     g5_eff_mass = get_g5_eff_mass(g5_samples)[0]
 
@@ -186,7 +192,7 @@ def main():
         data, beta=args.beta, mF=args.mF, Nt=args.Nt, Ns=args.Ns
     )
     eff_mass_samples = get_eff_mass_samples(
-        ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step
+        ensemble, args.min_trajectory, args.max_trajectory, args.trajectory_step, args.bin_size
     )
     fitted_mass_samples = eff_mass_samples[
         args.plateau_start : args.plateau_end
