@@ -83,7 +83,8 @@ def plot(data, fit_results, **kwargs):
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
-                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"f_{ch}_chisquare"])
+                if datum[f"f_{ch}_chisquare"] > 1.61:
+                    print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"f_{ch}_chisquare"])
 
             y_values, y_errors, x_values, x_errors = zip(*to_plot)
             ax.errorbar(

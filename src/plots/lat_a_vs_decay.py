@@ -47,8 +47,6 @@ def plot(data, fit_results, **kwargs):
 
     for ch, ax in zip(["ps", "v", "av"], axs):
 
-        print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
-
         ax.set_xlabel(r"$\hat{a}$")
         ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2$")
 
@@ -83,8 +81,6 @@ def plot(data, fit_results, **kwargs):
                 Y = (datum["w0_samples"] * datum[f"f_{ch}_decay_constant_samples"]) ** 2 #- L_fit * F_fit * ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
-
-                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"f_{ch}_chisquare"])
 
             y_values, y_errors, x_values, x_errors = zip(*to_plot)
             ax.errorbar(

@@ -85,13 +85,8 @@ def plot(data, fit_pars):
         3, 2, num="Figure_12", figsize=(TWO_COLUMN, 12), layout="constrained"
     )
 
-    for datum in data:
-        print(datum["ensemble_name"], datum["beta"], datum["mF"])
-
-
     for ax, ch in zip(data_axes.ravel(), ["v", "t", "av", "at", "s"]):
         
-        print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
 
         ax.set_xlabel(r"$\hat{a}$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
@@ -116,13 +111,8 @@ def plot(data, fit_pars):
                 if "w0_samples" not in datum:
                     continue
                 
-                if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.6:
-                    print(f"gevp_f_{ch}_E0_chisquare > 1.6 in {datum['ensemble_name']}")
-                
                 X = (1 / datum["w0_samples"])
                 Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2 #- L_fit * M_fit * ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
-
-                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
                 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 

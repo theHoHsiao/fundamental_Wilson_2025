@@ -103,7 +103,6 @@ def plot(data):
                 if "gevp_f_ps_E0_mass_samples" not in datum:
                     continue
 
-                print(datum["ensemble_name"])
 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
                 Y = (  datum["gevp_f_v_E0_mass_samples"] / datum[f"gevp_f_ps_E0_mass_samples"]) 

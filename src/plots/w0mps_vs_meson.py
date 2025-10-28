@@ -86,8 +86,8 @@ def plot(data, fit_pars):
     )
 
     for datum in data:
-        print(datum["ensemble_name"], datum["beta"], datum["mF"])
-
+        if datum[f"gevp_f_ps_E0_chisquare"] > 1.61:
+            print(datum["ensemble_name"], datum["beta"], datum["mF"], datum[f"gevp_f_ps_E0_chisquare"])
 
     for ax, ch in zip(data_axes.ravel(), ["v", "t", "av", "at", "s"]):
         
@@ -116,13 +116,12 @@ def plot(data, fit_pars):
                 if "w0_samples" not in datum:
                     continue
                 
-                if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.6:
-                    print(f"gevp_f_{ch}_E0_chisquare > 1.6 in {datum['ensemble_name']}")
                 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
                 Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2 #- W_fit / datum["w0_samples"]
 
-                print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
+                if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.61:
+                    print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
                 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
