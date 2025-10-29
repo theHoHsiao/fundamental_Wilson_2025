@@ -22,7 +22,8 @@ rule fit_pcac:
         " --effmass_plot_file {output.plot} --plot_styles {plot_styles} --ensemble_name {params.metadata.ensemble_name}"
         " --beta {params.metadata.beta} --mF {params.metadata.mF} --Nt {params.metadata.Nt} --Ns {params.metadata.Ns}"
         " --plateau_start {params.metadata.f_ps_matrix_element_plateau_start} --plateau_end {params.metadata.f_ps_matrix_element_plateau_end}"
-        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf_obs}"
+        " --min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf}"
+        " --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size}"
 
 
 def all_pcac_data(wildcards):
