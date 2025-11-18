@@ -81,18 +81,26 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
 
 
 def plot(data, fit_pars):
-    data_fig, data_axes = plt.subplots(
-        3, 2, num="Figure_12", figsize=(TWO_COLUMN, 8), layout="constrained"
-    )
+    #data_fig, data_axes = plt.subplots(
+    #    3, 2, num="Figure_12", figsize=(TWO_COLUMN, 8), layout="constrained"
+    #)
+
+    data_fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 8))
+    gs = data_fig.add_gridspec(nrows=3, ncols=4)
+    ax0 = data_fig.add_subplot(gs[0, :2])
+    ax1 = data_fig.add_subplot(gs[0, 2:])
+    ax2 = data_fig.add_subplot(gs[1, :2])
+    ax3 = data_fig.add_subplot(gs[1, 2:])
+    ax4 = data_fig.add_subplot(gs[2, 1:3])
+
+    data_axes = [ax0, ax1, ax2, ax3, ax4]
 
     for datum in data:
         if datum[f"gevp_f_ps_E0_chisquare"] > 1.61:
             print(datum["ensemble_name"], datum["beta"], datum["mF"], datum[f"gevp_f_ps_E0_chisquare"])
 
-    for ax, ch in zip(data_axes.ravel(), ["v", "t", "av", "at", "s"]):
+    for ax, ch in zip(data_axes, ["v", "t", "av", "at", "s"]):
         
-        print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
-
         ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
         
@@ -151,8 +159,8 @@ def plot(data, fit_pars):
 
         ax.set_xlim(0.0, 0.45)
 
-    #add_figure_legend(data_fig)
-    add_figure_legend_axes(data_fig, data_axes)
+    add_figure_legend(data_fig)
+    #add_figure_legend_axes(data_fig, data_axes)
 
     return data_fig
 
