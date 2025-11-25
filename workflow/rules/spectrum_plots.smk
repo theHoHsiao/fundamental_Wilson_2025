@@ -83,10 +83,11 @@ rule plot_extrapolations_meson_mass:
         script="src/plots/w0mps_vs_meson.py",
     output:
         plot_data="assets/plots/m2_all_con_sp4fund.{plot_filetype}",
+        summary_plot="assets/plots/m2_summary_sp4fund.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --fit_parameters {input.fit_results}"
+        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --plot_file_summary {output.summary_plot} --fit_parameters {input.fit_results}"
 
 
 rule plot_mpsL:

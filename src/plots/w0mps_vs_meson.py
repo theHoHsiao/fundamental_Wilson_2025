@@ -81,9 +81,14 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
 
 
 def plot(data, fit_pars):
-    #data_fig, data_axes = plt.subplots(
-    #    3, 2, num="Figure_12", figsize=(TWO_COLUMN, 8), layout="constrained"
-    #)
+    summary_fig, summary_ax = plt.subplots(
+        1, 1, num="Figure_14", figsize=(ONE_COLUMN, 4.8), layout="constrained"
+    )
+    summary_ax.plot([0, 1], [0, 1], "--", color="C0", label="PS")
+    summary_ax.set_ylim(0, 2)
+    summary_ax.set_xlim(0, 0.4)
+    summary_ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
+    summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
 
     data_fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 8))
     gs = data_fig.add_gridspec(nrows=3, ncols=4)
@@ -103,15 +108,9 @@ def plot(data, fit_pars):
         
         ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
+        ax.set_xlim(0.0, 0.4)
         
         #ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2 - W \hat{a}$")
-
-
-        for parameter in fit_pars:
-            if parameter["channel"] == ch:
-                L_fit = parameter["L_samples"]
-                W_fit = parameter["W_samples"]
-                M_fit = parameter["M_samples"]
 
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):
@@ -157,12 +156,22 @@ def plot(data, fit_pars):
                     "k",
                 )
 
-        ax.set_xlim(0.0, 0.45)
+                plot_axpb_y(
+                    summary_ax,
+                    parameter["M_samples"].samples,
+                    parameter["L_samples"].samples,
+                    r"$ \rm " + ch_tag(ch) + "$",
+                    0.8,
+                    channel_color(ch),
+                )
+
 
     add_figure_legend(data_fig)
     #add_figure_legend_axes(data_fig, data_axes)
 
-    return data_fig
+    add_figure_legend(summary_fig, 4, title=None)
+
+    return data_fig, summary_fig
 
 
 def main():
@@ -170,8 +179,9 @@ def main():
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
     fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
-    data_fig = plot(data, fit_pars)
+    data_fig, summary_fig = plot(data, fit_pars)
     save_or_show(data_fig, args.plot_file_data)
+    save_or_show(summary_fig, args.plot_file_summary)
 
 
 if __name__ == "__main__":
