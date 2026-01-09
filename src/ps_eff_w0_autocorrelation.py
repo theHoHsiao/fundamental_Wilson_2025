@@ -7,7 +7,7 @@ import numpy as np
 import re
 
 from .dump import dump_dict
-from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+from flow_analysis.stats.autocorrelation import integrated_autocorrelation_time
 from flow_analysis.readers import readers
 from flow_analysis.measurements.scales import bootstrap_ensemble_w0
 from flow_analysis.stats.bootstrap import bootstrap_finalize
@@ -174,8 +174,8 @@ def ps_eff_w0_autocorrelation(ensemble, args):
         
             
             trajectory_separation = get_index_separation(indices[filtered_indices])
-            ps_eff_w0_smear = exp_autocorrelation_fit(meff_smear * energy_density[:,flow_time_index]) * trajectory_separation
-            ps_eff_w0_point = exp_autocorrelation_fit(meff_point * energy_density[:,flow_time_index]) * trajectory_separation
+            ps_eff_w0_smear = integrated_autocorrelation_time(meff_smear * energy_density[:,flow_time_index]) * trajectory_separation
+            ps_eff_w0_point = integrated_autocorrelation_time(meff_point * energy_density[:,flow_time_index]) * trajectory_separation
 
         else:
             ps_eff_w0_smear = ufloat(np.nan, np.nan)

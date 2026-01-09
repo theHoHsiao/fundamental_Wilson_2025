@@ -3,7 +3,7 @@
 from argparse import ArgumentParser, FileType
 import itertools
 
-from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+from flow_analysis.stats.autocorrelation import integrated_autocorrelation_time
 
 import h5py
 import numpy as np
@@ -24,7 +24,7 @@ def get_skip(plaquettes):
     else:
         return None
     tau_exp = max(
-        exp_autocorrelation_fit(
+        integrated_autocorrelation_time(
             [plaquette for index, plaquette in plaquettes[first_movement_index:]]
         ).nominal_value,
         1,
@@ -101,7 +101,7 @@ def bimodal_autocorrelation_time(plaquettes_list):
     plaquettes = np.asarray([plaquette for index, plaquette in plaquettes_list])
     (_, mu1, sigma1), (_, mu2, sigma2) = fit_histogram(plaquettes)
     if abs(mu2 - mu1) < max(sigma1, sigma2):
-        return exp_autocorrelation_fit(plaquettes)
+        return integrated_autocorrelation_time(plaquettes)
     else:
         return mean_dwell_time(plaquettes, mu1, mu2)
 

@@ -5,7 +5,7 @@ from argparse import ArgumentParser, FileType
 from flow_analysis.fit_forms import gaussian
 from flow_analysis.readers import readers
 from flow_analysis.measurements.Q import Q_fit, flat_bin_Qs
-from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+from flow_analysis.stats.autocorrelation import integrated_autocorrelation_time
 
 import numpy as np
 
@@ -97,7 +97,7 @@ def get_args():
 
 def compute_stats(flows):
     A, Q0, sigma_Q = Q_fit(flows, with_amplitude=True)
-    tau_exp_Q = exp_autocorrelation_fit(flows.Q_history()) * get_index_separation(
+    tau_exp_Q = integrated_autocorrelation_time(flows.Q_history()) * get_index_separation(
         flows.trajectories
     )
     return {

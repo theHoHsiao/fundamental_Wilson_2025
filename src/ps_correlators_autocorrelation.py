@@ -6,7 +6,7 @@ import numpy as np
 import re
 
 from .dump import dump_dict
-from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+from flow_analysis.stats.autocorrelation import integrated_autocorrelation_time
 from .mass import get_args
 from .read_hdf5 import get_ensemble, filter_configurations
 from .utils import get_index_separation
@@ -98,8 +98,8 @@ def ps_correlator_autocorrelation(ensemble, args):
     
     trajectory_separation = get_index_separation(indices[filtered_indices])
 
-    tau_ps_correlator_smear = exp_autocorrelation_fit(corr_ps_smear) * trajectory_separation
-    tau_ps_correlator_point = exp_autocorrelation_fit(corr_ps_point) * trajectory_separation
+    tau_ps_correlator_smear = integrated_autocorrelation_time(corr_ps_smear) * trajectory_separation
+    tau_ps_correlator_point = integrated_autocorrelation_time(corr_ps_point) * trajectory_separation
 
 
     if args.effmass_plot_file:

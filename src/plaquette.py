@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser, FileType
 
-from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+from flow_analysis.stats.autocorrelation import integrated_autocorrelation_time
 
 import h5py
 import logging
@@ -146,7 +146,7 @@ def avg_plaquette(ensemble, start_cfg, end_cfg, cfg_step, name="..."):
 
     result["avg_plaquette"] = bootstrap_finalize(result["plaquette"])
     result["tau_exp_plaq"] = (
-        exp_autocorrelation_fit(raw_plaquettes) * result["delta_traj_plaq"]
+        integrated_autocorrelation_time(raw_plaquettes) * result["delta_traj_plaq"]
     )
     return result
 

@@ -3,7 +3,7 @@ from argparse import ArgumentParser, FileType
 from flow_analysis.readers import readers
 from flow_analysis.measurements.scales import bootstrap_ensemble_w0
 from flow_analysis.stats.bootstrap import bootstrap_finalize
-from flow_analysis.stats.autocorrelation import exp_autocorrelation_fit
+from flow_analysis.stats.autocorrelation import integrated_autocorrelation_time
 
 import h5py
 import numpy as np
@@ -155,7 +155,7 @@ def fit_w0_tau_exp(args, w0, flows, operator="sym"):
     flow_time_index = abs(flows.times - w0**2).argmin()
     energy_density = {"sym": flows.Ecs, "plaq": flows.Eps}[operator]
     energy_density_flow_time = energy_density[:, flow_time_index]
-    raw_tau_exp = exp_autocorrelation_fit(energy_density_flow_time )
+    raw_tau_exp = integrated_autocorrelation_time(energy_density_flow_time )
 
     if args.bin_size_plot_file:
         check_bin_sizes( args, energy_density_flow_time)
