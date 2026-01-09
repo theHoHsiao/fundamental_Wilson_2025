@@ -85,9 +85,9 @@ def plot(data, fit_pars):
         1, 1, num="Figure_14", figsize=(ONE_COLUMN, 4.8), layout="constrained"
     )
     summary_ax.plot([0, 1], [0, 1], "--", color="C0", label="PS")
-    summary_ax.set_ylim(0, 2)
+    summary_ax.set_ylim(0, 1.75)
     summary_ax.set_xlim(0, 0.4)
-    summary_ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
+    summary_ax.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
     summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
 
     data_fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 8))
@@ -106,7 +106,7 @@ def plot(data, fit_pars):
 
     for ax, ch in zip(data_axes, ["v", "t", "av", "at", "s"]):
         
-        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
+        ax.set_xlabel(r"$\hat{m}_{\mathrm{PS}}^2$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
         ax.set_xlim(0.0, 0.4)
         
@@ -150,7 +150,7 @@ def plot(data, fit_pars):
                 plot_axpb_y(
                     ax,
                     parameter["M_samples"].samples,
-                    parameter["L_samples"].samples,
+                    parameter["Lm_samples"].samples,
                     "",
                     0.4,
                     "k",
@@ -159,7 +159,7 @@ def plot(data, fit_pars):
                 plot_axpb_y(
                     summary_ax,
                     parameter["M_samples"].samples,
-                    parameter["L_samples"].samples,
+                    parameter["Lm_samples"].samples,
                     r"$ \rm " + ch_tag(ch) + "$",
                     0.8,
                     channel_color(ch),
@@ -169,7 +169,7 @@ def plot(data, fit_pars):
     add_figure_legend(data_fig)
     #add_figure_legend_axes(data_fig, data_axes)
 
-    add_figure_legend(summary_fig, 4, title=None)
+    add_figure_legend(summary_fig, 3, title=None)
 
     return data_fig, summary_fig
 

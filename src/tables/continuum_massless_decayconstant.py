@@ -25,8 +25,8 @@ def format_table(df):
             ).format(
                 "\\rm " + ch_tag(row.channel),
                 row.F,
-                row.L,
-                row.W,
+                row.Lf,
+                row.Wf,
                 row.chisquare,
             )
         )

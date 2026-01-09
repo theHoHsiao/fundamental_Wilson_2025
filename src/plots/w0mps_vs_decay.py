@@ -56,8 +56,8 @@ def plot(data, fit_results, **kwargs):
 
         for parameter in fit_results:
             if parameter["channel"] == ch:
-                L_fit = parameter["L_samples"]
-                W_fit = parameter["W_samples"]
+                L_fit = parameter["Lf_samples"]
+                W_fit = parameter["Wf_samples"]
                 F_fit = parameter["F_samples"]
         
         betas = sorted(set([datum["beta"] for datum in data]))
@@ -104,7 +104,7 @@ def plot(data, fit_results, **kwargs):
                 plot_axpb_y(
                     ax,
                     parameter["F_samples"].samples,
-                    parameter["L_samples"].samples,
+                    parameter["Lf_samples"].samples,
                     "",
                     0,
                     "k",
