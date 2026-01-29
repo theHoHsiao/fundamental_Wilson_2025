@@ -69,7 +69,7 @@ def get_header(column_headings, column_separation=None, hlines=2):
     else:
         separation_spec = f",colsep={column_separation}"
     begin_cmd = (
-        r"\begin{{tblr}}{{width=\textwidth,colspec={column_spec}{separation_spec}}}"
+        r"\begin{{tabular}}{{{column_spec}{separation_spec}}}"
         "\n\\hline\\hline"
     ).format(
         column_spec="|c" * len(column_headings) + "|",
@@ -87,7 +87,7 @@ def get_header(column_headings, column_separation=None, hlines=2):
 
 
 def get_footer():
-    return "\hline\hline\n\end{tblr}"
+    return "\hline\hline\n\end{tabular}"
 
 
 def ensemble_table_main(tabulate_function):
