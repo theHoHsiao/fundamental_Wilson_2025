@@ -172,6 +172,30 @@ rule plot_extrapolations_Rvps:
         "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data}"
 
 
+
+rule plot_g_rho_pipi:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=mass_gevp_samples,
+        dec=decay_samples,
+        w0=w0_samples,
+        fit_results=partial(
+            mass_extp,
+            observables=[
+                "f_v_extp_mass",
+                "f_ps_extp_decayconstant",
+            ],
+        ),
+        script="src/plots/w0_vs_mv_d_fps.py",
+    output:
+        plot_data="assets/plots/R_g_rho_pipi.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {input.dec} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --fit_parameters {input.fit_results}"
+
+
 rule plot_test:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],

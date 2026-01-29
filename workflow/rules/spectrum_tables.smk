@@ -23,7 +23,7 @@ def autocorr_data(wildcards):
             f"meson_gevp_E0_f_ps_mean",      
         ]
         for row in metadata.to_dict(orient="records")
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ]
 
 
@@ -31,9 +31,9 @@ def extraction_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_extraction_{rep}_{channel}_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        for channel in ["ps", "v"]
+        for channel in ["ps", "v", "av"]
         for rep in ["f"]
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ]
 
 
@@ -41,16 +41,16 @@ def gevp_E0_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_gevp_E0_{rep}_{channel}_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        for channel in ["ps", "v"]
+        for channel in ["ps", "v", "t", "av", "at", "s"]
         for rep in ["f"]
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ]
 
 def mPCAC_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/mpcac_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ] 
 
 
@@ -60,21 +60,21 @@ def decay_constant_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "av"]
         for rep in ["f"]
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ] 
 
 def w0_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/w0_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ] 
 
 def plaq_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/plaquette_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_table"]
+        if row["use_in_extrapolation"]
     ] 
 
 
@@ -100,14 +100,29 @@ rule f_meson_mass_table:
         mass=extraction_means,
         E0=gevp_E0_means,
         w0=w0_means,
-        mPCAC=mPCAC_means,
-        script="src/tables/print_spectrum_meson_f.py",
+        script="src/tables/print_spectrum_meson_1.py",
     output:
-        table="assets/tables/spectrum_meson_f.tex",
+        table="assets/tables/spectrum_meson_1.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} {input.mPCAC} --output_file {output.table}"
+        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} --output_file {output.table}"
+
+
+rule f_meson_mass_table2:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        decay=decay_constant_means,
+        mass=extraction_means,
+        E0=gevp_E0_means,
+        script="src/tables/print_spectrum_meson_2.py",
+    output:
+        table="assets/tables/spectrum_meson_2.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.decay} {input.mass} {input.E0}  --output_file {output.table}"
 
 
 rule ens_table:
@@ -117,13 +132,14 @@ rule ens_table:
         plaq=plaq_means,
         w0=w0_means,
         mass=gevp_E0_means,
+        mPCAC=mPCAC_means,
         script="src/tables/print_ens.py",
     output:
         table="assets/tables/ensemble.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.plaq} {input.w0} {input.mass} --output_file {output.table}"
+        "python -m {params.module} {input.plaq} {input.w0} {input.mass} {input.mPCAC} --output_file {output.table}"
 
 
 rule continuum_massless_mass:
