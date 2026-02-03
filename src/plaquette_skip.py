@@ -160,7 +160,7 @@ def avg_plaquette(ensemble, args):
 
     result["avg_plaquette"] = bootstrap_finalize(result["plaquette"])
     result["tau_exp_plaq"] = (
-        integrated_autocorrelation_time(plaq_auto ) * result["delta_traj"]
+        integrated_autocorrelation_time(plaq_spec ) * result["delta_traj"]
     )
     return result
 
