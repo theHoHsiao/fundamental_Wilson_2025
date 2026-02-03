@@ -238,6 +238,8 @@ def get_channel_tags(ch):
         "at": ["g0g5g1", "g0g5g2", "g0g5g3"],
         "s": ["id"],
         "ps-av" : ["g5_g0g5_re"],
+        "v-t" : ["g1_g0g1_re", "g2_g0g2_re", "g3_g0g3_re"],
+        "t-v" : ["g0g1_g1_re", "g0g2_g2_re", "g0g3_g3_re"],
     }.get(ch, ch)
 
 
@@ -277,6 +279,8 @@ def bin_meson_correlator_samples(
     
     if target_channels[0] == "g5_g0g5_re":
         C_flod = -fold_correlators_cross(C.T)
+    elif "-" in measurement:
+        C_flod = fold_correlators_cross(C.T)
     else:
         C_flod = fold_correlators(C.T)
 

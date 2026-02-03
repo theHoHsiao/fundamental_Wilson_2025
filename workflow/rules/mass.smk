@@ -93,6 +93,29 @@ rule smear_meson_mass:
         " --channel {wildcards.channel} --n_smear_source {params.n_source_smear} --smear_plateau_start {params.plateau_start} --smear_plateau_end {params.plateau_end}"
  
 
+rule fit_mass_GEVP_rhoE1:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+        metadata=metadata_lookup(),
+    input:
+        data="data_assets/corr_sp4_FUN.h5",
+        script="src/mass_gevp_rho_prime.py",
+    output:
+        mean=f"intermediary_data/{dir_template}/gevp_meson_rhoE1_mean.csv",
+        samples=f"intermediary_data/{dir_template}/gevp_meson_rhoE1_samples.json",
+        plot=f"intermediary_data/{dir_template}/gevp_meson_rhoE1_eff_mass.pdf",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} "
+        " --effmass_plot_file {output.plot}  --plot_styles {plot_styles} "
+        "--ensemble_name {params.metadata.ensemble_name} --beta {params.metadata.beta} --mF {params.metadata.mF} "
+        "--Nt {params.metadata.Nt} --Ns {params.metadata.Ns} --plateau_start {params.metadata.rhoE1_plateau_start} --plateau_end {params.metadata.rhoE1_plateau_end} "
+        "--min_trajectory {params.metadata.init_conf} --max_trajectory {params.metadata.final_conf} --trajectory_step {params.metadata.delta_conf} --bin_size {params.metadata.bin_size} "
+        "--N_sink {params.metadata.rhoE1_N_sink} --N_source {params.metadata.n_smear_max} --epsilon {params.metadata.f_epsilon} --gevp_t0 {params.metadata.gevp_t0}"
+        " --n_smear_min {params.metadata.rhoE1_smear_min} --n_smear_max {params.metadata.rhoE1_smear_max} --n_smear_diff {params.metadata.rhoE1_smear_diff}"
+
+
 def extraction_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_extraction_{rep}_{channel}_samples.json".format(**row)

@@ -5,11 +5,14 @@ import h5py
 import numpy as np
 from itertools import product
 
+from src.plots_common import plot_meson_gevp_energy_states_only, plot_meson_smear
+
+
 
 from .bootstrap import BootstrapSampleSet, BOOTSTRAP_SAMPLE_COUNT, bootstrap_finalize
 from .dump import dump_dict, dump_samples
 from . import extract, fitting
-from .mass_smear import bin_multi_source
+from .mass import get_meson_corr
 from .read_hdf5 import get_ensemble
 
 
@@ -19,6 +22,16 @@ def get_args():
     )
 
     parser.add_argument("h5file", help="The file to read")
+    parser.add_argument(
+        "--effmass_plot_file",
+        default=None,
+        help="Where to output the effective mass plot. (Skipped if not specified)",
+    )
+    parser.add_argument(
+        "--plot_styles",
+        default="styles/paperdraft.mplstyle",
+        help="Stylesheet to use for plots",
+    )
     parser.add_argument(
         "--ensemble_name",
         default=None,
@@ -35,6 +48,12 @@ def get_args():
         type=float,
         default=None,
         help="The antisymmetric fermion mass of the ensemble to analyse",
+    )
+    parser.add_argument(
+        "--mF",
+        type=float,
+        default=None,
+        help="The fundamental fermion mass of the ensemble to analyse",
     )
     parser.add_argument(
         "--Nt",
@@ -94,22 +113,52 @@ def get_args():
         help="Wuppertal smearing epsilon",
     )
     parser.add_argument(
+        "--N_source",
+        type=int,
+        default=None,
+        help="Source smearing level",
+    )
+    parser.add_argument(
         "--N_sink",
         type=int,
         default=None,
         help="Optimal smearing level",
     )
     parser.add_argument(
-        "--num_source",
+        "--n_smear_min",
         type=int,
         default=None,
+        help="min smearing level",
+    )
+    parser.add_argument(
+        "--n_smear_max",
+        type=int,
+        default=None,
+        help="max smearing level",
+    )
+    parser.add_argument(
+        "--n_smear_diff",
+        type=int,
+        default=None,
+        help="diff smearing level",
+    )
+    parser.add_argument(
+        "--num_source",
+        type=int,
+        default=1,
         help="number of source location used for smearing measurements",
     )
     parser.add_argument(
-        "--GEVP_t0",
+        "--gevp_t0",
         type=int,
         default=None,
-        help="number of source location used for smearing measurements",
+        help="Fixed time slice for GEVP",
+    )
+    parser.add_argument(
+        "--bin_size",
+        type=int,
+        default=1,
+        help="Number of consecutive configurations to bin together",
     )
     return parser.parse_args()
 
@@ -129,11 +178,16 @@ def fold_correlators_cross(C):
 def get_meson_Cmat_mix_N(ensemble, args, ch1, ch2):
     mixing_channel = [ch1, ch2]
 
-    mat = np.zeros(shape=(BOOTSTRAP_SAMPLE_COUNT, args.Nt, 2, 2))
-    mat_mean = np.zeros(shape=(1, args.Nt, 2, 2))
-
+    smear_Ns = [str(i) for i in np.arange(args.n_smear_min, args.n_smear_max + 1, args.n_smear_diff)]
+    N_smear_levels = len(smear_Ns)
+    
     matrix_size_channel = range(2)
-    matrix_size_smearing = range(1)
+    matrix_size_smearing = range(N_smear_levels)
+
+    m_size = len(matrix_size_channel) * N_smear_levels
+
+    mat = np.zeros(shape=(BOOTSTRAP_SAMPLE_COUNT, args.Nt, m_size, m_size))
+    mat_mean = np.zeros(shape=(1, args.Nt, m_size, m_size))
 
     for a, b, i, j in product(
         matrix_size_channel,
@@ -142,36 +196,23 @@ def get_meson_Cmat_mix_N(ensemble, args, ch1, ch2):
         matrix_size_smearing,
     ):
         if a == b:
-            ch = mixing_channel[a]
-            corr_set = bin_multi_source(ensemble, ch, args)
-            mat[:, :, a + i, b + j] = fold_correlators(corr_set.samples)
-            mat_mean[:, :, a + i, b + j] = fold_correlators(corr_set.mean)
+            ch = "f_"+mixing_channel[a]
+            corr_set = get_meson_corr(
+                ensemble, args, smear_Ns[i], smear_Ns[j], ch
+                )
+            mat[:, :, a + i*2, b + j*2] = corr_set.samples
+            mat_mean[:, :, a + i*2, b + j*2] = corr_set.mean
 
         else:
-            ch = mixing_channel[a] + "_" + mixing_channel[b] + "_re"
-            corr_set = bin_multi_source(ensemble, ch, args)
-            mat[:, :, a + i, b + j] = -fold_correlators_cross(corr_set.samples)
-            mat_mean[:, :, a + i, b + j] = -fold_correlators_cross(corr_set.mean)
-
+            ch = "f_"+mixing_channel[a] + "-" + mixing_channel[b]
+            corr_set = get_meson_corr(
+                ensemble, args, smear_Ns[i], smear_Ns[j], ch
+                )
+            mat[:, :, a + i*2, b + j*2] = -corr_set.samples
+            mat_mean[:, :, a + i*2, b + j*2] = -corr_set.mean
+    
+    #print(mat_mean[0,2,:,:])
     return mat_mean, mat
-
-
-def get_Cmat_VTmix(ensemble, args):
-    target_channels = [
-        ["g1", "g0g1"],
-        ["g2", "g0g2"],
-        ["g3", "g0g3"],
-    ]
-
-    bin_samples = []
-    mean_bin = []
-    for channels in target_channels:
-        mean, samples = get_meson_Cmat_mix_N(ensemble, args, channels[0], channels[1])
-
-        mean_bin.append(mean)
-        bin_samples.append(samples)
-
-    return np.array(mean_bin).mean(axis=0), np.array(bin_samples).mean(axis=0)
 
 
 def main():
@@ -188,22 +229,31 @@ def main():
         ensemble = get_ensemble(
             data,
             beta=args.beta,
-            mAS=args.mAS,
+            mF=args.mF,
             Nt=args.Nt,
             Ns=args.Ns,
             num_source=args.num_source,
             epsilon=args.epsilon,
-        )
+        )[0]
+        #print(ensemble[0]["source_N0_sink_N120"].keys())
+        Cmat_mean, Cmat = get_meson_Cmat_mix_N(ensemble, args, "v", "t")
 
-        Cmat_mean, Cmat = get_Cmat_VTmix(ensemble, args)
-
-        eigenvalues = extract.GEVP_fixT(
-            Cmat_mean, Cmat, args.GEVP_t0, args.GEVP_t0 + 1, args.Nt
-        )
+        eigenvalues = extract.gevp_fixT(Cmat_mean, Cmat, args.gevp_t0, args.gevp_t0+1, args.Nt/2)
+       
 
         mass, matrix_element, chi2 = fitting.fit_exp_bootstrap(
             eigenvalues[1], args.plateau_start, args.plateau_end
         )
+        print(f"chi2 = {chi2}")
+        if args.effmass_plot_file is not None:
+            plot_meson_gevp_energy_states_only(args, eigenvalues)
+            #plot_meson_smear(args, eigenvalues[1], mass, args.plateau_start, args.plateau_end)
+
+            
+
+            
+        
+        
 
     fitted_m = bootstrap_finalize(mass)
     fitted_a = bootstrap_finalize(matrix_element)
@@ -211,16 +261,16 @@ def main():
     metadata = {
         "ensemble_name": args.ensemble_name,
         "beta": args.beta,
-        "mAS": args.mAS,
+        "mF": args.mF,
         "Nt": args.Nt,
         "Ns": args.Ns,
     }
     dump_dict(
         {
             **metadata,
-            "smear_rhoE1_chisquare": chi2,
-            "smear_rhoE1_mass": fitted_m,
-            "smear_rhoE1_matrix_element": fitted_a,
+            "gevp_f_rhoprime_chisquare": chi2,
+            "gevp_f_rhoprime_E0_mass": fitted_m,
+            "gevp_f_rhoprime_matrix_element": fitted_a,
         },
         args.output_file_mean,
     )
@@ -228,10 +278,10 @@ def main():
         dump_samples(
             {
                 **metadata,
-                "smear_rhoE1_mass_samples": mass.samples,
-                "smear_rhoE1_mass_value": mass.mean,
-                "smear_rhoE1_matrix_element_samples": matrix_element.samples,
-                "smear_rhoE1_matrix_element_value": matrix_element.mean,
+                "gevp_f_rhoprime_mass_samples": mass.samples,
+                "gevp_f_rhoprime_mass_value": mass.mean,
+                "gevp_f_rhoprime_matrix_element_samples": matrix_element.samples,
+                "gevp_f_rhoprime_matrix_element_value": matrix_element.mean,
             },
             args.output_file_samples,
         )
