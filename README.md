@@ -1,4 +1,4 @@
-# Meson spectroscopy in the Sp(4) gauge theory with three antisymmetric fermions&mdash;Analysis workflow
+# Meson spectroscopy in the Sp(4) gauge theory with two fundamental fermions&mdash;Analysis workflow
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13819431.svg)](https://doi.org/10.5281/zenodo.13819431)
 
