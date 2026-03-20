@@ -23,7 +23,7 @@ def format_table(df):
             (
                 "${}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02f}$ \\\\\n"
             ).format(
-                "\\rm " + ch_tag(row.channel.upper()),
+                "\\rm " + ch_tag(row.channel),
                 row.M,
                 row.Lm,
                 row.Wm,

@@ -11,7 +11,7 @@ import numpy as np
 
 from .dump import dump_dict
 from .flow import read_flows
-from .plots_common import ONE_COLUMN
+from .plots_common import TWO_COLUMN
 from .utils import get_index_separation
 
 
@@ -118,7 +118,7 @@ def plot(flows, results, plot_filename, plot_styles):
         sharey=True,
         layout="constrained",
         gridspec_kw={"width_ratios": [3, 1]},
-        figsize=(ONE_COLUMN, 2.5),
+        figsize=(TWO_COLUMN*0.32, TWO_COLUMN*0.32),
     )
 
     history_ax.step(flows.trajectories, flows.Q_history())

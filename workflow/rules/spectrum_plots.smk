@@ -9,7 +9,7 @@ def extraction_samples(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "av", "t", "s", "at"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_main_plots"]
     ]
 
 
@@ -19,7 +19,17 @@ def mass_gevp_samples(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "t", "av", "at", "s"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_main_plots"]
+    ]
+
+
+
+def mass_gevp_rhoE1_samples(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/gevp_meson_rhoE1_samples.json".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_main_plots"]
+        if row["VT_cross"]
     ]
 
 
@@ -29,7 +39,7 @@ def mass_smear_samples(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "t"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_main_plots"]
     ]
 
 
@@ -38,7 +48,7 @@ def w0_samples(wildcards):
     return [
         f"intermediary_data/{dir_template}/w0_samples.json".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_extrapolation"]
+        if row["use_in_main_plots"]
     ]
 
 
@@ -48,7 +58,7 @@ def decay_samples(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "av"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_main_plots"]
 
     ]
 

@@ -78,7 +78,8 @@ tables = expand(
         "nlo_coefficients_decayconstant",
         "nlo_coefficients_mass",
         "autocorr_table",
-        "spectrum_meson_f",
+        "spectrum_meson_1",
+        "spectrum_meson_2",
         ],
 )
 definitions = expand(

@@ -86,7 +86,7 @@ def plot(data):
 
     for ax, ch in zip([data_axes], ["ps"]):
 
-        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
+        ax.set_xlabel(r"$m_{\rm PS}^{\rm inf} L$")
         ax.set_ylabel(r"$m_\mathrm{" + ch_tag(ch) + "} L$")
 
         #ax.set_xlabel(r"$am_{\mathrm{ps}}^2$")

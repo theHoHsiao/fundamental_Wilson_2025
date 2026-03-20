@@ -81,7 +81,7 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
 
 def plot(data):
     data_fig, data_axes = plt.subplots(
-        1, 1, num="Figure_12", figsize=(ONE_COLUMN, 4), layout="constrained"
+        1, 1, num="Figure_12", figsize=(ONE_COLUMN, 3.5), layout="constrained"
     )
 
     for ax, ch in zip([data_axes], ["v"]):

@@ -84,6 +84,8 @@ def main():
             **metadata,
             f"gevp_{args.channel}_E0_chisquare": chisquares[0],
             f"gevp_{args.channel}_E0_mass": bootstrap_finalize(masses[0]),
+            f"gevp_{args.channel}_E1_chisquare": chisquares[1],
+            f"gevp_{args.channel}_E1_mass": bootstrap_finalize(masses[1]),
             "Ncfg_spec": Ncfg_spec,
             "delta_traj_spec": args.trajectory_step,
         },

@@ -160,11 +160,11 @@ key_observables = {
         + [f"f_{state}_matrix_element" for state in ["ps", "v", "av"]]
         + [
             f"gevp_f_{state}_E0_mass"
-            for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
+            for state in ["ps", "v", "t", "av", "at", "s", "rhoprime"]
         ]
         + [
             f"smear_{state}_Rfps"
-            for state in ["ps", "v", "t", "av", "at", "s", "rhoE1"]
+            for state in ["ps", "v", "t", "av", "at", "s", "rhoprime"]
         ]
         + [f"{state}_Rfps" for state in ["ps", "v", "t", "av", "at", "s"]]
         + ["smear_rhoE1_Rmv"]

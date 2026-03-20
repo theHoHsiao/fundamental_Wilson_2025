@@ -54,14 +54,15 @@ def get_args():
     )
     return parser.parse_args()
 
+mps_cut = 0.06
 
 def plot_axpb_y(ax, A, L, ch, alpha, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
     x_min, x_max = ax.get_xlim()
-    x_i = 0
-    x_f = np.sqrt(x_max)
+    x_i = np.sqrt(mps_cut)
+    x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -86,7 +87,7 @@ def plot(data, fit_pars):
     )
     summary_ax.plot([0, 1], [0, 1], "--", color="C0", label="PS")
     summary_ax.set_ylim(0, 1.75)
-    summary_ax.set_xlim(0, 0.4)
+    summary_ax.set_xlim(0, 0.405)
     summary_ax.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
     summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
 
@@ -96,19 +97,32 @@ def plot(data, fit_pars):
     ax1 = data_fig.add_subplot(gs[0, 2:])
     ax2 = data_fig.add_subplot(gs[1, :2])
     ax3 = data_fig.add_subplot(gs[1, 2:])
-    ax4 = data_fig.add_subplot(gs[2, 1:3])
+    #ax4 = data_fig.add_subplot(gs[2, 1:3])
+    ax4 = data_fig.add_subplot(gs[2, :2])
+    ax5 = data_fig.add_subplot(gs[2, 2:])
 
-    data_axes = [ax0, ax1, ax2, ax3, ax4]
+    data_axes = [ax0, ax1, ax2, ax3, ax4, ax5]
+
+    
 
     for datum in data:
         if datum[f"gevp_f_ps_E0_chisquare"] > 1.61:
             print(datum["ensemble_name"], datum["beta"], datum["mF"], datum[f"gevp_f_ps_E0_chisquare"])
 
-    for ax, ch in zip(data_axes, ["v", "t", "av", "at", "s"]):
+    for ax, ch in zip(data_axes, ["v", "t", "av", "at", "s", "rhoE1"]):
         
+        if ch == "rhoE1":
+            n = 1
+            ch = "v"
+        else:
+            n = 0
+
         ax.set_xlabel(r"$\hat{m}_{\mathrm{PS}}^2$")
         ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
-        ax.set_xlim(0.0, 0.4)
+        ax.set_xlim(0.0, 0.41)
+        
+
+        
         
         #ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2 - W \hat{a}$")
 
@@ -122,10 +136,22 @@ def plot(data, fit_pars):
                 
                 if "w0_samples" not in datum:
                     continue
+
+                if f"gevp_f_{ch}_E{n}_mass_samples" not in datum:
+                    print("Missing data for channel!!", ch, f"E{n}", "in ensemble", datum["ensemble_name"])
+                    to_plot.append((np.nan, np.nan, np.nan, np.nan))
+                    continue
                 
+                for parameter in fit_pars:
+                    if parameter["channel"] == ch:
+                       
+                        W_fit = parameter["Wm_samples"]
+    
                 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
-                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2 #- W_fit / datum["w0_samples"]
+
+                
+                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E{n}_mass_samples"]) ** 2 #- W_fit / datum["w0_samples"]
 
                 if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.61:
                     print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
@@ -146,7 +172,10 @@ def plot(data, fit_pars):
             )
         
         for parameter in fit_pars:
-            if parameter["channel"] == ch:
+            if parameter["channel"] == "rhoE1":
+                continue
+
+            if parameter["channel"] == ch and n == 0:
                 plot_axpb_y(
                     ax,
                     parameter["M_samples"].samples,
@@ -164,12 +193,18 @@ def plot(data, fit_pars):
                     0.8,
                     channel_color(ch),
                 )
+        ax.set_ylim(0.0, None)
+        _, ymax = ax.get_ylim()
+        ax.fill_between(
+            [0, mps_cut], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+        ax.fill_between(
+            [0.4, 0.41], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 
 
     add_figure_legend(data_fig)
     #add_figure_legend_axes(data_fig, data_axes)
 
-    add_figure_legend(summary_fig, 3, title=None)
+    #add_figure_legend(summary_fig, 3, title=None)
 
     return data_fig, summary_fig
 

@@ -10,9 +10,9 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $\beta$ & $m_0$ & $am_{\mathrm{ps}}$  & $af_{\mathrm{ps}} $ &"
+        r"Ensemble & $\beta$ & $m_0$ & $am_{\mathrm{PCAC}}$ & $am_{\mathrm{ps}}$  & $af_{\mathrm{ps}} $ &"
         r" $m_{\mathrm{ps}}L$ & $f_{\mathrm{ps}}L$ & $am_{\mathrm{s}} $\\"
         "\n\\hline"
     )
@@ -27,12 +27,13 @@ def format_table(df):
 
         content.append(
             (
-                "{} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
+                "{} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
                 "${:.02uSL}$ \\\\\n"
             ).format(
                 row.ensemble_name,
                 row.beta,
                 row.mF,
+                row.mPCAC,
                 row.gevp_f_ps_E0_mass,
                 row.f_ps_decay_constant,
                 row.gevp_f_ps_E0_mass * row.Ns,

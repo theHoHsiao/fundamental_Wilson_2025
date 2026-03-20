@@ -14,6 +14,14 @@ def extp_samples(wildcards, observables):
         if row["use_in_extrapolation"]
     ]
 
+def rhoE1_samples(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/gevp_meson_rhoE1_samples.json".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_extrapolation"]
+        if row["VT_cross"]
+    ]
+
 
 rule Mass_continuum_massless_extrapolation:
     params:
@@ -31,6 +39,7 @@ rule Mass_continuum_massless_extrapolation:
                 "meson_gevp_f_s",
             ],
         ),
+        data_rhoE1=rhoE1_samples,
         script="src/extrapolation_mass.py",
     output:
         mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_mass_mean.csv",
@@ -38,7 +47,7 @@ rule Mass_continuum_massless_extrapolation:
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
+        "python -m {params.module} {input.data} {input.data_rhoE1} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
 
 
 rule Decay_continuum_massless_extrapolation:

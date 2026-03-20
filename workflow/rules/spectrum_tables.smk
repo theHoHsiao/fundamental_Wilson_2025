@@ -70,6 +70,13 @@ def w0_means(wildcards):
         if row["use_in_extrapolation"]
     ] 
 
+def top_charge_means(wildcards):
+    return [
+        f"intermediary_data/{dir_template}/top_charge_mean.csv".format(**row)
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_extrapolation"]
+    ]
+
 def plaq_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/plaquette_mean.csv".format(**row)
@@ -100,13 +107,14 @@ rule f_meson_mass_table:
         mass=extraction_means,
         E0=gevp_E0_means,
         w0=w0_means,
+        mPCAC=mPCAC_means,
         script="src/tables/print_spectrum_meson_1.py",
     output:
         table="assets/tables/spectrum_meson_1.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} --output_file {output.table}"
+        "python -m {params.module} {input.decay} {input.mass} {input.E0} {input.w0} {input.mPCAC} --output_file {output.table}"
 
 
 rule f_meson_mass_table2:
@@ -132,14 +140,14 @@ rule ens_table:
         plaq=plaq_means,
         w0=w0_means,
         mass=gevp_E0_means,
-        mPCAC=mPCAC_means,
+        top_charge=top_charge_means,
         script="src/tables/print_ens.py",
     output:
         table="assets/tables/ensemble.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.plaq} {input.w0} {input.mass} {input.mPCAC} --output_file {output.table}"
+        "python -m {params.module} {input.plaq} {input.w0} {input.mass} {input.top_charge} --output_file {output.table}"
 
 
 rule continuum_massless_mass:

@@ -144,7 +144,7 @@ def channel_color(ch):
 
 def ch_tag(ch):
     return {
-        "rhoE1": r"v^\prime",
+        "rhoE1": r"\rho^\prime",
     }.get(ch, ch.upper())
 
 
@@ -249,7 +249,22 @@ def plot_meson_gevp_energy_states(args, eigenvalues, energy_states):
     fig.savefig(args.effmass_plot_file)
 
 
-def plot_meson_smear(args, corr, fit_results):
+def plot_meson_gevp_energy_states_only(args, eigenvalues):
+    plt.style.use(args.plot_styles)
+    fig, ax = plt.subplots(layout="constrained")
+
+    for n, eigenvalue in enumerate(eigenvalues):
+        plot_mass_eff_cosh(ax, eigenvalue, 2, args.Nt/2 + 1, "$E_"+f"{n} $")
+    
+    ax.set_xlabel("$t / a$")
+    ax.set_ylabel("$aE_n$")
+    ax.set_ylim(0, 1.6)
+    fig.legend(loc="upper right")
+    fig.savefig(args.effmass_plot_file)
+
+
+
+def plot_meson_smear(args, corr, fit_results, plateau_start, plateau_end):
     plt.style.use(args.plot_styles)
     fig, ax = plt.subplots(layout="constrained")
 
@@ -262,8 +277,6 @@ def plot_meson_smear(args, corr, fit_results):
         fit_results = ": "+"{:.02uSL}".format(fit_results_uf)
 
     plot_mass_eff_cosh(ax, corr, 2, args.Nt/2 + 1, fit_results)
-    plateau_start = getattr(args, "smear_plateau_start")
-    plateau_end = getattr(args, f"smear_plateau_end")
         
         
     plot_line(fit_value, fit_error , plateau_start, plateau_end, plt.gca().lines[-1].get_color())

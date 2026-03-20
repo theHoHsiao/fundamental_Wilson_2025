@@ -87,10 +87,18 @@ def plot(data, fit_pars):
     ax1 = data_fig.add_subplot(gs[0, 2:])
     ax2 = data_fig.add_subplot(gs[1, :2])
     ax3 = data_fig.add_subplot(gs[1, 2:])
-    ax4 = data_fig.add_subplot(gs[2, 1:3])
-    data_axes = [ax0, ax1, ax2, ax3, ax4]
+    #ax4 = data_fig.add_subplot(gs[2, 1:3])
+    ax4 = data_fig.add_subplot(gs[2, :2])
+    ax5 = data_fig.add_subplot(gs[2, 2:])
+    data_axes = [ax0, ax1, ax2, ax3, ax4, ax5]
 
-    for ax, ch in zip(data_axes, ["v", "t", "av", "at", "s"]):
+    for ax, ch in zip(data_axes, ["v", "t", "av", "at", "s", "rhoE1"]):
+
+        if ch == "rhoE1":
+            n = 1
+            ch = "v"
+        else:
+            n = 0
         
 
         ax.set_xlabel(r"$\hat{a}$")
@@ -115,9 +123,14 @@ def plot(data, fit_pars):
                 
                 if "w0_samples" not in datum:
                     continue
+
+                if f"gevp_f_{ch}_E0_mass_samples" not in datum:
+                    print("Missing data for channel", ch, "in ensemble", datum["ensemble_name"])
+                    to_plot.append((np.nan, np.nan, np.nan, np.nan))
+                    continue
                 
                 X = (1 / datum["w0_samples"])
-                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E0_mass_samples"]) ** 2 #- L_fit * M_fit * ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
+                Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E{n}_mass_samples"]) ** 2 #- L_fit * M_fit * ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
                 
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 

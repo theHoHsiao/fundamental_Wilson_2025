@@ -15,8 +15,8 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
     x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(0)
-    x_f = np.sqrt(x_max)
+    x_i = np.sqrt(mps_cut)
+    x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -34,6 +34,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
         x**2, y_up, y_dn, alpha=0.4, label=ch, facecolor=color, edgecolor=None
     )
 
+mps_cut = 0.06
 
 def plot(data, fit_results, **kwargs):
     fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 5))
@@ -43,7 +44,6 @@ def plot(data, fit_results, **kwargs):
     ax2 = fig.add_subplot(gs[1, 1:3])
     axs = [ax0, ax1, ax2]
 
-    subplot_ind = 0
 
     for ch, ax in zip(["ps", "v", "av"], axs):
 
@@ -51,6 +51,7 @@ def plot(data, fit_results, **kwargs):
 
         ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
         ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2$")
+        ax.set_xlim(0.0, 0.41)
 
         #ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2 - " r"W \hat{a}$")
 
@@ -109,11 +110,15 @@ def plot(data, fit_results, **kwargs):
                     0,
                     "k",
                 )
+        
+        ax.set_ylim(0.0, None)
+        _, ymax = ax.get_ylim()
+        ax.fill_between(
+            [0, mps_cut], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+        ax.fill_between(
+            [0.4, 0.41], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 
-        ax.set_xlim(0.0, 0.45)
-        ax.set_ylim(None, None)
-        subplot_ind += 1
-
+    
 
     add_figure_legend(fig)
     return fig

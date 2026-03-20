@@ -51,8 +51,8 @@ def plot_axpb_y(ax, A, L, ch, alpha, color, hatch=None):
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
     x_min, x_max = ax.get_xlim()
-    x_i = 0
-    x_f = np.sqrt(x_max)
+    x_i = np.sqrt(0.05)
+    x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
     y_up = np.zeros(n_fit)
@@ -76,16 +76,19 @@ def plot(fit_pars):
         1, 2, num="Summary", figsize=(TWO_COLUMN, 4), layout="constrained"
     )
     summary_ax = summary_axs[0]
-    summary_ax.plot([0, 1], [0, 1], "--", color="C0")
+    summary_ax.plot([0, 1], [0, 1], "--", color="k", linewidth=1, label=r"$\hat{m}_{\rm PS}$", alpha=0.8)
+    summary_ax.plot([0, 1], [0, 4], "--", color="k", linewidth=1, label=r"$ 2\hat{m}_{\rm PS}$", alpha=0.6)
+    summary_ax.plot([0, 1], [0, 9], "--", color="k", linewidth=1, label=r"$ 3\hat{m}_{\rm PS}$", alpha=0.4)
+
     summary_ax.set_ylim(0, 1.6)
-    summary_ax.set_xlim(0, 0.4)
+    summary_ax.set_xlim(0.06, 0.4)
     summary_ax.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
     summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
 
     ax2 = summary_axs[1] #summary_ax.twinx() 
     ax2.set_ylabel(r"$\hat{f}_{\rm M}^2$")
     ax2.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
-    ax2.set_xlim(0, 0.4)
+    ax2.set_xlim(0.06, 0.4)
     ax2.set_ylim(0, 0.04)
 
    
@@ -123,7 +126,7 @@ def plot(fit_pars):
                 )
 
 
-    add_figure_legend_axes(summary_fig, summary_axs, 7, title=None)
+    add_figure_legend_axes(summary_fig, summary_axs, 9, title=None)
     #add_figure_legend(summary_fig, 3, title=None)
 
     

@@ -11,7 +11,7 @@ from ..plots_common import (
 
 
 def plot(data, **kwargs):
-    fig, ax = plt.subplots(layout="constrained", figsize=(ONE_COLUMN, 3.0))
+    fig, ax = plt.subplots(layout="constrained", figsize=(ONE_COLUMN, 3.5))
 
     ax.set_xlabel(r"$\hat{m}_{\mathrm{PCAC}}$")
     ax.set_ylabel(r"$w_0 / a$")

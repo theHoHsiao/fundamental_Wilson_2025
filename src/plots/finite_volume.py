@@ -26,7 +26,7 @@ def plot(data, **kwargs):
     m_ps_inf = Ns_max_datum[0]["ps_mass_samples"]
 
     for ax, ch in zip(axs, ["ps", "v"]):
-        ax.set_xlabel(r"$m_{\rm ps}^{\rm inf} L$")
+        ax.set_xlabel(r"$m_{\rm PS}^{\rm inf} L$")
         ax.set_ylabel(r"$am_{\mathrm{" + ch_tag(ch) + "}}$")
 
         to_plot = []

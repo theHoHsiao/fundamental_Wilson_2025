@@ -268,9 +268,9 @@ def main():
     dump_dict(
         {
             **metadata,
-            "gevp_f_rhoprime_chisquare": chi2,
-            "gevp_f_rhoprime_E0_mass": fitted_m,
-            "gevp_f_rhoprime_matrix_element": fitted_a,
+            "gevp_f_rhoE1_E0_chisquare": chi2,
+            "gevp_f_rhoE1_E0_mass": fitted_m,
+            "gevp_f_rhoE1_E0_matrix_element": fitted_a,
         },
         args.output_file_mean,
     )
@@ -278,10 +278,11 @@ def main():
         dump_samples(
             {
                 **metadata,
-                "gevp_f_rhoprime_mass_samples": mass.samples,
-                "gevp_f_rhoprime_mass_value": mass.mean,
-                "gevp_f_rhoprime_matrix_element_samples": matrix_element.samples,
-                "gevp_f_rhoprime_matrix_element_value": matrix_element.mean,
+                "gevp_f_rhoE1_E0_chisquare": chi2,
+                "gevp_f_rhoE1_E0_mass_samples": mass.samples,
+                "gevp_f_rhoE1_E0_mass_value": mass.mean,
+                "gevp_f_rhoE1_E0_matrix_element_samples": matrix_element.samples,
+                "gevp_f_rhoE1_E0_matrix_element_value": matrix_element.mean,
             },
             args.output_file_samples,
         )
