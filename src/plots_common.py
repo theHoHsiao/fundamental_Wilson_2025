@@ -14,6 +14,8 @@ from .dump import read_sample_files
 ONE_COLUMN = 3.4
 TWO_COLUMN = 7.0
 
+MPS_CUT = 0.1075
+
 markers = itertools.cycle(['o','s','v'])
 
 def save_or_show(fig, filename=None):
