@@ -88,6 +88,11 @@ rule plot_extrapolations_meson_mass:
                 "f_av_extp_mass",
                 "f_at_extp_mass",
                 "f_s_extp_mass",
+                "f_v_extp_a2_mass",
+                "f_t_extp_a2_mass",
+                "f_av_extp_a2_mass",
+                "f_at_extp_a2_mass",
+                "f_s_extp_a2_mass",
             ],
         ),
         script="src/plots/w0mps_vs_meson.py",
@@ -127,6 +132,33 @@ rule plot_extrapolations_summary:
         "python -m {params.module} {input.w0} --plot_styles {plot_styles} --plot_file_summary {output.summary_plot} --fit_parameters {input.fit_results}"
 
 
+rule plot_extrapolations_summary_in_fps:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        w0=w0_samples,
+        fit_results=partial(
+            mass_extp,
+            observables=[
+                "f_v_extp_mass",
+                "f_t_extp_mass",
+                "f_av_extp_mass",
+                "f_at_extp_mass",
+                "f_s_extp_mass",
+                "f_ps_extp_decayconstant",
+                "f_v_extp_decayconstant",
+                "f_av_extp_decayconstant",
+            ],
+        ),
+        script="src/plots/w0mps_summary_in_fps.py",
+    output:
+        summary_plot="assets/plots/spec_summary_in_fps_sp4fund.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.w0} --plot_styles {plot_styles} --plot_file_summary {output.summary_plot} --fit_parameters {input.fit_results}"
+
+
 
 rule plot_mpsL:
     params:
@@ -156,6 +188,9 @@ rule plot_extrapolations_meson_decay:
                 "f_ps_extp_decayconstant",
                 "f_v_extp_decayconstant",
                 "f_av_extp_decayconstant",
+                "f_ps_extp_a2_decayconstant",
+                "f_v_extp_a2_decayconstant",
+                "f_av_extp_a2_decayconstant",
             ],
         ),
         script="src/plots/w0mps_vs_decay.py",

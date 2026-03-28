@@ -6,6 +6,7 @@ from ..plots_common import (
     standard_plot_main,
     add_figure_legend,
     TWO_COLUMN,
+    MPS_CUT,
 )
 import numpy as np
 
@@ -14,8 +15,7 @@ def plot_axpb_y(ax, A, L, ch, offset, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
-    x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(mps_cut)
+    x_i = np.sqrt(MPS_CUT)
     x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
@@ -110,11 +110,20 @@ def plot(data, fit_results, **kwargs):
                     0,
                     "k",
                 )
+            
+                plot_axpb_y(
+                    ax,
+                    parameter["F_a2_samples"].samples,
+                    parameter["Lf_a2_samples"].samples,
+                    "",
+                    0.4,
+                    "r",
+                )
         
         ax.set_ylim(0.0, None)
         _, ymax = ax.get_ylim()
         ax.fill_between(
-            [0, mps_cut], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+            [0, MPS_CUT], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
         ax.fill_between(
             [0.4, 0.41], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 

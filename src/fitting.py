@@ -589,6 +589,9 @@ def quadratic_fit_form(x, a, b, c):
 def mass_square_fit_form(mass, a, b, c, lat_a):
     return a * (1 + b * mass) + c * lat_a
 
+def mass_square_a2_fit_form(mass, a, b, c, d, lat_a):
+    return a * (1 + b * mass) + c * lat_a + d * lat_a**2
+
 
 def diagonal_covariance(data):
     result = np.zeros(shape=(len(data), len(data)))
@@ -607,11 +610,15 @@ def split_means_samples(sample_sets):
     return np.asarray([datum.samples for datum in sample_sets])
 
 
-def global_meson_fit(fit_form, x_data, y_data):
+def global_meson_fit(fit_form, x_data, y_data, initial_guess=None):
     x_means, x_samples = split_means_samples(x_data)
     y_means, y_samples = split_means_samples(y_data)
 
-    x0, _ = curve_fit(fit_form, x_means, y_means)
+    if initial_guess is None:
+        x0, _ = curve_fit(fit_form, x_means, y_means)
+    else:
+        x0, _ = curve_fit(fit_form, x_means, y_means, p0=initial_guess, maxfev=10000)
+
     inverse_covariance = np.linalg.inv(diagonal_covariance(y_samples))
 
     def chisquare(pars, y_sample, x_sample, inverse_covariance):

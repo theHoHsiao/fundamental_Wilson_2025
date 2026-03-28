@@ -8,9 +8,9 @@ from ..plots_common import (
     ch_tag,
     channel_color,
     add_figure_legend,
-    add_figure_legend_axes,
     ONE_COLUMN,
     TWO_COLUMN,
+    MPS_CUT,
 )
 from argparse import ArgumentParser
 import numpy as np
@@ -54,14 +54,12 @@ def get_args():
     )
     return parser.parse_args()
 
-mps_cut = 0.06
 
 def plot_axpb_y(ax, A, L, ch, alpha, color):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
-    x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(mps_cut)
+    x_i = np.sqrt(MPS_CUT)
     x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
@@ -142,10 +140,10 @@ def plot(data, fit_pars):
                     to_plot.append((np.nan, np.nan, np.nan, np.nan))
                     continue
                 
-                for parameter in fit_pars:
-                    if parameter["channel"] == ch:
-                       
-                        W_fit = parameter["Wm_samples"]
+                #for parameter in fit_pars:
+                #    if parameter["channel"] == ch:
+                #       
+                #        W_fit = parameter["Wm_samples"]
     
                 
                 X = ( datum["w0_samples"] * datum["gevp_f_ps_E0_mass_samples"]) ** 2
@@ -176,6 +174,7 @@ def plot(data, fit_pars):
                 continue
 
             if parameter["channel"] == ch and n == 0:
+                print(parameter.keys(), ch)
                 plot_axpb_y(
                     ax,
                     parameter["M_samples"].samples,
@@ -183,6 +182,15 @@ def plot(data, fit_pars):
                     "",
                     0.4,
                     "k",
+                )
+
+                plot_axpb_y(
+                    ax,
+                    parameter["M_a2_samples"].samples,
+                    parameter["Lm_a2_samples"].samples,
+                    "a square term",
+                    0.4,
+                    "r",
                 )
 
                 plot_axpb_y(
@@ -196,7 +204,7 @@ def plot(data, fit_pars):
         ax.set_ylim(0.0, None)
         _, ymax = ax.get_ylim()
         ax.fill_between(
-            [0, mps_cut], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+            [0, MPS_CUT], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
         ax.fill_between(
             [0.4, 0.41], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 
