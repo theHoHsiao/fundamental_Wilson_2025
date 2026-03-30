@@ -19,7 +19,7 @@ def main():
     )
     
 
-    dump_fit_result(args, "continuum_Wilson_ChiPT", fit_result, ["F_a2", "Lf_a2", "Wf_a2", "Wfa2"])
+    dump_fit_result(args, "continuum_Wilson_ChiPT", fit_result, ["F_a2", "Lf_a2", "Wf_a2", "Rf_a2"])
 
 
 if __name__ == "__main__":

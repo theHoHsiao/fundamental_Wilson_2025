@@ -47,8 +47,6 @@ def plot(data, fit_results, **kwargs):
 
     for ch, ax in zip(["ps", "v", "av"], axs):
 
-        print(f"~~~~~~~~~~~~~~~~{ch}~~~~~~~~~~~~~~~~")
-
         ax.set_xlabel(r"$\hat{m}_{\rm ps}^2$")
         ax.set_ylabel(r"$\hat{f}_{\rm " + ch + "}^2$")
         ax.set_xlim(0.0, 0.41)
@@ -117,7 +115,7 @@ def plot(data, fit_results, **kwargs):
                     parameter["Lf_a2_samples"].samples,
                     "",
                     0.4,
-                    "r",
+                    "g",
                 )
         
         ax.set_ylim(0.0, None)

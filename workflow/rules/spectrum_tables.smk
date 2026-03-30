@@ -99,6 +99,20 @@ def continuum_massless_extrapolation_decayconstant(wildcards):
     ]
 
 
+def continuum_massless_extrapolation_mass_a2(wildcards):
+    return [
+        f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_mass_mean.csv".format()
+        for channel in ["v", "t", "av", "at", "s"]
+    ]
+
+
+def continuum_massless_extrapolation_decayconstant_a2(wildcards):
+    return [
+        f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_decayconstant_mean.csv".format()
+        for channel in ["ps", "v", "av"]
+    ]
+
+
 rule f_meson_mass_table:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
@@ -172,6 +186,34 @@ rule continuum_massless_decayconstant:
         script="src/tables/continuum_massless_decayconstant.py",
     output:
         table="assets/tables/nlo_coefficients_decayconstant.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule continuum_massless_mass_a2:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_mass_a2,
+        script="src/tables/continuum_massless_mass_a2.py",
+    output:
+        table="assets/tables/nlo_coefficients_mass_a2.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule continuum_massless_decayconstant_a2:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_decayconstant_a2,
+        script="src/tables/continuum_massless_decayconstant_a2.py",
+    output:
+        table="assets/tables/nlo_coefficients_decayconstant_a2.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:

@@ -19,7 +19,7 @@ def main():
         data[f"{channel_obs_key}_hat_squared"],
     )
 
-    dump_fit_result(args, "continuum_Wilson_ChiPT", fit_result, ["M_a2", "Lm_a2", "Wm_a2", "Wm2"])
+    dump_fit_result(args, "continuum_Wilson_ChiPT", fit_result, ["M_a2", "Lm_a2", "Wm_a2", "Rm_a2"])
 
 
 if __name__ == "__main__":

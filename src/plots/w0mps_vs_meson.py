@@ -174,7 +174,6 @@ def plot(data, fit_pars):
                 continue
 
             if parameter["channel"] == ch and n == 0:
-                print(parameter.keys(), ch)
                 plot_axpb_y(
                     ax,
                     parameter["M_samples"].samples,
@@ -190,7 +189,7 @@ def plot(data, fit_pars):
                     parameter["Lm_a2_samples"].samples,
                     "a square term",
                     0.4,
-                    "r",
+                    "g",
                 )
 
                 plot_axpb_y(
