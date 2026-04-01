@@ -105,8 +105,8 @@ def plot(data, fit_results, **kwargs):
                     parameter["F_samples"].samples,
                     parameter["Lf_samples"].samples,
                     "",
-                    0,
-                    "k",
+                    0.5,
+                    "C7",
                 )
             
                 plot_axpb_y(
@@ -114,8 +114,8 @@ def plot(data, fit_results, **kwargs):
                     parameter["F_a2_samples"].samples,
                     parameter["Lf_a2_samples"].samples,
                     "",
-                    0.4,
-                    "g",
+                    0.5,
+                    "C9",
                 )
         
         ax.set_ylim(0.0, None)

@@ -589,8 +589,20 @@ def quadratic_fit_form(x, a, b, c):
 def mass_square_fit_form(mass, a, b, c, lat_a):
     return a * (1 + b * mass) + c * lat_a
 
-def mass_square_a2_fit_form(mass, a, b, c, d, lat_a):
-    return a * (1 + b * mass) + c * lat_a + d * lat_a**2
+def mass_square_a2_fit_form(mass, a, b, c, e, lat_a):
+    return a * (1 + b * mass) + c * lat_a + e * lat_a**2
+
+def mass_square_m4_fit_form(mass, a, b, c, d, lat_a):
+    return a * (1 + b * mass + d * mass**2) + c * lat_a 
+
+def mass_square_a2_m4_fit_form(mass, a, b, c, d, e, lat_a):
+    return a * (1 + b * mass + d * mass**2) + c * lat_a + e * lat_a**2
+
+def mass_square_a2_am2_fit_form(mass, a, b, c, e, f, lat_a):
+    return a * (1 + b * mass ) + c * lat_a + e * lat_a**2 + f * mass * lat_a
+
+def mass_square_full_fit_form(mass, a, b, c, d, e, f, lat_a):
+    return a * (1 + b * mass + d * mass**2) + c * lat_a + e * lat_a**2 + f * mass * lat_a
 
 
 def diagonal_covariance(data):
@@ -617,7 +629,8 @@ def global_meson_fit(fit_form, x_data, y_data, initial_guess=None):
     if initial_guess is None:
         x0, _ = curve_fit(fit_form, x_means, y_means)
     else:
-        x0, _ = curve_fit(fit_form, x_means, y_means, p0=initial_guess, maxfev=10000)
+        #x0, _ = curve_fit(fit_form, x_means, y_means, p0=initial_guess, maxfev=10000)
+        x0 = initial_guess
 
     inverse_covariance = np.linalg.inv(diagonal_covariance(y_samples))
 

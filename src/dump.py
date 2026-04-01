@@ -170,7 +170,7 @@ key_observables = {
         + ["smear_rhoE1_Rmv"]
     ),
     "beta": ["A"],
-    "channel": ["M", "F", "M_a2", "F_a2"],
+    "channel": ["M", "F", "M_a", "F_a", "M_a2", "F_a2", "M_m4", "F_m4", "M_a2_m4", "F_a2_m4", "M_a2_am2", "F_a2_am2", "M_full", "F_full"],
 }
 
 

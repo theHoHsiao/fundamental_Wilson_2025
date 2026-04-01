@@ -66,7 +66,12 @@ plots = expand(
         "m2_all_lat_a_sp4fund",
         "mpsL",
         "Rvps_all_con_sp4fund",
-
+        "extrapolation_mass_ansatz_a",
+        "extrapolation_mass_ansatz_a2",
+        "extrapolation_mass_ansatz_a2_m4",
+        "extrapolation_decayconstant_ansatz_a",
+        "extrapolation_decayconstant_ansatz_a2",
+        "extrapolation_decayconstant_ansatz_a2_m4",
     ],
 )
 tables = expand(
@@ -80,6 +85,12 @@ tables = expand(
         "autocorr_table",
         "spectrum_meson_1",
         "spectrum_meson_2",
+        "le_coefficients_mass_ansatz_a",
+        "le_coefficients_mass_ansatz_a2",
+        "le_coefficients_mass_ansatz_a2_m4",
+        "le_coefficients_decayconstant_ansatz_a",
+        "le_coefficients_decayconstant_ansatz_a2",
+        "le_coefficients_decayconstant_ansatz_a2_m4",
         ],
 )
 definitions = expand(
@@ -102,6 +113,20 @@ external_data = expand(
     "external_data/{filename}",
     filename=["mv_fps_fund.csv", "meson_meta_fund.csv", "m2v_fit_pms.json"],
 )
+
+mass_lec_tables = expand(
+    "assets/tables/le_coefficients_mass_ansatz_{ansatz}.tex",
+    ansatz=["a", "a2", "m4", "a2_m4", "a2_am2", "full"],
+)
+
+decay_lec_tables = expand(
+    "assets/tables/le_coefficients_decayconstant_ansatz_{ansatz}.tex",
+    ansatz=["a", "a2", "m4", "a2_m4", "a2_am2", "full"],
+)
+rule LECs:
+    input:
+        data=mass_lec_tables,
+        decay_data=decay_lec_tables,
 
 rule all:
     input:

@@ -10,9 +10,9 @@ def extp_samples(wildcards, observables):
         f"intermediary_data/{dir_template}/{observable}_samples.json".format(**row)
         for observable in observables
         for row in metadata.to_dict(orient="records")
-        #if row["use_in_main_plots"]
         if row["use_in_extrapolation"]
     ]
+
 
 def rhoE1_samples(wildcards):
     return [
@@ -50,7 +50,7 @@ rule Mass_continuum_massless_extrapolation:
         "python -m {params.module} {input.data} {input.data_rhoE1} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
 
 
-rule Mass_continuum_massless_a2_extrapolation:
+rule Mass_continuum_massless_ansatz_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
@@ -66,18 +66,17 @@ rule Mass_continuum_massless_a2_extrapolation:
                 "meson_gevp_f_s",
             ],
         ),
-        data_rhoE1=rhoE1_samples,
-        script="src/extrapolation_mass_a2.py",
+        script="src/extrapolation_ansatze.py",
     output:
-        mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_a2_mass_mean.csv",
-        samples=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_a2_mass_samples.json",
+        mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_{{ansatz}}_mass_mean.csv",
+        samples=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_{{ansatz}}_mass_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel} --ansatz {wildcards.ansatz}"
 
 
-rule Decay_continuum_massless_a2_extrapolation:
+rule Decay_continuum_massless_ansatz_extrapolation:
     params:
         module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
     input:
@@ -91,15 +90,14 @@ rule Decay_continuum_massless_a2_extrapolation:
                 "decay_constant_f_av",
             ],
         ),
-        data_rhoE1=rhoE1_samples,
-        script="src/extrapolation_decay_a2.py",
+        script="src/extrapolation_ansatze_decay.py",
     output:
-        mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_a2_decayconstant_mean.csv",
-        samples=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_a2_decayconstant_samples.json",
+        mean=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_{{ansatz}}_decayconstant_mean.csv",
+        samples=f"intermediary_data/extrapolation_results/f_{{channel}}_extp_{{ansatz}}_decayconstant_samples.json",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel}"
+        "python -m {params.module} {input.data} --output_file_mean {output.mean} --output_file_samples {output.samples} --channel {wildcards.channel} --ansatz {wildcards.ansatz}"
 
 
 rule Decay_continuum_massless_extrapolation:

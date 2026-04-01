@@ -7,7 +7,7 @@ import numpy as np
 from .dump import dump_dict, dump_samples, read_sample_files
 
 
-def get_args(channels=None, beta=False):
+def get_args(channels=None, beta=False, ansatz=None):
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -29,6 +29,13 @@ def get_args(channels=None, beta=False):
             choices=channels,
             default=None,
             help="Measuring channel",
+        )
+    if ansatz is not None:
+        parser.add_argument(
+            "--ansatz",
+            choices=["a", "a2", "m4", "a2_m4", "a2_am2", "full"],
+            default=None,
+            help="Ansatz to use for extrapolation",
         )
 
     parser.add_argument("--output_file_mean", type=FileType("w"), default="-")
@@ -135,3 +142,22 @@ def dump_fit_result(args, fit_type, fit_result, names, **extra_columns):
     )
     if args.output_file_samples:
         dump_samples(results, args.output_file_samples)
+
+
+def dump_fit_result_chisquare(args, fit_type, fit_result, names, **extra_columns):
+    fit_values, chisquare = fit_result
+    check_name_value_lengths(names, fit_values)
+
+    keys = {
+        name: getattr(args, name) for name in ["beta", "channel"] if hasattr(args, name)
+    }
+
+    results = {**keys, **{name: value for name, value in zip(names, fit_values)}}
+    results["fit_type"] = fit_type
+
+    dump_dict(
+        {**results, "chisquare": chisquare, **extra_columns},
+        args.output_file_mean,
+    )
+    if args.output_file_samples:
+        dump_samples({**results, f"chisquare_{args.ansatz}": chisquare}, args.output_file_samples)

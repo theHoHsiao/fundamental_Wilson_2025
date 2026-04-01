@@ -98,11 +98,72 @@ rule plot_extrapolations_meson_mass:
         script="src/plots/w0mps_vs_meson.py",
     output:
         plot_data="assets/plots/m2_all_con_sp4fund.{plot_filetype}",
-        summary_plot="assets/plots/m2_summary_sp4fund.{plot_filetype}",
     conda:
         "../envs/flow_analysis.yml"
     shell:
-        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --plot_file_summary {output.summary_plot} --fit_parameters {input.fit_results}"
+        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --fit_parameters {input.fit_results}"
+
+
+def fit_result_ansatze(wildcards):
+    channels = ["v", "t", "av", "at", "s"]
+    ansatze = ["a", "a2", "m4", "a2_m4", "a2_am2", "full"]
+    
+    # Generate the observable list dynamically
+    observables = [f"f_{ch}_extp_{an}_mass" for an in ansatze for ch in channels]
+    
+    return [
+        f"intermediary_data/extrapolation_results/{obs}_samples.json".format(**row)
+        for obs in observables
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_extrapolation"]
+    ]
+
+
+def fit_result_ansatze_decay(wildcards):
+    channels = ["ps","v", "av"]
+    ansatze = ["a", "a2", "m4", "a2_m4", "a2_am2", "full"]
+    
+    # Generate the observable list dynamically
+    observables = [f"f_{ch}_extp_{an}_decayconstant" for an in ansatze for ch in channels]
+    
+    return [
+        f"intermediary_data/extrapolation_results/{obs}_samples.json".format(**row)
+        for obs in observables
+        for row in metadata.to_dict(orient="records")
+        if row["use_in_extrapolation"]
+    ]
+
+rule plot_extrapolations_ansatz_mass:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=mass_gevp_samples,
+        w0=w0_samples,
+        fit_results=fit_result_ansatze,
+        script="src/plots/extrapolation_mass.py",
+    output:
+        plot_data="assets/plots/extrapolation_mass_ansatz_{ansatz}.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --fit_parameters {input.fit_results} --ansatz {wildcards.ansatz}"
+
+
+rule plot_extrapolations_scan_decay:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        mass=mass_gevp_samples,
+        decay=decay_samples,
+        w0=w0_samples,
+        fit_results=fit_result_ansatze_decay,
+        script="src/plots/extrapolation_decayconstant.py",
+    output:
+        plot_data="assets/plots/extrapolation_decayconstant_ansatz_{ansatz}.{plot_filetype}",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.mass} {input.decay} {input.w0} --plot_styles {plot_styles} --plot_file_data {output.plot_data} --fit_parameters {input.fit_results} --ansatz {wildcards.ansatz}"
 
 
 rule plot_extrapolations_summary:

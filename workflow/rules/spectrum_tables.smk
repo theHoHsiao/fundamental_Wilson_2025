@@ -91,6 +91,21 @@ def continuum_massless_extrapolation_mass(wildcards):
         for channel in ["v", "t", "av", "at", "s"]
     ]
 
+def continuum_massless_extrapolation_mass_ansatze(wildcards ):
+    return [
+        f"intermediary_data/extrapolation_results/f_{channel}_extp_{wildcards.ansatz}_mass_mean.csv".format()
+        for channel in ["v", "t", "av", "at", "s"]
+    ]
+
+
+def continuum_massless_extrapolation_decay_ansatze(wildcards ):
+    return [
+        f"intermediary_data/extrapolation_results/f_{channel}_extp_{wildcards.ansatz}_decayconstant_mean.csv".format()
+        for channel in ["ps", "v", "av"]
+    ]
+
+
+
 
 def continuum_massless_extrapolation_decayconstant(wildcards):
     return [
@@ -163,6 +178,32 @@ rule ens_table:
     shell:
         "python -m {params.module} {input.plaq} {input.w0} {input.mass} {input.top_charge} --output_file {output.table}"
 
+
+rule continuum_massless_mass_ansatze:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_mass_ansatze,
+        script="src/tables/continuum_massless_mass_ansatze.py",
+    output:
+        table="assets/tables/le_coefficients_mass_ansatz_{ansatz}.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table} --ansatz {wildcards.ansatz}"
+
+rule continuum_massless_decay_ansatze:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_decay_ansatze,
+        script="src/tables/continuum_massless_decayconstant_ansatze.py",
+    output:
+        table="assets/tables/le_coefficients_decayconstant_ansatz_{ansatz}.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table} --ansatz {wildcards.ansatz}"
 
 rule continuum_massless_mass:
     params:

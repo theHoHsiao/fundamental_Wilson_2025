@@ -38,6 +38,12 @@ def get_standard_table_args(definitions=False):
         default="-",
         help="Where to place the table",
     )
+    parser.add_argument(
+        "--ansatz",
+        choices=["a", "a2", "m4", "a2_m4", "a2_am2", "full"],
+        default=None,
+        help="Ansatz to use for extrapolation",
+    )
     if definitions:
         parser.add_argument(
             "--definitions_file",
@@ -56,6 +62,21 @@ def common_table_main(tabulate_function, index_name="ensemble_name", definitions
     print(text_metadata(get_basic_metadata(), comment_char="%"), file=args.output_file)
 
     result = tabulate_function(data)
+    if definitions:
+        result, definitions = result
+        print(definitions, file=args.definitions_file)
+
+    print(result, file=args.output_file)
+
+
+def ansatze_table_main(tabulate_function, index_name="ensemble_name", definitions=False):
+    args = get_standard_table_args(definitions=definitions)
+    data = read_files(args.data_filenames, index_name=index_name)
+    if index_name == "ensemble_name":
+        data = data.sort_values(by="ensemble_name", key=by_ensemble_name)
+    print(text_metadata(get_basic_metadata(), comment_char="%"), file=args.output_file)
+
+    result = tabulate_function(data, args.ansatz)
     if definitions:
         result, definitions = result
         print(definitions, file=args.definitions_file)

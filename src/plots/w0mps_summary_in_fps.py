@@ -130,10 +130,10 @@ def plot(fit_pars):
     fps_scale = get_fps_fit(fm_ps, lf_ps)
     fps_scale_mean = fps_scale.mean(axis=0)
 
-    plot_ps_ths(mass_ax, 1, r"$\hat{m}_{\rm PS}$", 0.8, scale=fps_scale)
-    plot_ps_ths(mass_ax, 2, r"$2\hat{m}_{\rm PS}$", 0.6, scale=fps_scale)
-    plot_ps_ths(mass_ax, 3, r"$3\hat{m}_{\rm PS}$", 0.4, scale=fps_scale)
-    plot_ps_ths(mass_ax, 4, r"$4\hat{m}_{\rm PS}$", 0.3, scale=fps_scale)
+    plot_ps_ths(mass_ax, 1, r"$m_{\rm PS}^2 / f_{\rm PS}^2$", 0.8, scale=fps_scale)
+    plot_ps_ths(mass_ax, 2, r"$4m_{\rm PS}^2 / f_{\rm PS}^2$", 0.6, scale=fps_scale)
+    plot_ps_ths(mass_ax, 3, r"$9m_{\rm PS}^2 / f_{\rm PS}^2$", 0.4, scale=fps_scale)
+    plot_ps_ths(mass_ax, 4, r"$16m_{\rm PS}^2 / f_{\rm PS}^2$", 0.3, scale=fps_scale)
 
     mass_ax.set_ylim(0, 300)
     mass_ax.set_xlim(MPS_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])

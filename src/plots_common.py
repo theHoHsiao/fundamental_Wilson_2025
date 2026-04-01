@@ -14,7 +14,8 @@ from .dump import read_sample_files
 ONE_COLUMN = 3.4
 TWO_COLUMN = 7.0
 
-MPS_CUT = 0.1075
+MPS_left_CUT = 0.1075
+MPS_right_CUT = 0.44
 
 markers = itertools.cycle(['o','s','v'])
 
@@ -98,6 +99,42 @@ def get_standard_plot_args(fit_results=False, external_data=False, definitions=F
             default="-",
             help="Where to place the generated definitions",
         )
+    return parser.parse_args()
+
+
+def get_args_ansatz():
+    parser = ArgumentParser()
+
+    parser.add_argument(
+        "data_filenames",
+        nargs="+",
+        metavar="sample_filename",
+        help="Filenames of sample files containing data to plot",
+    )
+    parser.add_argument(
+        "--fit_parameters",
+        nargs="+",
+        metavar="sample_filename",
+        help="Filenames of sample files containing data to plot",
+    )
+    parser.add_argument(
+        "--plot_file_data",
+        default=None,
+        help=(
+            "Where to place the resulting plot showing data. "
+            "Default is to output to screen."
+        ),
+    )
+    parser.add_argument(
+        "--plot_styles",
+        default="styles/paperdraft.mplstyle",
+        help="Stylesheet to use for plots",
+    )
+    parser.add_argument(
+        "--ansatz",
+        default="a",
+        help="The ansatz to use for the fit"
+    )
     return parser.parse_args()
 
 
@@ -335,4 +372,52 @@ def plot_mass_eff_cosh(ax, corr_bootstrapset, ti, tf, measurement):
         color=plt.gca().lines[-1].get_color(),
         marker=marker,
         alpha=0.1,
+    )
+
+
+def plot_axpb_y(ax, A, L, ch, alpha, color):
+    n_fit = 1000
+    Yfit = np.zeros(shape=(A.shape[0], n_fit))
+
+    x_i = np.sqrt(MPS_left_CUT)
+    x_f = np.sqrt(MPS_right_CUT)
+    x = np.linspace(x_i, x_f, n_fit)
+
+    y_up = np.zeros(n_fit)
+    y_dn = np.zeros(n_fit)
+
+    for n in range(A.shape[0]):
+        Yfit[n] = A[n] * (1 + L[n] * x**2)
+
+    for i in range(n_fit):
+        y_err = Yfit[0:-1, i].std()
+        y_up[i] = Yfit[:, i].mean() + y_err
+        y_dn[i] = Yfit[:, i].mean() - y_err
+
+    ax.fill_between(
+        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
+    )
+
+
+def plot_am4pb_y(ax, A, L, P, ch, alpha, color):
+    n_fit = 1000
+    Yfit = np.zeros(shape=(A.shape[0], n_fit))
+
+    x_i = np.sqrt(MPS_left_CUT)
+    x_f = np.sqrt(MPS_right_CUT)
+    x = np.linspace(x_i, x_f, n_fit)
+
+    y_up = np.zeros(n_fit)
+    y_dn = np.zeros(n_fit)
+
+    for n in range(A.shape[0]):
+        Yfit[n] = A[n] * (1 + L[n] * x**2 + P[n] * x**4)
+
+    for i in range(n_fit):
+        y_err = Yfit[0:-1, i].std()
+        y_up[i] = Yfit[:, i].mean() + y_err
+        y_dn[i] = Yfit[:, i].mean() - y_err
+
+    ax.fill_between(
+        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
     )
