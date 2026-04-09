@@ -375,7 +375,7 @@ def plot_mass_eff_cosh(ax, corr_bootstrapset, ti, tf, measurement):
     )
 
 
-def plot_axpb_y(ax, A, L, ch, alpha, color):
+def plot_axpb_y(ax, A, L, ch, alpha, color, hatch=None, scale=None):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
@@ -386,20 +386,26 @@ def plot_axpb_y(ax, A, L, ch, alpha, color):
     y_up = np.zeros(n_fit)
     y_dn = np.zeros(n_fit)
 
+    X = x**2
+
     for n in range(A.shape[0]):
         Yfit[n] = A[n] * (1 + L[n] * x**2)
-
+    
+    if scale is not None:
+        Yfit = Yfit / scale.mean(axis=0)
+        X = X / scale.mean(axis=0)
+    
     for i in range(n_fit):
-        y_err = Yfit[0:-1, i].std()
+        y_err = Yfit[0:-1, i].std() 
         y_up[i] = Yfit[:, i].mean() + y_err
         y_dn[i] = Yfit[:, i].mean() - y_err
 
     ax.fill_between(
-        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
+        X, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None, hatch=hatch
     )
 
 
-def plot_am4pb_y(ax, A, L, P, ch, alpha, color):
+def plot_am4pb_y(ax, A, L, P, ch, alpha, color, hatch=None, scale=None):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
@@ -407,17 +413,23 @@ def plot_am4pb_y(ax, A, L, P, ch, alpha, color):
     x_f = np.sqrt(MPS_right_CUT)
     x = np.linspace(x_i, x_f, n_fit)
 
-    y_up = np.zeros(n_fit)
-    y_dn = np.zeros(n_fit)
+    X = x**2
 
     for n in range(A.shape[0]):
         Yfit[n] = A[n] * (1 + L[n] * x**2 + P[n] * x**4)
 
+    if scale is not None:
+        Yfit = Yfit / scale.mean(axis=0)
+        X = X / scale.mean(axis=0)
+    
+    y_up = np.zeros(n_fit)
+    y_dn = np.zeros(n_fit)
+
     for i in range(n_fit):
         y_err = Yfit[0:-1, i].std()
         y_up[i] = Yfit[:, i].mean() + y_err
         y_dn[i] = Yfit[:, i].mean() - y_err
 
     ax.fill_between(
-        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
+        X, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
     )

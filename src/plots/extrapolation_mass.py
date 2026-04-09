@@ -14,13 +14,12 @@ from ..plots_common import (
     MPS_left_CUT,
     MPS_right_CUT,
 )
-from argparse import ArgumentParser
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
 from uncertainties import ufloat
 
 
-def fit_form(fit_prefix):
+def fit_form(ansatz):
     return {
         "a": r"$\hat{m}_{M,\,\chi}^2 (1+L_{M}^m \hat{m}_{\rm PS}^2 )+W_{M}^{m} \hat{a}~~$   with $\hat{a}=0$",
         "a2": r"$\hat{m}_{M,\,\chi}^2(1+L_{M}^m \hat{m}_{\rm PS}^2 )+W_{M}^{m} \hat{a}+R_{M}^{m} \hat{a}^2~~$   with $\hat{a}=0$",
@@ -28,15 +27,15 @@ def fit_form(fit_prefix):
         "a2_m4": r"$\hat{m}_{M,\,\chi}^2(1+L_{M}^m \hat{m}_{\rm PS}^2 + P_M^m \hat{m}_{\rm PS}^4 )+W_{M}^{m} \hat{a}+R_{M}^{m} \hat{a}^2~~$   with $\hat{a}=0$",
         "a2_am2": r"$\hat{m}_{M,\,\chi}^2(1+L_{M}^m \hat{m}_{\rm PS}^2 )+W_{M}^{m} \hat{a}+R_{M}^{m} \hat{a}^2 + C_M^m \hat{a}\hat{m}_{\rm PS}^2~~$   with $\hat{a}=0$",
         "full": r"$\hat{m}_{M,\,\chi}^2(1+L_{M}^m \hat{m}_{\rm PS}^2 + P_M^m \hat{m}_{\rm PS}^4 )+W_{M}^{m} \hat{a}+R_{M}^{m} \hat{a}^2 + C_M^m \hat{a}\hat{m}_{\rm PS}^2~~$   with $\hat{a}=0$",
-    }[fit_prefix]  
+    }[ansatz]  
 
 
-def plot(data, fit_pars, fit_prefix=""):
+def plot(data, fit_pars, ansatz=""):
     
     data_fig, data_axes =plt.subplots(
         3, 2, num="Summary", figsize=(TWO_COLUMN, 8), layout="constrained"
     )
-    #data_fig.suptitle(f"Extrapolation with {fit_prefix}")
+    #data_fig.suptitle(f"Extrapolation with {ansatz}")
     
     right_end = 0.45
 
@@ -120,13 +119,13 @@ def plot(data, fit_pars, fit_prefix=""):
             
             
             if parameter["channel"] == ch and n == 0:
-                if fit_prefix in ["m4", "a2_m4", "full"]:
+                if ansatz in ["m4", "a2_m4", "full"]:
                     plot_am4pb_y(
                         ax,
-                        parameter["M_" + fit_prefix + "_samples"].samples,
-                        parameter["Lm_" + fit_prefix + "_samples"].samples,
-                        parameter["Pm_" + fit_prefix + "_samples"].samples,
-                        fit_form(fit_prefix),
+                        parameter["M_" + ansatz + "_samples"].samples,
+                        parameter["Lm_" + ansatz + "_samples"].samples,
+                        parameter["Pm_" + ansatz + "_samples"].samples,
+                        fit_form(ansatz),
                         0.5,
                         "C7",
                     )
@@ -134,15 +133,15 @@ def plot(data, fit_pars, fit_prefix=""):
 
                     plot_axpb_y(
                         ax,
-                        parameter["M_" + fit_prefix + "_samples"].samples,
-                        parameter["Lm_" + fit_prefix + "_samples"].samples,
-                        fit_form(fit_prefix),
+                        parameter["M_" + ansatz + "_samples"].samples,
+                        parameter["Lm_" + ansatz + "_samples"].samples,
+                        fit_form(ansatz),
                         0.5,
                         "C7",
                     )
 
-                m_limit = ufloat(parameter["M_" + fit_prefix + "_samples"].mean, parameter["M_" + fit_prefix + "_samples"].samples.std())
-                ax.text(0.12, 0.05, f'$\\chi^2/\\mathrm{{dof}} = {parameter["chisquare_" + fit_prefix]:.2f},~~\\hat{{m}}^2_\\chi = {m_limit:.02uSL}$')
+                m_limit = ufloat(parameter["M_" + ansatz + "_samples"].mean, parameter["M_" + ansatz + "_samples"].samples.std())
+                ax.text(0.12, 0.05, f'$\\chi^2/\\mathrm{{dof}} = {parameter["chisquare_" + ansatz]:.2f},~~\\hat{{m}}^2_\\chi = {m_limit:.02uSL}$')
             
 
         ax.set_ylim(0.0, None)
@@ -163,7 +162,7 @@ def main():
     plt.style.use(args.plot_styles)
     data = read_sample_files(args.data_filenames)
     fit_pars = read_sample_files(args.fit_parameters, group_key="channel")
-    data_fig = plot(data, fit_pars, fit_prefix=args.ansatz)
+    data_fig = plot(data, fit_pars, ansatz=args.ansatz)
     save_or_show(data_fig, args.plot_file_data)
     
 

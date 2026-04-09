@@ -8,7 +8,7 @@ from ..plots_common import (
     channel_color,
     add_figure_legend_axes,
     TWO_COLUMN,
-    MPS_CUT,
+    MPS_left_CUT,
 )
 from argparse import ArgumentParser
 import numpy as np
@@ -49,7 +49,7 @@ def plot_axpb_y(ax, A, L, ch, alpha, color, hatch=None, scale=None):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
-    x_i = np.sqrt(MPS_CUT)
+    x_i = np.sqrt(MPS_left_CUT)
     x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
@@ -81,7 +81,7 @@ def get_fps_fit(A, L,):
     n_fit = 1000
     Yfit = np.zeros(shape=(A.shape[0], n_fit))
 
-    x_i = np.sqrt(MPS_CUT)
+    x_i = np.sqrt(MPS_left_CUT)
     x_f = np.sqrt(0.4)
     x = np.linspace(x_i, x_f, n_fit)
 
@@ -94,7 +94,7 @@ def get_fps_fit(A, L,):
 
 def plot_ps_ths(ax, times_of_mps, label, alpha, scale=None):
     n_fit=1000
-    x_i = np.sqrt(MPS_CUT)
+    x_i = np.sqrt(MPS_left_CUT)
     x_f = np.sqrt(0.4)
     m_ps = np.linspace(x_i, x_f, n_fit)
     X = m_ps**2
@@ -136,9 +136,9 @@ def plot(fit_pars):
     plot_ps_ths(mass_ax, 4, r"$16m_{\rm PS}^2 / f_{\rm PS}^2$", 0.3, scale=fps_scale)
 
     mass_ax.set_ylim(0, 300)
-    mass_ax.set_xlim(MPS_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
+    mass_ax.set_xlim(MPS_left_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
 
-    decay_ax.set_xlim(MPS_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
+    decay_ax.set_xlim(MPS_left_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
     decay_ax.set_ylim(0, 6)
     
    

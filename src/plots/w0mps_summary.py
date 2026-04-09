@@ -8,7 +8,8 @@ from ..plots_common import (
     channel_color,
     add_figure_legend_axes,
     TWO_COLUMN,
-    MPS_CUT,
+    MPS_left_CUT,
+    MPS_right_CUT,
 )
 from argparse import ArgumentParser
 import numpy as np
@@ -75,20 +76,20 @@ def plot(fit_pars):
         1, 2, num="Summary", figsize=(TWO_COLUMN, 4), layout="constrained"
     )
     summary_ax = summary_axs[0]
-    summary_ax.plot([0, 1], [0, 1], "--", color="k", linewidth=1, label=r"$\hat{m}_{\rm PS}$", alpha=0.8)
-    summary_ax.plot([0, 1], [0, 4], "--", color="k", linewidth=1, label=r"$ 2\hat{m}_{\rm PS}$", alpha=0.6)
-    summary_ax.plot([0, 1], [0, 9], "--", color="k", linewidth=1, label=r"$ 3\hat{m}_{\rm PS}$", alpha=0.4)
-    summary_ax.plot([0, 1], [0, 16], "--", color="k", linewidth=1, label=r"$ 4\hat{m}_{\rm PS}$", alpha=0.3)
+    summary_ax.plot([0, 1], [0, 1], "--", color="k", linewidth=1, label=r"$\hat{m}_{\rm PS}^2$", alpha=0.8)
+    summary_ax.plot([0, 1], [0, 4], "--", color="k", linewidth=1, label=r"$ 4\hat{m}_{\rm PS}^2$", alpha=0.6)
+    summary_ax.plot([0, 1], [0, 9], "--", color="k", linewidth=1, label=r"$ 9\hat{m}_{\rm PS}^2$", alpha=0.4)
+    summary_ax.plot([0, 1], [0, 16], "--", color="k", linewidth=1, label=r"$ 16\hat{m}_{\rm PS}^2$", alpha=0.3)
 
     summary_ax.set_ylim(0, 2)
-    summary_ax.set_xlim(MPS_CUT, 0.4)
+    summary_ax.set_xlim(MPS_left_CUT, 0.4)
     summary_ax.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
     summary_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
 
     ax2 = summary_axs[1] #summary_ax.twinx() 
     ax2.set_ylabel(r"$\hat{f}_{\rm M}^2$")
     ax2.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
-    ax2.set_xlim(MPS_CUT, 0.4)
+    ax2.set_xlim(MPS_left_CUT, 0.4)
     ax2.set_ylim(0, 0.05)
 
    

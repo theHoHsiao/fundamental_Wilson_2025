@@ -224,9 +224,9 @@ def read_sample_files(filenames, group_key="ensemble_name"):
         else:
             target = results[file_data.get(group_key)]
             for k, v in file_data.items():
-                if "samples" not in k and k in target:
+                if "samples" not in k and "chisquare" not in k and k in target:
                     if target[k] != v:
-                        raise ValueError(f"Inconsistent metadata in {filename}")
+                        raise ValueError(f"Inconsistent metadata in {filename} for key {target[k]} to {v}.")
                 elif "samples" in k and not v:
                     continue
                 else:
