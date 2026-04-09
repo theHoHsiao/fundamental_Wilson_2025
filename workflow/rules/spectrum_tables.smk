@@ -33,7 +33,7 @@ def extraction_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "av"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ]
 
 
@@ -43,14 +43,15 @@ def gevp_E0_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "t", "av", "at", "s"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ]
+
 
 def mPCAC_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/mpcac_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ] 
 
 
@@ -60,28 +61,28 @@ def decay_constant_means(wildcards):
         for row in metadata.to_dict(orient="records")
         for channel in ["ps", "v", "av"]
         for rep in ["f"]
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ] 
 
 def w0_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/w0_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ] 
 
 def top_charge_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/top_charge_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ]
 
 def plaq_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/plaquette_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        if row["use_in_extrapolation"]
+        if row["use_in_table"]
     ] 
 
 
@@ -105,8 +106,6 @@ def continuum_massless_extrapolation_decay_ansatze(wildcards ):
     ]
 
 
-
-
 def continuum_massless_extrapolation_decayconstant(wildcards):
     return [
         f"intermediary_data/extrapolation_results/f_{channel}_extp_decayconstant_mean.csv".format()
@@ -124,6 +123,20 @@ def continuum_massless_extrapolation_mass_a2(wildcards):
 def continuum_massless_extrapolation_decayconstant_a2(wildcards):
     return [
         f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_decayconstant_mean.csv".format()
+        for channel in ["ps", "v", "av"]
+    ]
+
+
+def continuum_massless_extrapolation_mass_a2_am2(wildcards):
+    return [
+        f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_am2_mass_mean.csv".format()
+        for channel in ["v", "t", "av", "at", "s"]
+    ]
+
+
+def continuum_massless_extrapolation_decayconstant_a2_am2(wildcards):
+    return [
+        f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_am2_decayconstant_mean.csv".format()
         for channel in ["ps", "v", "av"]
     ]
 
@@ -204,6 +217,36 @@ rule continuum_massless_decay_ansatze:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file {output.table} --ansatz {wildcards.ansatz}"
+
+
+
+rule continuum_massless_mass_a2_am2:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_mass_a2_am2,
+        script="src/tables/continuum_massless_mass_a2_am2.py",
+    output:
+        table="assets/tables/clean_le_coefficients_mass_a2_am2.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table} --ansatz a2_am2"
+
+
+rule continuum_massless_decay_a2_am2:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        data=continuum_massless_extrapolation_decayconstant_a2_am2,
+        script="src/tables/continuum_massless_decayconstant_a2_am2.py",
+    output:
+        table="assets/tables/clean_le_coefficients_decayconstant_a2_am2.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.data} --output_file {output.table} --ansatz a2_am2"
+
 
 rule continuum_massless_mass:
     params:

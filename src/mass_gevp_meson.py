@@ -77,6 +77,10 @@ def main():
         "Nt": args.Nt,
         "Ns": args.Ns,
         "bin_size": args.bin_size,
+        "epsilon": args.epsilon,
+        "n_smear_min": args.n_smear_min,
+        "n_smear_max": args.n_smear_max,
+        "n_smear_diff": args.n_smear_diff,
     }
 
     dump_dict(

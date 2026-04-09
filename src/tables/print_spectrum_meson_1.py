@@ -10,10 +10,11 @@ from ..tables_common import ensemble_table_main
 
 def format_table(df):
     header = (
-        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\n"
+        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $\beta$ & $m_0$ & $am_{\mathrm{PCAC}}$ & $am_{\mathrm{ps}}$  & $af_{\mathrm{ps}} $ &"
-        r" $m_{\mathrm{ps}}L$ & $f_{\mathrm{ps}}L$ & $am_{\mathrm{s}} $\\"
+        r"Ensemble & $\beta$ & $m_0$ & $\epsilon$ & $N^{\mathrm{smear}}_{\rm max}$ & $N^{\mathrm{smear}}_{\rm diff}$ & "
+        r" $am_{\mathrm{PCAC}}$ & $am_{\mathrm{PS}}$  & $af_{\mathrm{PS}} $ &"
+        r" $m_{\mathrm{PS}}L$ & $f_{\mathrm{PS}}L$\\"
         "\n\\hline"
     )
     footer = "\\hline\\hline\n\\end{tabular}"
@@ -27,18 +28,20 @@ def format_table(df):
 
         content.append(
             (
-                "{} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & "
-                "${:.02uSL}$ \\\\\n"
+                "{} & {} & {} & {} & {} & {} & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ "
+                "\\\\\n"
             ).format(
                 row.ensemble_name,
                 row.beta,
                 row.mF,
+                row.epsilon,
+                row.n_smear_max,
+                row.n_smear_diff,
                 row.mPCAC,
                 row.gevp_f_ps_E0_mass,
                 row.f_ps_decay_constant,
                 row.gevp_f_ps_E0_mass * row.Ns,
                 row.f_ps_decay_constant * row.Ns,
-                row.gevp_f_s_E0_mass,
             )
         )
 
