@@ -316,3 +316,18 @@ rule autocorr_table:
         "../envs/flow_analysis.yml"
     shell:
         "python -m {params.module} {input.data} --output_file {output.table}"
+
+
+rule g_VPP_KSRF:
+    params:
+        module=lambda wildcards, input: input.script.replace("/", ".")[:-3],
+    input:
+        mv="intermediary_data/extrapolation_results/f_v_extp_a2_mass_samples.json",
+        fps="intermediary_data/extrapolation_results/f_ps_extp_a2_decayconstant_samples.json",
+        script="src/tables/g_VPP_KSRF.py",
+    output:
+        table="assets/tables/g_VPP_KSRF.tex",
+    conda:
+        "../envs/flow_analysis.yml"
+    shell:
+        "python -m {params.module} {input.mv} {input.fps} --output_file {output.table}"
