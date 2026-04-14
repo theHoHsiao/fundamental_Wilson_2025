@@ -74,7 +74,7 @@ def compute_derived_spectrum(source, target, observable):
     return created_keys
 
 
-def get_data(filenames, observables, beta=None):
+def get_data(filenames, observables, beta=None, cutoff=10, cutoff_observable=None):
     data = read_sample_files(filenames)
     results = []
     extra_observables = set()
@@ -82,13 +82,18 @@ def get_data(filenames, observables, beta=None):
         datum_result = {}
         if beta is not None and (datum.get("beta") != beta):
             continue
+        
+
+        if cutoff_observable is not None and datum[f"{cutoff_observable}_samples"].mean > cutoff:
+            #print(datum[f"{cutoff_observable}_samples"].mean)
+            continue
 
         for observable in observables:
             if observable in datum:
                 # This is not a sample set, so just copy across as-is
                 datum_result[observable] = datum[observable]
                 continue
-
+            
             key = f"{observable}_samples"
             if key not in datum:
                 break

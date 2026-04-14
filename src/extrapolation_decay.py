@@ -9,7 +9,8 @@ from .extrapolation_common import get_args, get_data, dump_fit_result
 def main():
     args = get_args(channels=["ps", "v", "av"]) 
     channel_obs_key = f"f_{args.channel}_decay_constant"
-    data = get_data(args.data_filenames, ["w0", "gevp_f_ps_E0_mass", channel_obs_key])
+    mass_channel_obs_key = f"gevp_f_{args.channel}_E0_mass"
+    data = get_data(args.data_filenames, ["w0", "gevp_f_ps_E0_mass", channel_obs_key], cutoff=1, cutoff_observable=mass_channel_obs_key)
 
     lat_a_means, _ = split_means_samples(data["lat_a"])
     fit_result = global_meson_fit(
