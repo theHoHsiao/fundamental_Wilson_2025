@@ -56,41 +56,29 @@ topology_history_plots = [
 plots = expand(
     f"assets/plots/{{plot}}.{plot_filetype}",
     plot=[
-        #"mpcac_vs_m0",
-        #"plaquette_phasediagram",
         "w0_vs_mpcac",
         *topology_history_plots,
         "dec2_all_con_sp4fund",
-        "dec2_all_lat_a_sp4fund",
         "m2_all_con_sp4fund",
-        "m2_all_lat_a_sp4fund",
         "mpsL",
         "Rvps_all_con_sp4fund",
-        "extrapolation_mass_ansatz_a",
-        "extrapolation_mass_ansatz_a2",
-        "extrapolation_mass_ansatz_a2_m4",
-        "extrapolation_decayconstant_ansatz_a",
-        "extrapolation_decayconstant_ansatz_a2",
-        "extrapolation_decayconstant_ansatz_a2_m4",
+        "spec_in_fps_summary_a2_am2_sp4fund",
+        "spec_summary_a2_am2_sp4fund",
+        "spec_in_fps_summary_a2_sp4fund",
+        "spec_summary_a2_sp4fund",
     ],
 )
 tables = expand(
     "assets/tables/{table}.tex",
     table=[
-        "plaquette_table",
         "ensemble",
-        "gflow_table",
-        "nlo_coefficients_decayconstant",
-        "nlo_coefficients_mass",
-        "autocorr_table",
+        "nlo_coefficients_decayconstant_a2",
+        "nlo_coefficients_mass_a2",
+        "nlo_coefficients_decayconstant_a2_am2",
+        "nlo_coefficients_mass_a2_am2",
         "spectrum_meson_1",
         "spectrum_meson_2",
-        "le_coefficients_mass_ansatz_a",
-        "le_coefficients_mass_ansatz_a2",
-        "le_coefficients_mass_ansatz_a2_m4",
-        "le_coefficients_decayconstant_ansatz_a",
-        "le_coefficients_decayconstant_ansatz_a2",
-        "le_coefficients_decayconstant_ansatz_a2_m4",
+        "g_VPP_KSRF"
         ],
 )
 definitions = expand(
@@ -123,15 +111,41 @@ decay_lec_tables = expand(
     "assets/tables/le_coefficients_decayconstant_ansatz_{ansatz}.tex",
     ansatz=["a", "a2", "m4", "a2_m4", "a2_am2", "full"],
 )
+extrapolation_mass_plots = expand(
+    f"assets/plots/extrapolation_mass_ansatz_{{ansatz}}.{plot_filetype}",
+    ansatz=["a", "a2", "m4", "a2_m4", "a2_am2", "full"]
+)
+
+extrapolation_decayconstant_plots = expand(
+    f"assets/plots/extrapolation_decayconstant_ansatz_{{ansatz}}.{plot_filetype}",
+    ansatz=["a", "a2", "m4", "a2_m4", "a2_am2", "full"]
+)
+extrapolation_by_meson = expand(
+    f"assets/plots/{{obs}}_all_con_sp4fund.pdf",
+    obs = ["m2", "dec2"]
+)
+nlo_tables = [
+    "assets/tables/nlo_coefficients_decayconstant_a2_am2.tex",
+    "assets/tables/nlo_coefficients_decayconstant_a2.tex",
+    "assets/tables/nlo_coefficients_mass_a2_am2.tex",
+    "assets/tables/nlo_coefficients_mass_a2.tex",
+]
+
 rule LECs:
     input:
         data=mass_lec_tables,
         decay_data=decay_lec_tables,
+        mass_plots=extrapolation_mass_plots,
+        decay_plots=extrapolation_decayconstant_plots,
+        fit_plots=extrapolation_by_meson,
+        nlo=nlo_tables
 
 rule all:
     input:
-        assets="assets/info.json",
+        #assets="assets/info.json",
         #data_assets="data_assets/info.json",
+        plots=plots,
+        tables=tables,
 
 
 rule provenance_stamp:
