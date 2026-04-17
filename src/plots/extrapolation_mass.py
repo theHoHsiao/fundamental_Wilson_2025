@@ -14,7 +14,6 @@ from ..plots_common import (
     MPS_left_CUT,
 )
 import numpy as np
-from matplotlib.backends.backend_pdf import PdfPages
 from uncertainties import ufloat
 
 
@@ -36,7 +35,7 @@ def plot(data, fit_pars, ansatz=""):
     )
     #data_fig.suptitle(f"Extrapolation with {ansatz}")
     
-    right_end = 0.45
+    right_end = 1
 
     for datum in data:
         if datum[f"gevp_f_ps_E0_chisquare"] > 1.61:

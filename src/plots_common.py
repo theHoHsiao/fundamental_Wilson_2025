@@ -18,7 +18,7 @@ ONE_COLUMN = 3.4
 TWO_COLUMN = 7.0
 
 MPS_left_CUT = 0.1075
-MPS_right_CUT = 0.4
+MPS_right_CUT = 1.0
 MPS2_right_end = 0.4
 
 markers = itertools.cycle(['o','s','v'])

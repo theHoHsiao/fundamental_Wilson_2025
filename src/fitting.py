@@ -7,6 +7,9 @@ import numpy as np
 from scipy.optimize import curve_fit, minimize
 import warnings
 
+from scipy.optimize import least_squares
+from functools import partial
+
 from .bootstrap import BootstrapSampleSet
 
 warnings.filterwarnings("ignore")
@@ -622,7 +625,7 @@ def split_means_samples(sample_sets):
     return np.asarray([datum.samples for datum in sample_sets])
 
 
-def global_meson_fit(fit_form, x_data, y_data, initial_guess=None):
+def global_meson_fit(fit_form, x_data, y_data, initial_guess=None, solver="TNC"):
     x_means, x_samples = split_means_samples(x_data)
     y_means, y_samples = split_means_samples(y_data)
 
@@ -648,7 +651,7 @@ def global_meson_fit(fit_form, x_data, y_data, initial_guess=None):
                     inverse_covariance=inverse_covariance,
                 ),
                 x0,
-                method="Nelder-Mead",
+                method=solver,
                 tol=10**-16,
             ).x
             for x_sample, y_sample in zip(x_samples.T, y_samples.T)
@@ -664,3 +667,63 @@ def global_meson_fit(fit_form, x_data, y_data, initial_guess=None):
     chisquare_value = chisquare(central_results, y_means, x_means, inverse_covariance)
 
     return results, chisquare_value / (len(x_data) - len(results) - 1)
+
+
+
+
+def global_meson_fit_lm(fit_form, x_data, y_data, initial_guess=None):
+    x_means, x_samples = split_means_samples(x_data)
+    y_means, y_samples = split_means_samples(y_data)
+
+    # 1. Initial Guess (keeping your logic)
+    if initial_guess is None:
+        x0, _ = curve_fit(fit_form, x_means, y_means)
+    else:
+        x0 = initial_guess
+
+    # 2. Covariance and Weighting
+    # For LM, we need to transform the residuals so that 
+    # sum(transformed_residuals**2) == V @ inv_cov @ V
+    inv_cov = np.linalg.inv(diagonal_covariance(y_samples))
+    L = np.linalg.cholesky(inv_cov) # Cholesky such that L @ L.T = inv_cov
+
+    # 3. Define the Residual Vector function
+    def residual_vector(pars, y_sample, x_sample, L_matrix):
+        # Raw difference vector
+        V = y_sample - fit_form(x_sample, *pars)
+        # Apply weighting: LM will minimize ||L_matrix.T @ V||^2
+        return L_matrix.T @ V
+
+    # 4. Bootstrap Loop using least_squares (LM)
+    result_samples = np.asarray(
+        [
+            least_squares(
+                residual_vector,
+                x0,
+                args=(y_sample, x_sample, L),
+                method='lm',     # Force Levenberg-Marquardt
+                xtol=1e-15,      # High precision tolerance
+                ftol=1e-15
+            ).x
+            for x_sample, y_sample in zip(x_samples.T, y_samples.T)
+        ]
+    )
+
+    # 5. Result aggregation (BootstrapSampleSet logic)
+    results = [
+        BootstrapSampleSet(parameter_samples.mean(), parameter_samples)
+        for parameter_samples in result_samples.T
+    ]
+
+    # 6. Calculate Final Chi-Square
+    central_results = [result.mean for result in results]
+    
+    # Helper to calculate scalar chi-square for the return value
+    def get_chisq(pars, y, x, inv_c):
+        V = y - fit_form(x, *pars)
+        return V @ inv_c @ V.T
+
+    final_chisq = get_chisq(central_results, y_means, x_means, inv_cov)
+    dof = len(x_data) - len(results) - 1
+
+    return results, final_chisq / dof

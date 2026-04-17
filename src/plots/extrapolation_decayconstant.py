@@ -6,16 +6,14 @@ from ..plots_common import (
     add_figure_legend_axes,
     save_or_show,
     beta_iterator,
-    ch_tag,
-    channel_color,
+    plot_axpb_y,
+    plot_am4pb_y,
     add_figure_legend,
     TWO_COLUMN,
     MPS_left_CUT,
-    MPS_right_CUT,
 )
 from argparse import ArgumentParser
 import numpy as np
-from matplotlib.backends.backend_pdf import PdfPages
 from uncertainties import ufloat
 
 
@@ -65,53 +63,6 @@ def fit_form(fit_prefix):
         "full": r"$\hat{f}_{M,\,\chi}^2(1+L_{M}^f \hat{f}_{\rm PS}^2 + P_M^f \hat{f}_{\rm PS}^4 )+W_{M}^f \hat{a}+R_{M}^f \hat{a}^2 + C_M^f \hat{a}\hat{f}_{\rm PS}^2~~$   with $\hat{a}=0$",
     }[fit_prefix]  
 
-def plot_axpb_y(ax, A, L, ch, alpha, color):
-    n_fit = 1000
-    Yfit = np.zeros(shape=(A.shape[0], n_fit))
-
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(MPS_right_CUT)
-    x = np.linspace(x_i, x_f, n_fit)
-
-    y_up = np.zeros(n_fit)
-    y_dn = np.zeros(n_fit)
-
-    for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
-
-    for i in range(n_fit):
-        y_err = Yfit[0:-1, i].std()
-        y_up[i] = Yfit[:, i].mean() + y_err
-        y_dn[i] = Yfit[:, i].mean() - y_err
-
-    ax.fill_between(
-        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
-    )
-
-
-def plot_am4pb_y(ax, A, L, P, ch, alpha, color):
-    n_fit = 1000
-    Yfit = np.zeros(shape=(A.shape[0], n_fit))
-
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(MPS_right_CUT)
-    x = np.linspace(x_i, x_f, n_fit)
-
-    y_up = np.zeros(n_fit)
-    y_dn = np.zeros(n_fit)
-
-    for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2 + P[n] * x**4)
-
-    for i in range(n_fit):
-        y_err = Yfit[0:-1, i].std()
-        y_up[i] = Yfit[:, i].mean() + y_err
-        y_dn[i] = Yfit[:, i].mean() - y_err
-
-    ax.fill_between(
-        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
-    )
-
 
 def plot(data, fit_pars, fit_prefix=""):
     
@@ -122,7 +73,7 @@ def plot(data, fit_pars, fit_prefix=""):
     ax2 = fig.add_subplot(gs[1, 1:3])
     axs = [ax0, ax1, ax2]
     
-    right_end = 0.45
+    right_end = 1
 
     for ax, ch in zip(axs, ["ps", "v", "av"]):
 
