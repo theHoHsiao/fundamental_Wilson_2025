@@ -25,10 +25,14 @@ def format_table(df):
             previous_prefix = next_prefix
             content.append("\\hline\n")
 
+        if row.Hasenbush:
+            ast = "$^\\ast$"
+        else:
+            ast = ""
 
         content.append(
             (
-                "{} & {} & {} & {} & {} & {} & {} & {} &"
+                "{}"+ast+" & {} & {} & {} & {} & {} & {} & {} &"
                 " ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$ & ${:.02uSL}$"
                 "\\\\\n"
             ).format(

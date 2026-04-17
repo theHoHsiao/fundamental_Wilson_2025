@@ -41,6 +41,11 @@ def get_args():
         help="The antisymmetric fermion mass of the ensemble to analyse",
     )
     parser.add_argument(
+        "--Hasenbush",
+        default=False,
+        help="If Hasenbush is applied or not",
+    )
+    parser.add_argument(
         "--Nt",
         type=int,
         default=None,
@@ -162,6 +167,7 @@ def avg_plaquette(ensemble, args):
     result["tau_exp_plaq"] = (
         integrated_autocorrelation_time(plaq_spec ) * result["delta_traj"]
     )
+    result["Hasenbush"] = args.Hasenbush
     return result
 
 
@@ -186,6 +192,7 @@ def main():
         "Nt",
         "Ns",
         "mF",
+        "Hasenbush",
         "beta",
         "Ncfg",
         "delta_traj",

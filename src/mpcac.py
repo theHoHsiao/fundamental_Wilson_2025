@@ -23,6 +23,11 @@ def get_args():
         help="Name of the ensemble to analyse. Only used for tagging output.",
     )
     parser.add_argument(
+        "--Hasenbush",
+        default=False,
+        help="If Hasenbush is applied or not",
+    )
+    parser.add_argument(
         "--beta",
         type=float,
         default=None,
@@ -205,7 +210,8 @@ def main():
     metadata = {
         "ensemble_name": args.ensemble_name,
         "beta": args.beta,
-        "mAS": args.mAS,
+        "mF": args.mF,
+        "Hasenbush": args.Hasenbush,
         "Nt": args.Nt,
         "Ns": args.Ns,
     }
