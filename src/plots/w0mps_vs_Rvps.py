@@ -9,7 +9,7 @@ from ..plots_common import (
     channel_color,
     add_figure_legend,
     ONE_COLUMN,
-    TWO_COLUMN,
+    MPS2_right_end,
 )
 from argparse import ArgumentParser
 import numpy as np
@@ -54,30 +54,6 @@ def get_args():
     return parser.parse_args()
 
 
-def plot_axpb_y(ax, A, L, ch, alpha, color):
-    n_fit = 1000
-    Yfit = np.zeros(shape=(A.shape[0], n_fit))
-
-    x_min, x_max = ax.get_xlim()
-    x_i = np.sqrt(x_min)
-    x_f = np.sqrt(x_max)
-    x = np.linspace(x_i, x_f, n_fit)
-
-    y_up = np.zeros(n_fit)
-    y_dn = np.zeros(n_fit)
-
-    for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
-
-    for i in range(n_fit):
-        y_err = Yfit[0:-1, i].std()
-        y_up[i] = Yfit[:, i].mean() + y_err
-        y_dn[i] = Yfit[:, i].mean() - y_err
-
-    ax.fill_between(
-        x**2, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
-    )
-
 
 def plot(data):
     data_fig, data_axes = plt.subplots(
@@ -86,8 +62,9 @@ def plot(data):
 
     for ax, ch in zip([data_axes], ["v"]):
 
-        ax.set_xlabel(r"$\hat{m}_{\mathrm{ps}}^2$")
-        ax.set_ylabel(r"$  m_{\mathrm{" + ch_tag(ch) + "}} / m_{\mathrm{ps}} $")
+        ax.set_xlabel(r"$\hat{m}_{\mathrm{PS}}^2$")
+        ax.set_ylabel(r"$  m_{\mathrm{" + ch_tag(ch) + r"}} / m_{\mathrm{PS}} $")
+        ax.set_xlim(0, MPS2_right_end)
 
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):

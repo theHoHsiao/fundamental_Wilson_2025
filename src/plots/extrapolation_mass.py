@@ -12,7 +12,6 @@ from ..plots_common import (
     plot_am4pb_y,
     TWO_COLUMN,
     MPS_left_CUT,
-    MPS_right_CUT,
 )
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
@@ -107,7 +106,7 @@ def plot(data, fit_pars, ansatz=""):
                 xerr=x_errors,
                 yerr=y_errors,
                 ls="none",
-                alpha=0.6,
+                alpha=0.4,
                 color=colour,
                 marker=marker,
                 #label=f"{beta}",
@@ -148,8 +147,7 @@ def plot(data, fit_pars, ansatz=""):
         _, ymax = ax.get_ylim()
         ax.fill_between(
             [0, MPS_left_CUT], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
-        ax.fill_between(
-            [MPS_right_CUT, right_end], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+        #ax.fill_between([MPS_right_CUT, right_end], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 
 
     add_figure_legend_axes(data_fig, data_axes[0])    

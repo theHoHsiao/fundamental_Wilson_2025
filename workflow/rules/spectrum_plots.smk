@@ -83,11 +83,11 @@ rule plot_extrapolations_meson_mass:
         fit_results=partial(
             mass_extp,
             observables=[
-                "f_v_extp_mass",
-                "f_t_extp_mass",
-                "f_av_extp_mass",
-                "f_at_extp_mass",
-                "f_s_extp_mass",
+                "f_v_extp_a2_am2_mass",
+                "f_t_extp_a2_am2_mass",
+                "f_av_extp_a2_am2_mass",
+                "f_at_extp_a2_am2_mass",
+                "f_s_extp_a2_am2_mass",
                 "f_v_extp_a2_mass",
                 "f_t_extp_a2_mass",
                 "f_av_extp_a2_mass",
@@ -301,9 +301,9 @@ rule plot_extrapolations_meson_decay:
         fit_results=partial(
             mass_extp,
             observables=[
-                "f_ps_extp_decayconstant",
-                "f_v_extp_decayconstant",
-                "f_av_extp_decayconstant",
+                "f_ps_extp_a2_am2_decayconstant",
+                "f_v_extp_a2_am2_decayconstant",
+                "f_av_extp_a2_am2_decayconstant",
                 "f_ps_extp_a2_decayconstant",
                 "f_v_extp_a2_decayconstant",
                 "f_av_extp_a2_decayconstant",

@@ -77,11 +77,11 @@ def plot(fit_pars, ansatz=""):
     plot_ps_ths(mass_ax, 3, r"$9m_{\rm PS}^2 / f_{\rm PS}^2$", 0.4, scale=fps_scale)
     plot_ps_ths(mass_ax, 4, r"$16m_{\rm PS}^2 / f_{\rm PS}^2$", 0.3, scale=fps_scale)
 
-    mass_ax.set_ylim(0, 300)
+    mass_ax.set_ylim(0, 240)
     mass_ax.set_xlim(MPS_left_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
 
     decay_ax.set_xlim(MPS_left_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
-    decay_ax.set_ylim(0, 6)
+    decay_ax.set_ylim(0, 7)
     
    
     for ch in ["v", "t", "s","av", "at"]:

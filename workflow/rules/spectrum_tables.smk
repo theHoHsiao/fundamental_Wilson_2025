@@ -41,7 +41,7 @@ def gevp_E0_means(wildcards):
     return [
         f"intermediary_data/{dir_template}/meson_gevp_E0_{rep}_{channel}_mean.csv".format(**row)
         for row in metadata.to_dict(orient="records")
-        for channel in ["ps", "v", "t", "av", "at", "s"]
+        for channel in ["ps", "v", "t", "s", "av", "at"]
         for rep in ["f"]
         if row["use_in_table"]
     ]
@@ -89,13 +89,13 @@ def plaq_means(wildcards):
 def continuum_massless_extrapolation_mass(wildcards):
     return [
         f"intermediary_data/extrapolation_results/f_{channel}_extp_mass_mean.csv".format()
-        for channel in ["v", "t", "av", "at", "s"]
+        for channel in ["v", "t", "s", "av", "at"]
     ]
 
 def continuum_massless_extrapolation_mass_ansatze(wildcards ):
     return [
         f"intermediary_data/extrapolation_results/f_{channel}_extp_{wildcards.ansatz}_mass_mean.csv".format()
-        for channel in ["v", "t", "av", "at", "s"]
+        for channel in ["v", "t", "s", "av", "at"]
     ]
 
 
@@ -116,7 +116,7 @@ def continuum_massless_extrapolation_decayconstant(wildcards):
 def continuum_massless_extrapolation_mass_a2(wildcards):
     return [
         f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_mass_mean.csv".format()
-        for channel in ["v", "t", "av", "at", "s"]
+        for channel in ["v", "t", "s", "av", "at"]
     ]
 
 
@@ -130,7 +130,7 @@ def continuum_massless_extrapolation_decayconstant_a2(wildcards):
 def continuum_massless_extrapolation_mass_a2_am2(wildcards):
     return [
         f"intermediary_data/extrapolation_results/f_{channel}_extp_a2_am2_mass_mean.csv".format()
-        for channel in ["v", "t", "av", "at", "s"]
+        for channel in ["v", "t", "s", "av", "at"]
     ]
 
 
@@ -227,7 +227,7 @@ rule continuum_massless_mass_a2_am2:
         data=continuum_massless_extrapolation_mass_a2_am2,
         script="src/tables/continuum_massless_mass_a2_am2.py",
     output:
-        table="assets/tables/clean_le_coefficients_mass_a2_am2.tex",
+        table="assets/tables/nlo_coefficients_mass_a2_am2.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:
@@ -241,7 +241,7 @@ rule continuum_massless_decay_a2_am2:
         data=continuum_massless_extrapolation_decayconstant_a2_am2,
         script="src/tables/continuum_massless_decayconstant_a2_am2.py",
     output:
-        table="assets/tables/clean_le_coefficients_decayconstant_a2_am2.tex",
+        table="assets/tables/nlo_coefficients_decayconstant_a2_am2.tex",
     conda:
         "../envs/flow_analysis.yml"
     shell:

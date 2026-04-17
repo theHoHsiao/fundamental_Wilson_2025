@@ -4,6 +4,9 @@ from argparse import ArgumentParser, FileType, SUPPRESS
 
 import itertools
 import matplotlib.pyplot as plt
+from matplotlib.collections import PolyCollection
+from matplotlib.container import ErrorbarContainer
+
 import numpy as np
 import pandas as pd
 from uncertainties import UFloat, ufloat
@@ -15,7 +18,8 @@ ONE_COLUMN = 3.4
 TWO_COLUMN = 7.0
 
 MPS_left_CUT = 0.1075
-MPS_right_CUT = 0.44
+MPS_right_CUT = 0.4
+MPS2_right_end = 0.4
 
 markers = itertools.cycle(['o','s','v'])
 
@@ -183,7 +187,7 @@ def channel_color(ch):
 
 def ch_tag(ch):
     return {
-        "rhoE1": r"\rho^\prime",
+        "rhoE1": r"$(E^{{\rm V}}_1)^2$",
     }.get(ch, ch.upper())
 
 
@@ -238,6 +242,7 @@ def add_figure_legend_axes(fig, axes, ncol=6, title=r"$\beta$"):
     unique = dict(zip(labels, handles))
     handles = list(unique.values())
     labels = list(unique.keys())
+
     fig.legend(
         handles,
         labels,
@@ -246,6 +251,64 @@ def add_figure_legend_axes(fig, axes, ncol=6, title=r"$\beta$"):
         borderaxespad=0.2,
         title=title,
     )
+
+
+def add_figure_legend_axes_split(fig, axes, ncol=6, title_poly=r"Ansatz", title_err=r"$\beta$"):
+    all_handles = []
+    all_labels = []
+    
+    # 1. Collect all handles/labels from all subplots
+    ax_list = axes if type(axes) is list else axes.flat
+
+    for ax in ax_list:
+        h, l = ax.get_legend_handles_labels()
+        all_handles.extend(h)
+        all_labels.extend(l)
+
+    # 2. Remove duplicates while maintaining order
+    unique = dict(zip(all_labels, all_handles))
+    
+    # 3. Split handles by type
+    poly_handles = []
+    poly_labels = []
+    err_handles = []
+    err_labels = []
+
+    for label, handle in unique.items():
+        if isinstance(handle, PolyCollection):
+            poly_handles.append(handle)
+            poly_labels.append(label)
+        elif isinstance(handle, ErrorbarContainer):
+            err_handles.append(handle)
+            err_labels.append(label)
+
+    # 4. Create the first legend (e.g., for Errorbars)
+    # We use fig.legend, which attaches to the figure
+    leg_err = fig.legend(
+        err_handles,
+        err_labels,
+        loc="outside upper left",
+        bbox_to_anchor=(0.04, 1.0),
+        ncol=ncol,
+        title=title_err,
+        borderaxespad=0.4,
+        labelspacing=1.1,
+        borderpad=0.5,
+    )
+
+    # 5. Create the second legend (e.g., for PolyCollections)
+    # We need to offset this one so they don't overlap
+    leg_poly = fig.legend(
+        poly_handles,
+        poly_labels,
+        loc="outside upper right", # Or use bbox_to_anchor for precision
+        ncol=2,
+        title=title_poly,
+        borderaxespad=0.4,
+    )
+    
+    # Note: Figure legends don't usually overwrite each other the same way 
+    # Axes legends do, but keeping them as variables is good practice.
 
 
 def get_single_beta(data):

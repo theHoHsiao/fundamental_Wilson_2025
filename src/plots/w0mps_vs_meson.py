@@ -6,10 +6,11 @@ from ..plots_common import (
     save_or_show,
     beta_iterator,
     ch_tag,
-    add_figure_legend,
+    add_figure_legend_axes_split,
     TWO_COLUMN,
     MPS_left_CUT,
     MPS_right_CUT,
+    MPS2_right_end,
     plot_axpb_y,
 )
 from argparse import ArgumentParser
@@ -48,14 +49,12 @@ def get_args():
 
 
 def plot(data, fit_pars):
-    
-    data_fig = plt.figure(layout="constrained", figsize=(TWO_COLUMN, 8))
 
     data_fig, data_axes =plt.subplots(
         3, 2, num="Summary", figsize=(TWO_COLUMN, 8), layout="constrained"
     )
     
-    right_end = 0.5
+    
 
     for datum in data:
         if datum[f"gevp_f_ps_E0_chisquare"] > 1.61:
@@ -66,12 +65,14 @@ def plot(data, fit_pars):
         if ch == "rhoE1":
             n = 1
             ch = "v"
+            ax.set_ylabel(r"$(\hat{E}^{{\rm V}}_1)^2$")
         else:
             n = 0
+            ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
 
         ax.set_xlabel(r"$\hat{m}_{\mathrm{PS}}^2$")
-        ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2$")
-        ax.set_xlim(0.0, right_end)
+        
+        ax.set_xlim(0.0, MPS2_right_end)
         
         #ax.set_ylabel(r"$\hat{m}_{\mathrm{" + ch_tag(ch) + "}}^2 - W \hat{a}$")
 
@@ -103,10 +104,10 @@ def plot(data, fit_pars):
                 
                 Y = ( datum["w0_samples"] * datum[f"gevp_f_{ch}_E{n}_mass_samples"]) ** 2 #- W_fit / datum["w0_samples"]
 
-                if datum[f"gevp_f_{ch}_E0_chisquare"] > 1.8:
-                    print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E0_chisquare"])
+                if datum[f"gevp_f_{ch}_E{n}_chisquare"] > 1.8:
+                    print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"gevp_f_{ch}_E{n}_chisquare"], ch, n)
                 
-                if datum[f"gevp_f_{ch}_E0_mass_samples"].mean > 1.0:
+                if datum[f"gevp_f_{ch}_E{n}_mass_samples"].mean > 1.0:
                     print("Unphysically heavy mass!!", ch, f"E0={datum[f'gevp_f_{ch}_E0_mass_samples'].mean}", "in ensemble", datum["ensemble_name"])
                     to_plot_light_alpha.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
                     continue
@@ -139,37 +140,40 @@ def plot(data, fit_pars):
                 #label=f"{beta}",
             )
         
+
         for parameter in fit_pars:
             if parameter["channel"] == "rhoE1":
                 continue
 
             if parameter["channel"] == ch and n == 0:
-                plot_axpb_y(
-                    ax,
-                    parameter["M_samples"].samples,
-                    parameter["Lm_samples"].samples,
-                    "",
-                    0.5,
-                    "C7",
-                )
 
                 plot_axpb_y(
                     ax,
                     parameter["M_a2_samples"].samples,
                     parameter["Lm_a2_samples"].samples,
-                    "a square term",
+                    r"$~\left. \hat{m}_{M,\,\chi}^2(1+L_{M}^m \hat{m}_{\rm PS}^2 )+W_{M}^{m} \hat{a}+R_{M}^{m} \hat{a}^2 \right \vert_{\hat{a}=0}$",
                     0.5,
                     "C9",
+                )
+
+                plot_axpb_y(
+                    ax,
+                    parameter["M_a2_am2_samples"].samples,
+                    parameter["Lm_a2_am2_samples"].samples,
+                    r"$~\left. \hat{m}_{M,\,\chi}^2(1+L_{M}^m \hat{m}_{\rm PS}^2 )+W_{M}^{m} \hat{a}+R_{M}^{m} \hat{a}^2 + C_M^m \hat{a}\hat{m}_{\rm PS}^2 \right \vert_{\hat{a}=0}$",
+                    0.5,
+                    "C7",
                 )
 
         ax.set_ylim(0.0, None)
         _, ymax = ax.get_ylim()
         ax.fill_between(
             [0, MPS_left_CUT], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
-        ax.fill_between(
-            [MPS_right_CUT, right_end], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+        
+        #ax.fill_between([MPS_right_CUT, MPS2_right_end], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 
-    add_figure_legend(data_fig)
+
+    add_figure_legend_axes_split(data_fig, data_axes)
 
     return data_fig
 

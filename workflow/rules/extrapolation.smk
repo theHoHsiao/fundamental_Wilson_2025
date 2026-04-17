@@ -88,6 +88,8 @@ rule Decay_continuum_massless_ansatz_extrapolation:
                 "decay_constant_f_ps",
                 "decay_constant_f_v",
                 "decay_constant_f_av",
+                "meson_gevp_f_v",
+                "meson_gevp_f_av",
             ],
         ),
         script="src/extrapolation_ansatze_decay.py",

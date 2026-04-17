@@ -12,7 +12,7 @@ def format_table(df):
     header = (
         "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}\n"
         "\\hline\\hline\n"
-        r"Ensemble & $\beta$ & $m_0$ & $\epsilon$ & $N^{\mathrm{smear}}_{\rm max}$ & $N^{\mathrm{smear}}_{\rm diff}$ & "
+        r"Ensemble & $\beta$ & $m_0$ & $\varepsilon_{\rm W}$ & $N^{\mathrm{diff}}_{\rm W}$ & $N^{\mathrm{max}}_{\rm W}$ & "
         r" $am_{\mathrm{PCAC}}$ & $am_{\mathrm{PS}}$  & $af_{\mathrm{PS}} $ &"
         r" $m_{\mathrm{PS}}L$ & $f_{\mathrm{PS}}L$\\"
         "\n\\hline"
@@ -35,8 +35,8 @@ def format_table(df):
                 row.beta,
                 row.mF,
                 row.epsilon,
-                row.n_smear_max,
                 row.n_smear_diff,
+                row.n_smear_max,
                 row.mPCAC,
                 row.gevp_f_ps_E0_mass,
                 row.f_ps_decay_constant,

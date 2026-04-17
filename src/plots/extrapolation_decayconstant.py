@@ -136,7 +136,8 @@ def plot(data, fit_pars, fit_prefix=""):
         betas = sorted(set([datum["beta"] for datum in data]))
         for beta, colour, marker in beta_iterator(betas):
             to_plot = []
-            
+            to_plot_light_alpha = []
+            to_plot_light_alpha.append((np.nan, np.nan, np.nan, np.nan))
             for datum in data:
                 
                 if datum["beta"] != beta:
@@ -156,6 +157,11 @@ def plot(data, fit_pars, fit_prefix=""):
                 if datum[f"f_{ch}_chisquare"] > 1.61:
                     print(datum["ensemble_name"], datum["beta"], datum["mF"], Y.mean, X.mean, datum[f"f_{ch}_chisquare"])
 
+                if datum[f"gevp_f_{ch}_E0_mass_samples"].mean > 1.0:
+                    #print("Unphysically heavy mass!!", ch, f"E{n}={datum[f'gevp_f_{ch}_E{n}_mass_samples'].mean}", "in ensemble", datum["ensemble_name"])
+                    to_plot_light_alpha.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
+                    continue
+
                 to_plot.append((Y.mean, Y.samples.std(), X.mean, X.samples.std()))
 
             y_values, y_errors, x_values, x_errors = zip(*to_plot)
@@ -169,6 +175,19 @@ def plot(data, fit_pars, fit_prefix=""):
                 color=colour,
                 marker=marker,
                 label=f"{beta}",
+            )
+
+            y_values, y_errors, x_values, x_errors = zip(*to_plot_light_alpha)
+            ax.errorbar(
+                x_values,
+                y_values,
+                xerr=x_errors,
+                yerr=y_errors,
+                ls="none",
+                alpha=0.4,
+                color=colour,
+                marker=marker,
+                #label=f"{beta}",
             )
 
         
@@ -207,8 +226,7 @@ def plot(data, fit_pars, fit_prefix=""):
         _, ymax = ax.get_ylim()
         ax.fill_between(
             [0, MPS_left_CUT], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
-        ax.fill_between(
-            [MPS_right_CUT, right_end], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
+        #ax.fill_between([MPS_right_CUT, right_end], [0, 0], [ymax, ymax], color="C6", alpha=0.2)
 
 
     add_figure_legend(fig)

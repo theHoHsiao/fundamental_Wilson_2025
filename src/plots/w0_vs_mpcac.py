@@ -7,6 +7,7 @@ from ..plots_common import (
     beta_iterator,
     add_figure_legend,
     ONE_COLUMN,
+    MPS2_right_end
 )
 
 
@@ -14,7 +15,8 @@ def plot(data, **kwargs):
     fig, ax = plt.subplots(layout="constrained", figsize=(ONE_COLUMN, 3.5))
 
     ax.set_xlabel(r"$\hat{m}_{\mathrm{PCAC}}$")
-    ax.set_ylabel(r"$w_0 / a$")
+    ax.set_ylabel(r"$a / w_0$")
+   
 
     betas = sorted(set([datum["beta"] for datum in data]))
     for beta, colour, marker in beta_iterator(betas):
@@ -25,8 +27,8 @@ def plot(data, **kwargs):
             if "w0_samples" not in datum or "mPCAC_samples" not in datum:
                 continue
 
-            w0_value = datum["w0_samples"].mean
-            w0_error = datum["w0_samples"].std()
+            w0_value = 1 / datum["w0_samples"].mean
+            w0_error = (1 / datum["w0_samples"]).samples.std()
             w0_mPCAC = datum["w0_samples"] * datum["mPCAC_samples"]
             to_plot.append((w0_value, w0_error, w0_mPCAC.mean, w0_mPCAC.std()))
 

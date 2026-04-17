@@ -24,7 +24,7 @@ def plot(fit_pars, ansatz=""):
     mass_ax.plot([0, 1], [0, 9], "--", color="k", linewidth=1, label=r"$ 9\hat{m}_{\rm PS}^2$", alpha=0.4)
     mass_ax.plot([0, 1], [0, 16], "--", color="k", linewidth=1, label=r"$ 16\hat{m}_{\rm PS}^2$", alpha=0.3)
 
-    mass_ax.set_ylim(0, 3.5)
+    mass_ax.set_ylim(0, 2.1)
     mass_ax.set_xlim(MPS_left_CUT, 0.4)
     mass_ax.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
     mass_ax.set_ylabel(r"$\hat{m}_{\rm M}^2$")
@@ -33,7 +33,7 @@ def plot(fit_pars, ansatz=""):
     decay_ax.set_ylabel(r"$\hat{f}_{\rm M}^2$")
     decay_ax.set_xlabel(r"$\hat{m}_{\rm PS}^2$")
     decay_ax.set_xlim(MPS_left_CUT, 0.4)
-    decay_ax.set_ylim(0, 0.08)
+    decay_ax.set_ylim(0, 0.062)
 
    
     for ch in ["v", "t", "s", "av", "at"]:
