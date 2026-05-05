@@ -10,44 +10,11 @@ from ..plots_common import (
     add_figure_legend_axes,
     TWO_COLUMN,
     MPS_left_CUT,
-    MPS_right_CUT,
     plot_axpb_y,
     plot_am4pb_y,
+    get_fps_fit,
+    plot_ps_ths,
 )
-from argparse import ArgumentParser
-import numpy as np
-
-
-
-def get_fps_fit(A, L,):
-    n_fit = 1000
-    Yfit = np.zeros(shape=(A.shape[0], n_fit))
-
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(MPS_right_CUT)
-    x = np.linspace(x_i, x_f, n_fit)
-
-    for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
-    
-
-    return Yfit
-
-
-def plot_ps_ths(ax, times_of_mps, label, alpha, scale=None):
-    n_fit=1000
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(MPS_right_CUT)
-    m_ps = np.linspace(x_i, x_f, n_fit)
-    X = m_ps**2
-
-    Y = (times_of_mps * m_ps)**2
-    if scale is not None:
-        Y = Y / scale.mean(axis=0)
-        X = X / scale.mean(axis=0)
-
-    ax.plot(X, Y, "--", color="k", linewidth=1, label=label, alpha=alpha)
-
 
 
 def plot(fit_pars, ansatz=""):
@@ -77,7 +44,7 @@ def plot(fit_pars, ansatz=""):
     plot_ps_ths(mass_ax, 3, r"$9m_{\rm PS}^2 / f_{\rm PS}^2$", 0.4, scale=fps_scale)
     plot_ps_ths(mass_ax, 4, r"$16m_{\rm PS}^2 / f_{\rm PS}^2$", 0.3, scale=fps_scale)
 
-    mass_ax.set_ylim(0, 240)
+    mass_ax.set_ylim(0, 250)
     mass_ax.set_xlim(MPS_left_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])
 
     decay_ax.set_xlim(MPS_left_CUT/ fps_scale_mean[0], 0.4 / fps_scale_mean[-1])

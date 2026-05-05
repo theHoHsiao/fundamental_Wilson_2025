@@ -17,8 +17,8 @@ from .dump import read_sample_files
 ONE_COLUMN = 3.4
 TWO_COLUMN = 7.0
 
-MPS_left_CUT = 0.1075
-MPS_right_CUT = 1.0
+MPS_left_CUT = 0.1
+MPS_right_CUT = 0.4
 MPS2_right_end = 0.4
 
 markers = itertools.cycle(['o','s','v'])
@@ -496,3 +496,33 @@ def plot_am4pb_y(ax, A, L, P, ch, alpha, color, hatch=None, scale=None):
     ax.fill_between(
         X, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None
     )
+
+
+def get_fps_fit(A, L,):
+    n_fit = 1000
+    Yfit = np.zeros(shape=(A.shape[0], n_fit))
+
+    x_i = np.sqrt(MPS_left_CUT)
+    x_f = np.sqrt(MPS_right_CUT)
+    x = np.linspace(x_i, x_f, n_fit)
+
+    for n in range(A.shape[0]):
+        Yfit[n] = A[n] * (1 + L[n] * x**2)
+    
+
+    return Yfit
+
+
+def plot_ps_ths(ax, times_of_mps, label, alpha, scale=None):
+    n_fit=1000
+    x_i = np.sqrt(MPS_left_CUT)
+    x_f = np.sqrt(MPS_right_CUT)
+    m_ps = np.linspace(x_i, x_f, n_fit)
+    X = m_ps**2
+
+    Y = (times_of_mps * m_ps)**2
+    if scale is not None:
+        Y = Y / scale.mean(axis=0)
+        X = X / scale.mean(axis=0)
+
+    ax.plot(X, Y, "--", color="k", linewidth=1, label=label, alpha=alpha)

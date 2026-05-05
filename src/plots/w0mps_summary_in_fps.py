@@ -9,6 +9,9 @@ from ..plots_common import (
     add_figure_legend_axes,
     TWO_COLUMN,
     MPS_left_CUT,
+    get_fps_fit,
+    plot_ps_ths,
+    plot_axpb_y,
 )
 from argparse import ArgumentParser
 import numpy as np
@@ -43,69 +46,6 @@ def get_args():
         help="Stylesheet to use for plots",
     )
     return parser.parse_args()
-
-
-def plot_axpb_y(ax, A, L, ch, alpha, color, hatch=None, scale=None):
-    n_fit = 1000
-    Yfit = np.zeros(shape=(A.shape[0], n_fit))
-
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(0.4)
-    x = np.linspace(x_i, x_f, n_fit)
-
-    y_up = np.zeros(n_fit)
-    y_dn = np.zeros(n_fit)
-
-    X = x**2
-
-    for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
-    
-    if scale is not None:
-        Yfit = Yfit / scale.mean(axis=0)
-        X = X / scale.mean(axis=0)
-    
-    #print(Yfit[0,:])
-
-    for i in range(n_fit):
-        y_err = Yfit[0:-1, i].std()
-        y_up[i] = Yfit[:, i].mean() + y_err
-        y_dn[i] = Yfit[:, i].mean() - y_err
-
-    ax.fill_between(
-        X, y_up, y_dn, alpha=alpha, label=ch, facecolor=color, edgecolor=None, hatch=hatch
-    )
-
-
-def get_fps_fit(A, L,):
-    n_fit = 1000
-    Yfit = np.zeros(shape=(A.shape[0], n_fit))
-
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(0.4)
-    x = np.linspace(x_i, x_f, n_fit)
-
-    for n in range(A.shape[0]):
-        Yfit[n] = A[n] * (1 + L[n] * x**2)
-    
-
-    return Yfit
-
-
-def plot_ps_ths(ax, times_of_mps, label, alpha, scale=None):
-    n_fit=1000
-    x_i = np.sqrt(MPS_left_CUT)
-    x_f = np.sqrt(0.4)
-    m_ps = np.linspace(x_i, x_f, n_fit)
-    X = m_ps**2
-
-    Y = (times_of_mps * m_ps)**2
-    if scale is not None:
-        Y = Y / scale.mean(axis=0)
-        X = X / scale.mean(axis=0)
-
-    ax.plot(X, Y, "--", color="k", linewidth=1, label=label, alpha=alpha)
-
 
 
 def plot(fit_pars):
