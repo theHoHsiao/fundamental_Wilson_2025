@@ -658,9 +658,26 @@ def global_meson_fit(fit_form, x_data, y_data, initial_guess=None, solver="TNC")
         ]
     )
 
+    
+    result_mean = np.asarray(
+        [
+            minimize(
+                partial(
+                    chisquare,
+                    y_sample=y_means,
+                    x_sample=x_means,
+                    inverse_covariance=inverse_covariance,
+                ),
+                x0,
+                method=solver,
+                tol=10**-16,
+            ).x
+        ]
+    )
+
     results = [
-        BootstrapSampleSet(parameter_samples.mean(), parameter_samples)
-        for parameter_samples in result_samples.T
+        BootstrapSampleSet(parameter_mean, parameter_samples)
+        for parameter_mean, parameter_samples in zip(result_mean[0].T, result_samples.T)
     ]
 
     central_results = [result.mean for result in results]
