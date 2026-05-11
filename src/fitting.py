@@ -676,9 +676,13 @@ def global_meson_fit(fit_form, x_data, y_data, initial_guess=None, solver="TNC")
     )
 
     results = [
-        BootstrapSampleSet(parameter_mean, parameter_samples)
-        for parameter_mean, parameter_samples in zip(result_mean[0].T, result_samples.T)
+        BootstrapSampleSet(parameter_samples.mean(), parameter_samples)
+        for parameter_samples in result_samples.T
     ]
+    #results = [
+    #    BootstrapSampleSet(parameter_mean, parameter_samples)
+    #    for parameter_mean, parameter_samples in zip(result_mean[0].T, result_samples.T)
+    #]
 
     central_results = [result.mean for result in results]
     chisquare_value = chisquare(central_results, y_means, x_means, inverse_covariance)
